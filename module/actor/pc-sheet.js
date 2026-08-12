@@ -76,6 +76,62 @@ export class CypherActorSheetPC extends CypherActorSheet {
       };
     }
 
+    // Wound track data
+    const woundSource = this.actor.system.combat.wounds ?? {};
+    const clampWoundNumber = (value, minimum, maximum) => {
+      const number = Number(value);
+      if (!Number.isFinite(number)) return minimum;
+      return Math.min(maximum, Math.max(minimum, Math.trunc(number)));
+    };
+
+    data.woundMaxChoices = Object.fromEntries(
+      Array.from({ length: 10 }, (_, index) => {
+        const value = index + 1;
+        return [String(value), value];
+      })
+    );
+
+    const createWoundRow = (key, label) => {
+      const max = clampWoundNumber(woundSource[key]?.max ?? 3, 1, 10);
+      const value = clampWoundNumber(woundSource[key]?.value ?? 0, 0, max);
+
+      let effectText = "";
+      let effectClass = "wound-effect-minor";
+
+      if (key === "minor" && value === max) {
+        effectText = "Minor Wounds now become Moderate Wounds.";
+      }
+
+      if (key === "moderate" && value === max) {
+        effectText = "Hindered. Moderate Wounds now become Major Wounds.";
+        effectClass = "wound-effect-moderate";
+      }
+
+      if (key === "major" && value > 0) {
+        effectText = value === max ? "Dead." : "Hindered.";
+        effectClass = value === max ? "wound-effect-dead" : "wound-effect-major";
+      }
+
+      return {
+        key,
+        label,
+        value,
+        max,
+        effectText,
+        effectClass,
+        boxes: Array.from({ length: max }, (_, index) => ({
+          number: index + 1,
+          isChecked: index < value
+        }))
+      };
+    };
+
+    data.woundRows = [
+      createWoundRow("minor", "Minor Wound"),
+      createWoundRow("moderate", "Moderate Wound"),
+      createWoundRow("major", "Major Wound")
+    ];
+
     data.gameModeChoices = {
       "Cypher": "CYPHERSYSTEM.Cypher",
       "Unmasked": "CYPHERSYSTEM.Unmasked",
@@ -230,6 +286,39 @@ export class CypherActorSheetPC extends CypherActorSheet {
       const item = this.actor.items.get($(clickEvent.currentTarget).parents(".item").data("itemId"));
       let newValue = (item.system.active) ? false : true;
       item.update({"system.active": newValue});
+    });
+
+    // Wound track controls
+    html.find('.wound-box').change(async changeEvent => {
+      const input = changeEvent.currentTarget;
+      const woundType = input.dataset.woundType;
+      const boxValue = Number(input.dataset.woundValue);
+
+      if (!["minor", "moderate", "major"].includes(woundType)) return;
+      if (!Number.isInteger(boxValue) || boxValue < 1 || boxValue > 10) return;
+
+      const newValue = input.checked ? boxValue : boxValue - 1;
+
+      await this.actor.update({
+        [`system.combat.wounds.${woundType}.value`]: newValue
+      });
+    });
+
+    html.find('.wound-max-select').change(async changeEvent => {
+      const select = changeEvent.currentTarget;
+      const woundType = select.dataset.woundType;
+
+      if (!["minor", "moderate", "major"].includes(woundType)) return;
+
+      const requestedMax = Number(select.value);
+      const newMax = Math.min(10, Math.max(1, Number.isFinite(requestedMax) ? Math.trunc(requestedMax) : 3));
+      const currentValue = Number(this.actor.system.combat.wounds?.[woundType]?.value ?? 0);
+      const newValue = Math.min(Math.max(0, currentValue), newMax);
+
+      await this.actor.update({
+        [`system.combat.wounds.${woundType}.max`]: newMax,
+        [`system.combat.wounds.${woundType}.value`]: newValue
+      });
     });
 
     // Apply damage track to rolls

@@ -79,6 +79,20 @@ export const LEGACY_TEMPLATE = {
           "applyImpaired": true,
           "applyDebilitated": true
         },
+        "wounds": {
+          "minor": {
+            "value": 0,
+            "max": 3
+          },
+          "moderate": {
+            "value": 0,
+            "max": 3
+          },
+          "major": {
+            "value": 0,
+            "max": 3
+          }
+        },
         "stress": {
           "quantity": 0,
           "levels": 0,

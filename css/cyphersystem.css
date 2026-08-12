@@ -1635,3 +1635,81 @@ section.cypher-note > p {
   background: rgba(0, 0, 0, 0.05);
   font-family: var(--cypher-font);
 }
+
+/* Wound Track ------------------------------------------------------------- */
+
+.cyphersystem .wound-track-container {
+  padding: 6px 0;
+}
+
+.cyphersystem .wound-track {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  width: 100%;
+}
+
+.cyphersystem .wound-row {
+  display: grid;
+  grid-template-columns: 110px 265px minmax(0, 1fr);
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+}
+
+.cyphersystem .wound-label {
+  font-weight: 600;
+}
+
+.cyphersystem .wound-controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.cyphersystem .wound-max-select {
+  flex: 0 0 52px;
+  width: 52px;
+  height: 28px;
+}
+
+.cyphersystem .wound-boxes {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  min-width: 0;
+}
+
+.cyphersystem .wound-box {
+  width: 16px;
+  height: 16px;
+  margin: 0;
+  cursor: pointer;
+}
+
+.cyphersystem .wound-effect {
+  min-height: 1.2em;
+  line-height: 1.2;
+  font-size: 0.9em;
+}
+
+.cyphersystem .wound-effect-minor {
+  color: #8a6d00;
+  font-weight: 600;
+}
+
+.cyphersystem .wound-effect-moderate {
+  color: #8b0000;
+  font-weight: 600;
+}
+
+.cyphersystem .wound-effect-major {
+  color: #8b0000;
+  font-weight: 600;
+}
+
+.cyphersystem .wound-effect-dead {
+  color: #000000;
+  font-weight: 700;
+}
