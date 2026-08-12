@@ -7,6 +7,75 @@
     "minimum": "14",
     "verified": "14.360"
   },
+
+  "documentTypes": {
+  "Actor": {
+    "pc": {
+      "htmlFields": ["notes", "gmNotes", "description"]
+    },
+    "npc": {
+      "htmlFields": ["notes", "description"]
+    },
+    "companion": {
+      "htmlFields": ["notes", "description"]
+    },
+    "community": {
+      "htmlFields": ["notes", "description"]
+    },
+    "vehicle": {
+      "htmlFields": ["notes", "description"]
+    },
+    "marker": {
+      "htmlFields": ["notes", "description"]
+    }
+  },
+
+  "Item": {
+    "ability": {
+      "htmlFields": ["description"]
+    },
+    "ammo": {
+      "htmlFields": ["description"]
+    },
+    "armor": {
+      "htmlFields": ["description"]
+    },
+    "artifact": {
+      "htmlFields": ["description"]
+    },
+    "attack": {
+      "htmlFields": ["description"]
+    },
+    "cypher": {
+      "htmlFields": ["description"]
+    },
+    "equipment": {
+      "htmlFields": ["description"]
+    },
+    "lasting-damage": {
+      "htmlFields": ["description"]
+    },
+    "material": {
+      "htmlFields": ["description"]
+    },
+    "oddity": {
+      "htmlFields": ["description"]
+    },
+    "power-shift": {
+      "htmlFields": ["description"]
+    },
+    "recursion": {
+      "htmlFields": ["description"]
+    },
+    "skill": {
+      "htmlFields": ["description"]
+    },
+    "tag": {
+      "htmlFields": ["description"]
+    }
+  }
+},
+
   "url": "https://github.com/mrkwnzl/cyphersystem-foundryvtt",
   "manifest": "https://raw.githubusercontent.com/mrkwnzl/cyphersystem-foundryvtt/main/system.json",
   "download": "https://github.com/mrkwnzl/cyphersystem-foundryvtt/releases/download/v3.5.2/release.zip",

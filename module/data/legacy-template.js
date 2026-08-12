@@ -1,4 +1,5 @@
-{
+export const LEGACY_TEMPLATE = {
+
   "Actor": {
     "types": [
       "pc",
@@ -850,4 +851,4 @@
       "exclusive": false
     }
   }
-}
+};

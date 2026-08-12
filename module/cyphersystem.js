@@ -18,6 +18,12 @@ import {applyXPFromIntrusion, regainPoolPoints} from "./utilities/actor-utilitie
 import {sendWelcomeMessage} from "./utilities/welcome-message.js";
 import {createCyphersystemMacro} from "./utilities/create-macros.js";
 
+// Added by Uzury
+import {
+  getLegacyActorDefaults,
+  getLegacyItemDefaults
+} from "./data/legacy-defaults.js";
+
 // Import macros
 import {
   quickRollMacro,
@@ -353,6 +359,16 @@ Hooks.on("getSceneControlButtons", (controls) => {
 });
 
 Hooks.on("preCreateActor", async function (actor) {
+  // Added by Uzury
+  const defaults = getLegacyActorDefaults(actor.type);
+  const currentSystem = actor.toObject().system ?? {};
+
+  actor.updateSource({
+    system: foundry.utils.mergeObject(defaults, currentSystem, {
+      inplace: false
+    })
+  });
+
   if (["pc", "community"].includes(actor.type)) {
     actor.updateSource({
       "prototypeToken.actorLink": true
@@ -398,6 +414,17 @@ Hooks.on("updateActor", async function (actor, data, options, userId) {
 });
 
 Hooks.on("preCreateItem", function (item, data, options, id) {
+
+  // Added by Uzury
+  const defaults = getLegacyItemDefaults(item.type);
+  const currentSystem = item.toObject().system ?? {};
+
+  item.updateSource({
+    system: foundry.utils.mergeObject(defaults, currentSystem, {
+      inplace: false
+    })
+  });
+
   if (item.img == "icons/svg/item-bag.svg") {
     item.updateSource({
       img: `systems/cyphersystem/icons/items/${item.type}.svg`
