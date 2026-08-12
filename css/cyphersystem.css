@@ -3415,3 +3415,209 @@ section.cypher-note > p {
   margin: 0 !important;
   padding: 0 !important;
 }
+
+/* Cypher Chat Cards - Foundry Interface Dark Mode 2026 ------------------ */
+/*
+ * Chat messages live in the Foundry interface, so they follow the Core
+ * interface theme through body.theme-dark. Light mode remains unchanged.
+ */
+
+body.theme-dark .cypher-roll-card {
+  --cypher-core-paper: #171b22;
+  --cypher-core-ink: #eef1f5;
+  --cypher-core-muted: #a8afb8;
+  --cypher-core-line: #454c56;
+  --cypher-roll-neutral-color: #68717d;
+
+  background: #171b22;
+  border-color: #4b535f;
+  color: var(--cypher-core-ink);
+}
+
+body.theme-dark .cypher-roll-card .cypher-roll-hero {
+  background:
+    linear-gradient(
+      135deg,
+      rgba(176, 25, 50, 0.08) 0 22%,
+      transparent 22% 100%
+    ),
+    #1d222b;
+  border-color: var(--cypher-core-line);
+}
+
+body.theme-dark .cypher-roll-card .cypher-roll-info,
+body.theme-dark .cypher-roll-card .cypher-roll-outcome {
+  background: #20262f;
+  border-color: #4a515b;
+  color: var(--cypher-core-ink);
+}
+
+body.theme-dark .cypher-roll-card .cypher-roll-formula-inline {
+  background: #2a3039;
+  border-color: #4a515b;
+  color: #eef1f5;
+}
+
+body.theme-dark .cypher-roll-card .cypher-roll-difficulty,
+body.theme-dark .cypher-roll-card .cypher-roll-difficulty-value,
+body.theme-dark .cypher-roll-card .cypher-roll-title-name {
+  color: #eef1f5;
+}
+
+/* Item description cards ------------------------------------------------ */
+
+body.theme-dark .cypher-item-card {
+  --cypher-item-ink: #eef1f5;
+  --cypher-item-muted: #a8afb8;
+  --cypher-item-line: #454c56;
+
+  background: #171b22;
+  border-color: #4b535f;
+  color: var(--cypher-item-ink);
+}
+
+body.theme-dark .cypher-item-card .cypher-item-heading {
+  background:
+    linear-gradient(
+      135deg,
+      rgba(255, 255, 255, 0.025) 0 24%,
+      transparent 24% 100%
+    ),
+    #1d222b;
+}
+
+body.theme-dark .cypher-item-card .cypher-item-body {
+  background: #20262f;
+  border-color: #4a515b;
+  color: var(--cypher-item-ink);
+}
+
+body.theme-dark .cypher-item-card .cypher-item-meta {
+  color: var(--cypher-item-muted);
+}
+
+/* Recovery Roll cards --------------------------------------------------- */
+
+body.theme-dark .cypher-recovery-card {
+  --cypher-recovery-ink: #eef1f5;
+  --cypher-recovery-muted: #a8afb8;
+  --cypher-recovery-line: #454c56;
+
+  background: #171b22;
+  border-color: #4b535f;
+  color: var(--cypher-recovery-ink);
+}
+
+body.theme-dark .cypher-recovery-card .cypher-recovery-hero {
+  background:
+    linear-gradient(
+      135deg,
+      rgba(22, 138, 80, 0.09) 0 24%,
+      transparent 24% 100%
+    ),
+    #1d222b;
+  border-color: var(--cypher-recovery-line);
+}
+
+body.theme-dark .cypher-recovery-card .cypher-recovery-formula {
+  background: #2a3039;
+  border-color: #4a515b;
+  color: #eef1f5;
+}
+
+body.theme-dark .cypher-recovery-card .cypher-recovery-description {
+  background: #20262f;
+  border-color: #4a515b;
+  color: #8ee0b5;
+}
+
+/* Spell Recovery cards -------------------------------------------------- */
+
+body.theme-dark .cypher-spell-recovery-card {
+  --cypher-spell-ink: #eef1f5;
+  --cypher-spell-muted: #a8afb8;
+  --cypher-spell-line: #454c56;
+
+  background: #171b22;
+  border-color: #4b535f;
+  color: var(--cypher-spell-ink);
+}
+
+body.theme-dark .cypher-spell-recovery-card .cypher-spell-recovery-heading {
+  background:
+    linear-gradient(
+      135deg,
+      rgba(22, 138, 80, 0.09) 0 24%,
+      transparent 24% 100%
+    ),
+    #1d222b;
+}
+
+body.theme-dark .cypher-spell-recovery-card .cypher-spell-recovery-description {
+  background: #20262f;
+  border-color: #4a515b;
+  color: #8ee0b5;
+}
+
+/* Shared dark-mode refinements ----------------------------------------- */
+
+body.theme-dark .cypher-roll-card .cypher-roll-divider,
+body.theme-dark .cypher-item-card .cypher-item-divider,
+body.theme-dark .cypher-recovery-card .cypher-recovery-divider,
+body.theme-dark .cypher-spell-recovery-card .cypher-spell-recovery-divider {
+  opacity: 0.94;
+}
+
+body.theme-dark .cypher-roll-card,
+body.theme-dark .cypher-item-card,
+body.theme-dark .cypher-recovery-card,
+body.theme-dark .cypher-spell-recovery-card {
+  box-shadow:
+    inset 0 3px 0 #101b2b,
+    0 3px 9px rgba(0, 0, 0, 0.42);
+}
+
+/* Roll detail boxes - Dark Mode ----------------------------------------- */
+
+body.theme-dark .cypher-roll-card .cypher-roll-info {
+  color: #d9dde3;
+}
+
+body.theme-dark .cypher-roll-card .cypher-roll-info .roll-result-box {
+  border-color: #4a515b;
+  border-left-color: var(--cypher-core-red);
+  background: #20262f;
+  color: #d9dde3;
+}
+
+/* Keep the important headings in Cypher red. */
+body.theme-dark .cypher-roll-card .cypher-roll-info .roll-result-difficulty,
+body.theme-dark .cypher-roll-card .cypher-roll-info .roll-result-damage,
+body.theme-dark .cypher-roll-card .cypher-roll-info .roll-result-cost {
+  color: #e14a62;
+}
+
+/* Expanded item description inside a roll. */
+body.theme-dark .cypher-roll-card .chat-card-item-description {
+  border-color: #4a515b;
+  border-left-color: #71819a;
+  background: #20262f;
+  color: #d9dde3;
+}
+
+/* Outcome/effect text shown beside the die. */
+body.theme-dark .cypher-roll-card .cypher-roll-outcome {
+  color: #c9cfd7;
+}
+
+body.theme-dark .cypher-roll-card .cypher-roll-outcome .roll-effect.effect1920 {
+  color: #61d995;
+}
+
+body.theme-dark .cypher-roll-card .cypher-roll-outcome .roll-effect.intrusion {
+  color: #ff7188;
+}
+
+body.theme-dark .cypher-roll-card .cypher-roll-outcome .roll-initiative {
+  color: #d9dde3;
+}
