@@ -60,9 +60,9 @@ export class CypherActorSheet extends foundry.appv1.sheets.ActorSheet {
     data.enrichedHTML = {};
 
     // --Notes and description
-    data.enrichedHTML.notes = await TextEditor.enrichHTML(this.actor.system.notes, {async: true, secrets: this.actor.isOwner, relativeTo: this.actor});
-    data.enrichedHTML.gmNotes = await TextEditor.enrichHTML(this.actor.system.gmNotes, {async: true, secrets: this.actor.isOwner, relativeTo: this.actor});
-    data.enrichedHTML.description = await TextEditor.enrichHTML(this.actor.system.description, {async: true, secrets: this.actor.isOwner, relativeTo: this.actor});
+    data.enrichedHTML.notes = await foundry.applications.ux.TextEditor.implementation.enrichHTML(this.actor.system.notes, {async: true, secrets: this.actor.isOwner, relativeTo: this.actor});
+    data.enrichedHTML.gmNotes = await foundry.applications.ux.TextEditor.implementation.enrichHTML(this.actor.system.gmNotes, {async: true, secrets: this.actor.isOwner, relativeTo: this.actor});
+    data.enrichedHTML.description = await foundry.applications.ux.TextEditor.implementation.enrichHTML(this.actor.system.description, {async: true, secrets: this.actor.isOwner, relativeTo: this.actor});
 
     data.enrichedHTML.itemDescription = {};
     data.enrichedHTML.itemLevel = {};
@@ -70,9 +70,9 @@ export class CypherActorSheet extends foundry.appv1.sheets.ActorSheet {
     data.cypherType = {};
 
     for (let item of this.actor.items) {
-      data.enrichedHTML.itemDescription[item.id] = await TextEditor.enrichHTML(item.system.description, {async: true, secrets: this.actor.isOwner, relativeTo: item});
-      data.enrichedHTML.itemLevel[item.id] = await TextEditor.enrichHTML(item.system.basic?.level, {async: true, relativeTo: item});
-      data.enrichedHTML.itemDepletion[item.id] = await TextEditor.enrichHTML(item.system.basic?.depletion, {async: true, relativeTo: item});
+      data.enrichedHTML.itemDescription[item.id] = await foundry.applications.ux.TextEditor.implementation.enrichHTML(item.system.description, {async: true, secrets: this.actor.isOwner, relativeTo: item});
+      data.enrichedHTML.itemLevel[item.id] = await foundry.applications.ux.TextEditor.implementation.enrichHTML(item.system.basic?.level, {async: true, relativeTo: item});
+      data.enrichedHTML.itemDepletion[item.id] = await foundry.applications.ux.TextEditor.implementation.enrichHTML(item.system.basic?.depletion, {async: true, relativeTo: item});
 
       // Determine cypher type
       if (item.type == "cypher") {
@@ -854,7 +854,15 @@ export class CypherActorSheet extends foundry.appv1.sheets.ActorSheet {
           recoveryUsed: recoveryUsed,
           spellName: item.name
         }),
-        flags: {"itemID": item.id}
+        flags: {
+      itemID: item.id,
+      cyphersystem: {
+        cardType: "spell-recovery",
+        actorUuid: this.actor.uuid,
+        itemUuid: item.uuid,
+        itemId: item.id
+      }
+    }
       });
     });
 
@@ -1008,8 +1016,16 @@ export class CypherActorSheet extends foundry.appv1.sheets.ActorSheet {
         }
         message = "<b>" + item.type.capitalize() + ": " + name + "</b>" + brackets + description;
         ChatMessage.create({
-          speaker: ChatMessage.getSpeaker(),
-          content: message
+          speaker: ChatMessage.getSpeaker({actor: this.actor}),
+          content: message,
+          flags: {
+            cyphersystem: {
+              cardType: "item-description",
+              actorUuid: this.actor.uuid,
+              itemUuid: item.uuid,
+              itemId: item.id
+            }
+          }
         });
       }
     });

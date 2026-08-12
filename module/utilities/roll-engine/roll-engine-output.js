@@ -20,7 +20,7 @@ export async function rollEngineOutput(data) {
   if (actor.items.get(data.itemID)) {
     let item = actor.items.get(data.itemID);
 
-    itemDescription = (item.system.description) ? `<img class="description-image-chat" src="${item.img}" width="50" height="50"/>` + await TextEditor.enrichHTML(item.system.description, {async: true, relativeTo: item}) : `<img class="description-image-chat" src="${item.img}" width="50" height="50"/>`;
+    itemDescription = (item.system.description) ? `<img class="description-image-chat" src="${item.img}" width="50" height="50"/>` + await foundry.applications.ux.TextEditor.implementation.enrichHTML(item.system.description, {async: true, relativeTo: item}) : `<img class="description-image-chat" src="${item.img}" width="50" height="50"/>`;
 
     let styleDescriptionHidden = `<div style="display: none" class="chat-card-item-description">`;
     let styleDescriptionShow = `<div class="chat-card-item-description expanded">`;
@@ -338,8 +338,170 @@ export async function rollEngineOutput(data) {
   // HR if info
   let infoHR = (info) ? "<hr class='roll-result-hr'>" : "";
 
-  // Put it all together into the chat flavor
-  let flavor = "<div class='roll-flavor'><div class='roll-result-box'>" + title + rerollInfo + multiRollInfo + itemDescriptionInfo + "</div><hr class='roll-result-hr'>" + info + infoHR + `<div class='roll-result-box ${boxColor}'>` + resultInfo + beatenDifficulty + initiativeInfo + successInfo + effect + gmiEffect + "</div>" + chatButtons + "</div>";
+  // Cypher 2026 roll card
+  const cardTitleText = data.title || game.i18n.localize("CYPHERSYSTEM.StatRoll");
+  const titleSeparatorIndex = cardTitleText.indexOf(":");
+  const cardCategoryText = titleSeparatorIndex >= 0
+    ? cardTitleText.slice(0, titleSeparatorIndex).trim()
+    : "";
+  const cardNameText = titleSeparatorIndex >= 0
+    ? cardTitleText.slice(titleSeparatorIndex + 1).trim()
+    : cardTitleText.trim();
+
+  const cardTitleContent = `
+    ${cardCategoryText ? `<span class="cypher-roll-title-category">${htmlEscape(cardCategoryText)}</span>` : ""}
+    <span class="cypher-roll-title-name">${htmlEscape(cardNameText)}</span>
+  `;
+
+  const item = actor.items.get(data.itemID) ?? null;
+  const cardTitle = item
+    ? `<a class="chat-description cypher-roll-title-link">${cardTitleContent}</a>`
+    : `<div class="cypher-roll-title-static">${cardTitleContent}</div>`;
+
+  const actorName = htmlEscape(actor.name ?? "Character");
+  const actorAvatar = htmlEscape(actor.img ?? "icons/svg/mystery-man.svg");
+  const playerName = htmlEscape(game.user?.name ?? "Player");
+  const itemIcon = item?.img ? htmlEscape(item.img) : "";
+  const itemIconAlt = item?.name ? htmlEscape(item.name) : "Roll source";
+  const rollFormulaEscaped = htmlEscape(data.roll.formula);
+
+  const difficultyBeatenForStyle = useEffectiveDifficulty(data.baseDifficulty)
+    ? data.difficulty + data.difficultyModifierTotal
+    : data.difficulty;
+
+  const computedRollTotal = Number.isFinite(Number(data.rollTotal))
+    ? Number(data.rollTotal)
+    : Number(data.roll?.total ?? 0);
+
+  const hasDifficulty = data.baseDifficulty >= 0;
+  const beatenDifficultyValue = hasDifficulty
+    ? Math.max(0, difficultyBeatenForStyle)
+    : Math.max(0, Math.floor(computedRollTotal / 3));
+
+  const isGmIntrusion = data.roll.total <= data.gmiRange;
+  const isCritical20 = !isGmIntrusion && data.roll.total === 20;
+  const isCritical1719 = !isGmIntrusion && [17, 18, 19].includes(data.roll.total);
+
+  const isSuccess = hasDifficulty
+    ? difficultyBeatenForStyle >= data.finalDifficulty
+    : isCritical20;
+
+  let resultStateClass = "cypher-roll-neutral";
+  let rollStatusText = "";
+
+  if (isGmIntrusion) {
+    resultStateClass = "cypher-roll-intrusion";
+    rollStatusText = "GM Intrusion!";
+  } else if (!hasDifficulty) {
+    if (isCritical20) {
+      resultStateClass = "cypher-roll-critical20";
+      rollStatusText = "Critical Success!";
+    } else {
+      resultStateClass = "cypher-roll-neutral";
+      rollStatusText = "";
+    }
+  } else if (!isSuccess) {
+    resultStateClass = "cypher-roll-failure";
+    rollStatusText = "Failure!";
+  } else if (isCritical20) {
+    resultStateClass = "cypher-roll-critical20";
+    rollStatusText = "Critical Success!";
+  } else if (isCritical1719) {
+    resultStateClass = "cypher-roll-critical";
+    rollStatusText = "Success!";
+  } else {
+    resultStateClass = "cypher-roll-success";
+    rollStatusText = "Success!";
+  }
+
+  const statusMarkup = rollStatusText
+    ? `
+      <div class="cypher-roll-status">
+        ${htmlEscape(rollStatusText)}
+      </div>
+    `
+    : "";
+
+  const infoBlock = info
+    ? `<div class="cypher-roll-info">${info}</div>`
+    : "";
+
+  const difficultyLine = `
+    <div class="cypher-roll-difficulty">
+      <span class="cypher-roll-difficulty-label">${game.i18n.localize("CYPHERSYSTEM.RollBeatDifficulty")}</span>
+      <span class="cypher-roll-difficulty-value">${beatenDifficultyValue}</span>
+    </div>
+  `;
+
+  const itemIconMarkup = itemIcon
+    ? `
+      <div class="cypher-roll-source-icon-wrap">
+        <img
+          class="cypher-roll-source-icon"
+          src="${itemIcon}"
+          alt="${itemIconAlt}"
+          title="${itemIconAlt}"
+        >
+      </div>
+    `
+    : "";
+
+  // Put it all together into the chat flavor.
+  // The real Foundry Roll remains attached to the ChatMessage below.
+  let flavor = `
+    <div class="roll-flavor cypher-roll-card ${resultStateClass}">
+      <div class="cypher-roll-identity">
+        <div class="cypher-roll-identity-left">
+          <img
+            class="cypher-roll-avatar"
+            src="${actorAvatar}"
+            alt="${actorName}"
+          >
+          <div class="cypher-roll-identity-text">
+            <span class="cypher-roll-character-name">${actorName}</span>
+            <span class="cypher-roll-player-name">(${playerName})</span>
+          </div>
+        </div>
+
+        ${itemIconMarkup}
+      </div>
+
+      <div class="cypher-roll-hero ${boxColor}">
+        <div class="cypher-roll-die-column">
+          <div class="cypher-roll-die" title="${rollFormulaEscaped}">
+            <i class="fas fa-dice-d20 cypher-roll-die-icon" aria-hidden="true"></i>
+            <span class="cypher-roll-natural${data.roll.total === 4 ? " cypher-roll-natural-4" : ""}">${data.roll.total}</span>
+          </div>
+
+          ${statusMarkup}
+        </div>
+
+        <div class="cypher-roll-summary">
+          <div class="cypher-roll-title">
+            ${cardTitle}
+            ${rerollInfo}
+            ${multiRollInfo}
+          </div>
+
+          <div class="cypher-roll-divider"></div>
+
+          ${difficultyLine}
+
+          <div class="cypher-roll-formula-inline">
+            ${rollFormulaEscaped}
+          </div>
+
+          <div class="cypher-roll-outcome">
+            ${initiativeInfo}
+            ${effect}
+          </div>
+        </div>
+      </div>
+
+      ${itemDescriptionInfo}
+      ${infoBlock}
+      ${chatButtons}
+    </div>`;
 
   if (data.skipRoll) {
     ChatMessage.create({

@@ -77,7 +77,7 @@ export class CypherItemSheet extends foundry.appv1.sheets.ItemSheet {
 
     // Enriched HTML
     data.enrichedHTML = {};
-    data.enrichedHTML.description = await TextEditor.enrichHTML(this.item.system.description, {async: true, secrets: this.item.isOwner, relativeTo: this.item});
+    data.enrichedHTML.description = await foundry.applications.ux.TextEditor.implementation.enrichHTML(this.item.system.description, {async: true, secrets: this.item.isOwner, relativeTo: this.item});
 
     data.actor = data.item.parent ? data.item.parent : null;
 

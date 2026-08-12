@@ -1,3 +1,4 @@
+import {decorateCypherChatMessage} from "./utilities/chat-card-redesign.js";
 // Import actors & items
 import {CypherActor} from "./actor/actor.js";
 import {CypherItem} from "./item/item.js";
@@ -568,7 +569,9 @@ Hooks.on("updateCombat", function () {
   }
 });
 
-Hooks.on("renderChatMessage", function (message, html, data) {
+Hooks.on("renderChatMessageHTML", function (message, htmlElement, data) {
+  const html = $(htmlElement);
+  decorateCypherChatMessage(message, html);
   // Hide buttons
   if (html.find(".chat-card-buttons").data("actor")) {
     let actor = game.actors.get(html.find(".chat-card-buttons").data("actor"));

@@ -536,17 +536,14 @@ export async function itemRollMacro(
 export async function recoveryRollMacro(actor, dice, useRecovery) {
   // Check for dice
   if (!dice) {
-    // Check for PC actor
     if (!actor || actor.type != "pc")
       return ui.notifications.warn(game.i18n.localize("CYPHERSYSTEM.MacroOnlyAppliesToPC"));
 
-    // Define dice
     dice = actor.system.combat.recoveries.roll;
   }
 
   // Check if recovery should be used
   if (!useRecovery) useRecovery = false;
-
   if (game.keyboard.isModifierActive("Alt")) {
     useRecovery = useRecovery ? false : true;
   }
@@ -558,17 +555,81 @@ export async function recoveryRollMacro(actor, dice, useRecovery) {
   // Roll recovery roll
   let roll = await new Roll(dice).evaluate();
 
-  // Add reroll button
-  let reRollButton = `<div style="text-align: right"><a class="reroll-recovery" data-dice="${dice}" data-user="${game.user.id}" data-actor-uuid="${actor.uuid}"><i class="fa-item fas fa-dice-d20"></i></a></div>`;
+  const escapeChatText = (value) => String(value ?? "")
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
 
-  // Send chat message
+  const actorName = escapeChatText(actor.name ?? "Character");
+  const actorAvatar = escapeChatText(actor.img ?? "icons/svg/mystery-man.svg");
+  const playerName = escapeChatText(game.user?.name ?? "Player");
+  const diceFormula = escapeChatText(dice);
+  const recoveryDescription = game.i18n.format("CYPHERSYSTEM.UseARecoveryRoll", {
+    name: actor.name,
+    recoveryUsed: recoveryUsed
+  });
+
+  const reRollButton = `
+    <div class="chat-card-buttons cypher-recovery-buttons">
+      <a
+        class="reroll-recovery"
+        data-dice="${diceFormula}"
+        data-user="${game.user.id}"
+        data-actor-uuid="${actor.uuid}"
+        title="${game.i18n.localize("CYPHERSYSTEM.Reroll")}"
+      >
+        <i class="fa-item fas fa-dice-d20"></i>
+      </a>
+    </div>
+  `;
+
+  const flavor = `
+    <div class="cypher-recovery-card">
+      <div class="cypher-recovery-identity">
+        <div class="cypher-recovery-identity-left">
+          <img
+            class="cypher-recovery-avatar"
+            src="${actorAvatar}"
+            alt="${actorName}"
+          >
+          <div class="cypher-recovery-identity-text">
+            <span class="cypher-recovery-character-name">${actorName}</span>
+            <span class="cypher-recovery-player-name">(${playerName})</span>
+          </div>
+        </div>
+
+        <div class="cypher-recovery-source-icon-wrap" aria-hidden="true">
+          <i class="fas fa-heart"></i>
+        </div>
+      </div>
+
+      <div class="cypher-recovery-hero">
+        <div class="cypher-recovery-die">
+          <i class="fas fa-dice-d6" aria-hidden="true"></i>
+          <span class="cypher-recovery-result">${roll.total}</span>
+        </div>
+
+        <div class="cypher-recovery-summary">
+          <div class="cypher-recovery-category">RECOVERY</div>
+          <div class="cypher-recovery-title">RECOVERY ROLL</div>
+          <div class="cypher-recovery-divider"></div>
+          <div class="cypher-recovery-formula">${diceFormula}</div>
+        </div>
+      </div>
+
+      <div class="cypher-recovery-description">
+        ${recoveryDescription}
+      </div>
+
+      ${reRollButton}
+    </div>
+  `;
+
   roll.toMessage({
     speaker: ChatMessage.getSpeaker({actor: actor}),
-    flavor:
-      game.i18n.format("CYPHERSYSTEM.UseARecoveryRoll", {
-        name: actor.name,
-        recoveryUsed: recoveryUsed
-      }) + reRollButton,
+    flavor: flavor,
     flags: {"itemID": "recovery-roll"}
   });
 }
