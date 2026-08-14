@@ -30,6 +30,7 @@ export async function rollEngineMain(data) {
       freeEffort: 0,
       difficultyModifier: 0,
       easedOrHindered: "eased",
+      armorTask: "normal",
       bonus: 0,
       poolPointCost: 0
     },
@@ -58,7 +59,7 @@ export async function rollEngineMain(data) {
       game.i18n.localize("CYPHERSYSTEM.CantUseAIOMacroWithAbilitiesUsingXP")
     );
 
-  if (!data.baseDifficulty) {
+  if (data.baseDifficulty === undefined || data.baseDifficulty === null) {
     data.baseDifficulty = game.settings.get("cyphersystem", "rollDifficulty");
   }
 
@@ -96,6 +97,7 @@ export async function rollEngineMain(data) {
   }
 
   // Set default basic modifiers
+  if (data.skillLevel == "Expert") data.skillLevel = 3;
   if (data.skillLevel == "Specialized") data.skillLevel = 2;
   if (data.skillLevel == "Trained") data.skillLevel = 1;
   if (data.skillLevel == "Practiced") data.skillLevel = 0;
@@ -114,10 +116,9 @@ export async function rollEngineMain(data) {
 
   // Go to the next step after checking whether dialog should be skipped
   if (!data.skipDialog) {
-    rollEngineForm(data);
-  } else if (data.skipDialog) {
-    rollEngineComputation(data);
+    return rollEngineForm(data);
   }
+  return rollEngineComputation(data);
 }
 
 export function useEffectiveDifficulty(difficulty) {

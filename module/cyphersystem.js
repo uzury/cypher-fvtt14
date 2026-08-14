@@ -1,3 +1,4 @@
+import {CypherActorSheetPCV2} from "./actor/v2/pc-sheet-v2.js";
 import {decorateCypherChatMessage} from "./utilities/chat-card-redesign.js";
 // Import actors & items
 import {CypherActor} from "./actor/actor.js";
@@ -196,6 +197,13 @@ Hooks.once("init", async function () {
     makeDefault: true,
     label: "CYPHERSYSTEM.SheetClassPC"
   });
+  // Parallel ApplicationV2 prototype. The legacy PC sheet stays default.
+  foundry.applications.apps.DocumentSheetConfig.registerSheet(
+    foundry.documents.Actor,
+    game.system.id,
+    CypherActorSheetPCV2,
+    {types: ["pc"], makeDefault: false, label: "Cypher PC V2 Prototype"}
+  );
   foundry.documents.collections.Actors.registerSheet("cypher", CypherActorSheetNPC, {
     types: ["npc"],
     makeDefault: true,
@@ -569,9 +577,140 @@ Hooks.on("updateCombat", function () {
   }
 });
 
+function decorateCypherGenericChatMessage(message, html) {
+  const content = html.find(".message-content");
+  if (!content.length) return;
+
+  const messageMarkup = [
+    message.content ?? "",
+    message.flavor ?? "",
+    content.html() ?? ""
+  ].join("\n");
+
+  // Dice Tray rolls are already complete cypher-roll-card instances.
+  const hasDiceTrayCard =
+    html.find(".cypher-dice-card").length > 0 ||
+    messageMarkup.includes("cypher-dice-card") ||
+    message.flags?.cyphersystem?.cardType === "dice-roll";
+
+  if (hasDiceTrayCard) {
+    html.addClass("cypher-dice-roll-message");
+    html.removeClass("cypher-generic-roll-message cypher-generic-text-message");
+
+    // roll.toMessage still renders Foundry's native dice body. The custom
+    // card already contains the result, so hide only that redundant body.
+    content.hide();
+    return;
+  }
+
+  const modernCardSelectors = [
+    ".cypher-roll-card",
+    ".cypher-item-card",
+    ".cypher-recovery-card",
+    ".cypher-spell-recovery-card"
+  ].join(", ");
+
+  const modernCardTokens = [
+    "cypher-roll-card",
+    "cypher-item-card",
+    "cypher-recovery-card",
+    "cypher-spell-recovery-card"
+  ];
+
+  const hasModernCypherCard =
+    html.find(modernCardSelectors).length > 0 ||
+    modernCardTokens.some(token => messageMarkup.includes(token)) ||
+    Boolean(message.flags?.cyphersystem?.cardType);
+
+  if (hasModernCypherCard) {
+    html.removeClass(
+      "cypher-generic-roll-message cypher-generic-text-message cypher-dice-roll-message"
+    );
+    return;
+  }
+
+  const isRoll = Array.isArray(message.rolls)
+    ? message.rolls.length > 0
+    : Boolean(message.isRoll);
+
+  // Do not restyle unrelated native/third-party rolls here. Dice Tray rolls
+  // are explicitly handled above.
+  if (isRoll) return;
+
+  const hasLegacySystemControls = content.find(
+    ".chat-card-buttons, .confirm, .accept-intrusion, .refuse-intrusion"
+  ).length > 0;
+
+  if (hasLegacySystemControls) return;
+  if (content.find(".cypher-generic-text-card").length) return;
+
+  let actor = message.actor ?? null;
+
+  if (!actor && message.speaker?.actor) {
+    actor = game.actors.get(message.speaker.actor) ?? null;
+  }
+
+  if (!actor && message.speaker?.scene && message.speaker?.token) {
+    actor = game.scenes
+      .get(message.speaker.scene)
+      ?.tokens.get(message.speaker.token)
+      ?.actor ?? null;
+  }
+
+  const authorName = message.author?.name ?? "";
+  const speakerName = actor?.name ?? message.speaker?.alias ?? authorName ?? "Chat";
+  const avatar = actor?.img ?? message.author?.avatar ?? "icons/svg/mystery-man.svg";
+
+  const card = document.createElement("div");
+  card.className = "cypher-roll-card cypher-roll-neutral cypher-generic-text-card";
+
+  const identity = document.createElement("div");
+  identity.className = "cypher-roll-identity";
+
+  const left = document.createElement("div");
+  left.className = "cypher-roll-identity-left";
+
+  const image = document.createElement("img");
+  image.className = "cypher-roll-avatar";
+  image.src = avatar;
+  image.alt = speakerName;
+
+  const identityText = document.createElement("div");
+  identityText.className = "cypher-roll-identity-text";
+
+  const characterName = document.createElement("span");
+  characterName.className = "cypher-roll-character-name";
+  characterName.textContent = speakerName;
+  identityText.append(characterName);
+
+  if (authorName && authorName !== speakerName) {
+    const playerName = document.createElement("span");
+    playerName.className = "cypher-roll-player-name";
+    playerName.textContent = "(" + authorName + ")";
+    identityText.append(playerName);
+  }
+
+  left.append(image, identityText);
+  identity.append(left);
+
+  const body = document.createElement("div");
+  body.className = "cypher-roll-hero cypher-generic-text-hero";
+
+  while (content[0].firstChild) {
+    body.append(content[0].firstChild);
+  }
+
+  card.append(identity, body);
+  content[0].append(card);
+
+  html.addClass("cypher-generic-text-message");
+  html.removeClass("cypher-generic-roll-message cypher-dice-roll-message");
+}
+
 Hooks.on("renderChatMessageHTML", function (message, htmlElement, data) {
   const html = $(htmlElement);
   decorateCypherChatMessage(message, html);
+  decorateCypherGenericChatMessage(message, html);
   // Hide buttons
   if (html.find(".chat-card-buttons").data("actor")) {
     let actor = game.actors.get(html.find(".chat-card-buttons").data("actor"));
@@ -623,11 +762,21 @@ Hooks.on("renderChatMessageHTML", function (message, htmlElement, data) {
 
   // Event Listener for rerolls of dice rolls
   html.find(".reroll-dice-roll").click((clickEvent) => {
-    let user = html.find(".reroll-dice-roll").data("user");
+    const control = $(clickEvent.currentTarget);
+    let user = control.data("user");
     if (user !== game.user.id)
       return ui.notifications.warn(game.i18n.localize("CYPHERSYSTEM.WarnRerollUser"));
-    let dice = html.find(".reroll-dice-roll").data("dice");
-    diceRollMacro(dice);
+
+    let dice = control.data("dice");
+    let actorUuid = control.data("actor-uuid") ?? "";
+    let actor = null;
+
+    if (actorUuid) {
+      const document = fromUuidSync(actorUuid);
+      actor = actorUuid.includes("Token") ? document?.actor ?? null : document ?? null;
+    }
+
+    diceRollMacro(dice, actor);
   });
 
   // Event Listener to regain pool points

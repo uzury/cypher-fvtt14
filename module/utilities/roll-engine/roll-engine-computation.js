@@ -3,6 +3,8 @@ import {payPoolPoints} from "../actor-utilities.js";
 import {rollEngineForm} from "./roll-engine-form.js";
 import {useEffectiveDifficulty} from "./roll-engine-main.js";
 import {rollEngineOutput} from "./roll-engine-output.js";
+import {getWoundHindrance} from "../wound-utilities.js";
+import {getArmorRollModifier} from "../armor-utilities.js";
 
 export async function rollEngineComputation(data) {
   let actor = fromUuidSync(data.actorUuid);
@@ -28,32 +30,29 @@ export async function rollEngineComputation(data) {
     return ui.notifications.info(game.i18n.localize("CYPHERSYSTEM.SpendTooMuchEffort"));
   }
 
-  // Determine impaired & debilitated status
+  // Legacy Teen damage-track behavior remains isolated to the Teen form.
+  // Cypher 2026 PCs use Wounds instead of Impaired/Debilitated.
+  data.impairedStatus = false;
   if (data.teen) {
     if (
-      actor.system.teen.combat.damage.damageTrack == "Impaired" &&
-      actor.system.teen.combat.damage.applyImpaired
+      actor.system.teen.combat.damageTrack.state == "Impaired" &&
+      actor.system.teen.combat.damageTrack.applyImpaired
     )
       data.impairedStatus = true;
     if (
-      actor.system.teen.combat.damage.damageTrack == "Debilitated" &&
-      actor.system.teen.combat.damage.applyDebilitated
+      actor.system.teen.combat.damageTrack.state == "Debilitated" &&
+      actor.system.teen.combat.damageTrack.applyDebilitated
     )
       data.impairedStatus = true;
-  } else if (!data.teen) {
-    if (
-      actor.system.combat.damageTrack.state == "Impaired" &&
-      actor.system.combat.damageTrack.applyImpaired
-    )
-      data.impairedStatus = true;
-    if (
-      actor.system.combat.damageTrack.state == "Debilitated" &&
-      actor.system.combat.damageTrack.applyDebilitated
-    )
-      data.impairedStatus = true;
-  } else {
-    data.impairedStatus = false;
   }
+
+  data.woundHindrance = data.teen ? 0 : getWoundHindrance(actor);
+
+  // Cypher 2026 armor modifies difficulty, not Effort cost.
+  data.armorProfile = data.teen
+    ? {steps: 0, modifier: 0, reason: "", typeLabel: "", freelyUse: false}
+    : getArmorRollModifier(actor, {pool: data.pool, armorTask: data.armorTask});
+  data.armorModifier = data.armorProfile.modifier;
 
   // Determine stressModifier
   if (actor.system.settings.combat.stress.active && !data.teen) {
@@ -78,8 +77,12 @@ export async function rollEngineComputation(data) {
   // Calculate total cost
   let firstLOECosts2Points = game.settings.get("cyphersystem", "FirstLOECosts2Points") ? 0 : 1;
   data.impaired = data.impairedStatus ? data.effortTotal : 0;
+  // Legacy armor increased the cost of Speed Effort. Cypher 2026 armor does not.
+  // Preserve that old surcharge only for the legacy Teen form.
   data.armorCost =
-    data.pool == "Speed" ? data.effortTotal * actor.system.combat.armor.costTotal : 0;
+    data.teen && data.pool == "Speed"
+      ? data.effortTotal * Number(actor.system.teen?.combat?.armor?.speedCostTotal ?? 0)
+      : 0;
   data.costCalculated =
     data.effortTotal > 0
       ? data.effortTotal * 2 + firstLOECosts2Points + data.poolPointCost + data.armorCost + data.impaired
@@ -100,14 +103,20 @@ export async function rollEngineComputation(data) {
   let difficultyModifier =
     data.easedOrHindered == "hindered" ? data.difficultyModifier * -1 : data.difficultyModifier;
   data.difficultyModifierTotal =
-    data.skillLevel + data.assets + data.effortToEase + difficultyModifier - data.stressModifier;
+    data.skillLevel +
+    data.assets +
+    data.effortToEase +
+    difficultyModifier +
+    data.armorModifier -
+    data.stressModifier -
+    data.woundHindrance;
 
   // Calculate rollTotal
   data.rollTotal = data.roll.total + data.bonus + data.advantage;
 
   // Calculate difficulty
   data.difficulty =
-    data.rollTotal < 0 ? Math.ceil(data.rolltotal / 3) : Math.floor(data.rollTotal / 3);
+    data.rollTotal < 0 ? Math.ceil(data.rollTotal / 3) : Math.floor(data.rollTotal / 3);
   data.difficultyResult = determineDifficultyResult(
     data.baseDifficulty,
     data.difficulty,
@@ -116,13 +125,20 @@ export async function rollEngineComputation(data) {
   data.finalDifficulty = useEffectiveDifficulty(data.baseDifficulty)
     ? data.baseDifficulty
     : Math.max(data.baseDifficulty - data.difficultyModifierTotal, 0);
+  data.rollSucceeded = data.baseDifficulty >= 0
+    ? (useEffectiveDifficulty(data.baseDifficulty)
+      ? Math.max(data.difficulty + data.difficultyModifierTotal, 0) >= data.baseDifficulty
+      : data.difficulty >= data.finalDifficulty)
+    : null;
 
   // Go to next step
   if (payPoolPointsInfo[0]) {
-    rollEngineOutput(data);
+    await rollEngineOutput(data);
+    return data;
   } else if (!payPoolPointsInfo[0] && !data.skipDialog) {
-    rollEngineForm(data);
+    await rollEngineForm(data);
   }
+  return null;
 }
 
 function determineDifficultyResult(baseDifficulty, difficulty, difficultyModifierTotal) {

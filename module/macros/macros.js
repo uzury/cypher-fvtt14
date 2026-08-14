@@ -292,23 +292,103 @@ export async function diceRollMacro(dice, actor) {
   // Check whether the dice formula is "1dX" or "dX" to assure that both ways work
   if (dice.charAt(0) == "d") dice = "1" + dice;
 
-  // Roll dice
   const roll = await new Roll(dice).evaluate();
 
-  // Add reroll button
-  let reRollButton = `<div class="chat-card-buttons"><a class="reroll-dice-roll" title="${game.i18n.localize("CYPHERSYSTEM.Reroll")}" data-dice="${dice}" data-user="${game.user.id}"><i class="fa-item fas fa-dice-d20"></a></div>`;
+  const escapeChatText = value => String(value ?? "")
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
 
-  // Send chat message
-  roll.toMessage({
-    speaker: ChatMessage.getSpeaker({actor: actor}),
-    flavor:
-      "<div class='roll-flavor'><b>" +
-      dice +
-      " " +
-      game.i18n.localize("CYPHERSYSTEM.Roll") +
-      "</b>" +
-      reRollButton +
-      "</div>"
+  const actorName = escapeChatText(actor?.name ?? game.user?.name ?? "User");
+  const actorAvatar = escapeChatText(
+    actor?.img ?? game.user?.avatar ?? "icons/svg/mystery-man.svg"
+  );
+  const playerName = escapeChatText(game.user?.name ?? "");
+  const actorUuid = escapeChatText(actor?.uuid ?? "");
+  const diceEscaped = escapeChatText(dice);
+  const dieLabel = escapeChatText(dice.replace(/^1d/i, "d").toUpperCase());
+  const dieSides = Number(dice.match(/d(\d+)/i)?.[1] ?? 20);
+  const dieShapeClass = [6, 10, 20, 100].includes(dieSides)
+    ? `cypher-dice-d${dieSides}`
+    : "cypher-dice-d20";
+  const dieIconClass = {
+    6: "fa-dice-d6",
+    10: "fa-dice-d10",
+    20: "fa-dice-d20",
+    100: "fa-dice-d10"
+  }[dieSides] ?? "fa-dice-d20";
+  const rollTotal = Number(roll.total ?? 0);
+  const dieFaceMarkup = [10, 100].includes(dieSides)
+    ? `<span class="cypher-roll-die-solid-icon" aria-hidden="true"></span>`
+    : `<i class="fa-solid ${dieIconClass} cypher-roll-die-icon" aria-hidden="true"></i>`;
+  const playerMarkup = playerName && playerName !== actorName
+    ? `<span class="cypher-roll-player-name">(${playerName})</span>`
+    : "";
+
+  // This is intentionally the same shell used by roll-engine-output.js:
+  // cypher-roll-card -> identity -> hero -> die-column + summary.
+  const flavor = `
+    <div class="roll-flavor cypher-roll-card cypher-roll-neutral cypher-dice-card">
+      <div class="cypher-roll-identity">
+        <div class="cypher-roll-identity-left">
+          <img class="cypher-roll-avatar" src="${actorAvatar}" alt="${actorName}">
+          <div class="cypher-roll-identity-text">
+            <span class="cypher-roll-character-name">${actorName}</span>
+            ${playerMarkup}
+          </div>
+        </div>
+      </div>
+
+      <div class="cypher-roll-hero cypher-dice-hero">
+        <div class="cypher-roll-die-column">
+          <div class="cypher-roll-die ${dieShapeClass}" title="${diceEscaped}">
+            ${dieFaceMarkup}
+            <span class="cypher-roll-natural${rollTotal === 4 ? " cypher-roll-natural-4" : ""}">${rollTotal}</span>
+          </div>
+        </div>
+
+        <div class="cypher-roll-summary">
+          <div class="cypher-roll-title">
+            <div class="cypher-roll-title-static">
+              <span class="cypher-roll-title-category">DICE ROLL</span>
+              <span class="cypher-roll-title-name">${dieLabel}</span>
+            </div>
+          </div>
+
+          <div class="cypher-roll-divider"></div>
+
+          <div class="cypher-roll-formula-inline">
+            ${diceEscaped}
+          </div>
+        </div>
+      </div>
+
+      <div class="chat-card-buttons" data-actor-uuid="${actorUuid}">
+        <a
+          class="reroll-dice-roll"
+          title="${game.i18n.localize("CYPHERSYSTEM.Reroll")}"
+          data-dice="${diceEscaped}"
+          data-user="${game.user.id}"
+          data-actor-uuid="${actorUuid}"
+        >
+          <i class="fa-item fas fa-dice-d20"></i>
+        </a>
+      </div>
+    </div>
+  `;
+
+  return roll.toMessage({
+    speaker: ChatMessage.getSpeaker({actor}),
+    flavor,
+    flags: {
+      cyphersystem: {
+        cardType: "dice-roll",
+        actorUuid,
+        dice: diceEscaped
+      }
+    }
   });
 }
 
@@ -533,29 +613,17 @@ export async function itemRollMacro(
 /*  Utility Macros                              */
 /* -------------------------------------------- */
 
-export async function recoveryRollMacro(actor, dice, useRecovery) {
-  // Check for dice
-  if (!dice) {
-    if (!actor || actor.type != "pc")
-      return ui.notifications.warn(game.i18n.localize("CYPHERSYSTEM.MacroOnlyAppliesToPC"));
-
-    dice = actor.system.combat.recoveries.roll;
-  }
-
-  // Check if recovery should be used
-  if (!useRecovery) useRecovery = false;
-  if (game.keyboard.isModifierActive("Alt")) {
-    useRecovery = useRecovery ? false : true;
-  }
-
-  // Check for recovery used
-  let recoveryUsed = useRecovery ? useRecoveries(actor, false) : "";
-  if (recoveryUsed == undefined) return;
-
-  // Roll recovery roll
-  let roll = await new Roll(dice).evaluate();
-
-  const escapeChatText = (value) => String(value ?? "")
+export async function sendRecoveryRollCard(actor, roll, {
+  formula = roll?.formula ?? "",
+  recoveryUsed = "",
+  lastAction = false,
+  allocations = null,
+  unspent = 0,
+  restSummary = "",
+  majorCheckSummary = "",
+  allowReroll = true
+} = {}) {
+  const escapeChatText = value => String(value ?? "")
     .replaceAll("&", "&amp;")
     .replaceAll("<", "&lt;")
     .replaceAll(">", "&gt;")
@@ -565,13 +633,33 @@ export async function recoveryRollMacro(actor, dice, useRecovery) {
   const actorName = escapeChatText(actor.name ?? "Character");
   const actorAvatar = escapeChatText(actor.img ?? "icons/svg/mystery-man.svg");
   const playerName = escapeChatText(game.user?.name ?? "Player");
-  const diceFormula = escapeChatText(dice);
-  const recoveryDescription = game.i18n.format("CYPHERSYSTEM.UseARecoveryRoll", {
-    name: actor.name,
-    recoveryUsed: recoveryUsed
-  });
+  const diceFormula = escapeChatText(formula);
+  const recoveryDescription = recoveryUsed
+    ? game.i18n.format("CYPHERSYSTEM.UseARecoveryRoll", {name: actor.name, recoveryUsed})
+    : "Recovery roll.";
 
-  const reRollButton = `
+  const details = [];
+  if (lastAction) details.push("Last action: +2 to the recovery roll.");
+  if (allocations) {
+    const labels = {might: "Might", speed: "Speed", intellect: "Intellect"};
+    const allocated = Object.entries(allocations)
+      .filter(([, amount]) => Number(amount) > 0)
+      .map(([pool, amount]) => `${labels[pool] ?? pool} +${Number(amount)}`);
+    details.push(
+      allocated.length
+        ? `Pool recovery: ${allocated.join(", ")}.`
+        : "Pool recovery: no points allocated."
+    );
+    if (Number(unspent) > 0) details.push(`Unspent recovery points: ${Number(unspent)}.`);
+  }
+  if (restSummary) details.push(`Rest: ${restSummary}`);
+  if (majorCheckSummary) details.push(majorCheckSummary);
+
+  const detailMarkup = details.length
+    ? `<div class="cypher-recovery-detail-lines">${details.map(line => `<div>${escapeChatText(line)}</div>`).join("")}</div>`
+    : "";
+
+  const reRollButton = allowReroll ? `
     <div class="chat-card-buttons cypher-recovery-buttons">
       <a
         class="reroll-recovery"
@@ -583,23 +671,18 @@ export async function recoveryRollMacro(actor, dice, useRecovery) {
         <i class="fa-item fas fa-dice-d20"></i>
       </a>
     </div>
-  `;
+  ` : "";
 
   const flavor = `
     <div class="cypher-recovery-card">
       <div class="cypher-recovery-identity">
         <div class="cypher-recovery-identity-left">
-          <img
-            class="cypher-recovery-avatar"
-            src="${actorAvatar}"
-            alt="${actorName}"
-          >
+          <img class="cypher-recovery-avatar" src="${actorAvatar}" alt="${actorName}">
           <div class="cypher-recovery-identity-text">
             <span class="cypher-recovery-character-name">${actorName}</span>
             <span class="cypher-recovery-player-name">(${playerName})</span>
           </div>
         </div>
-
         <div class="cypher-recovery-source-icon-wrap" aria-hidden="true">
           <i class="fas fa-heart"></i>
         </div>
@@ -610,7 +693,6 @@ export async function recoveryRollMacro(actor, dice, useRecovery) {
           <i class="fas fa-dice-d6" aria-hidden="true"></i>
           <span class="cypher-recovery-result">${roll.total}</span>
         </div>
-
         <div class="cypher-recovery-summary">
           <div class="cypher-recovery-category">RECOVERY</div>
           <div class="cypher-recovery-title">RECOVERY ROLL</div>
@@ -621,17 +703,40 @@ export async function recoveryRollMacro(actor, dice, useRecovery) {
 
       <div class="cypher-recovery-description">
         ${recoveryDescription}
+        ${detailMarkup}
       </div>
-
       ${reRollButton}
     </div>
   `;
 
-  roll.toMessage({
-    speaker: ChatMessage.getSpeaker({actor: actor}),
-    flavor: flavor,
+  return roll.toMessage({
+    speaker: ChatMessage.getSpeaker({actor}),
+    flavor,
     flags: {"itemID": "recovery-roll"}
   });
+}
+
+export async function recoveryRollMacro(actor, dice, useRecovery) {
+  if (!dice) {
+    if (!actor || actor.type != "pc") {
+      return ui.notifications.warn(game.i18n.localize("CYPHERSYSTEM.MacroOnlyAppliesToPC"));
+    }
+    dice = actor.system.combat.recoveries.roll;
+  }
+
+  if (!useRecovery) useRecovery = false;
+  if (game.keyboard.isModifierActive("Alt")) useRecovery = !useRecovery;
+
+  const recoveryUsed = useRecovery ? useRecoveries(actor, false) : "";
+  if (recoveryUsed == undefined) return;
+
+  const roll = await new Roll(dice).evaluate();
+  await sendRecoveryRollCard(actor, roll, {
+    formula: dice,
+    recoveryUsed,
+    allowReroll: true
+  });
+  return roll;
 }
 
 export function spendEffortMacro(actor) {
@@ -662,41 +767,28 @@ export function spendEffortMacro(actor) {
 
   // Apply points to pools
   function applyToPool(pool, level) {
-    // -- Determine impaired & debilitated status
+    // Impaired/Debilitated and Speed-Effort armor surcharges are legacy Teen rules.
+    const teen = actor.system.basic.unmaskedForm == "Teen";
     let impairedStatus = false;
-    if (actor.system.basic.unmaskedForm == "Teen") {
+    if (teen) {
       if (
         actor.system.teen.combat.damageTrack.state == "Impaired" &&
-        actor.system.teen.combat.damage.applyImpaired
-      )
-        impairedStatus = true;
+        actor.system.teen.combat.damageTrack.applyImpaired
+      ) impairedStatus = true;
       if (
         actor.system.teen.combat.damageTrack.state == "Debilitated" &&
-        actor.system.teen.combat.damage.applyDebilitated
-      )
-        impairedStatus = true;
-    } else if (actor.system.basic.unmaskedForm == "Mask") {
-      if (
-        actor.system.combat.damageTrack.state == "Impaired" &&
-        actor.system.combat.damageTrack.applyImpaired
-      )
-        impairedStatus = true;
-      if (
-        actor.system.combat.damageTrack.state == "Debilitated" &&
-        actor.system.combat.damageTrack.applyDebilitated
-      )
-        impairedStatus = true;
+        actor.system.teen.combat.damageTrack.applyDebilitated
+      ) impairedStatus = true;
     }
 
-    // Set penalty when impaired
-    let penalty = impairedStatus ? level : 0;
+    const penalty = impairedStatus ? Number(level) : 0;
+    const armorPenalty =
+      teen && pool == "Speed"
+        ? Number(level) * Number(actor.system.teen?.combat?.armor?.speedCostTotal ?? 0)
+        : 0;
 
-    // Determine point cost including penalty due to armor
     let firstLOECosts2Points = game.settings.get("cyphersystem", "FirstLOECosts2Points") ? 0 : 1;
-    let cost =
-      pool == "Speed"
-        ? level * 2 + firstLOECosts2Points + level * actor.system.combat.armor.costTotal + penalty
-        : level * 2 + firstLOECosts2Points + penalty;
+    let cost = Number(level) * 2 + firstLOECosts2Points + armorPenalty + penalty;
 
     // Pay pool points
     payPoolPoints(actor, cost, pool);

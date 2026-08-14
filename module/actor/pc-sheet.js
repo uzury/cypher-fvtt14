@@ -333,13 +333,13 @@ export class CypherActorSheetPC extends CypherActorSheet {
     });
 
     html.find('.apply-impaired-teen').click(clickEvent => {
-      let newValue = (this.actor.system.teen.combat.damage.applyImpaired) ? false : true;
-      this.actor.update({"system.teen.combat.damage.applyImpaired": newValue});
+      let newValue = (this.actor.system.teen.combat.damageTrack.applyImpaired) ? false : true;
+      this.actor.update({"system.teen.combat.damageTrack.applyImpaired": newValue});
     });
 
     html.find('.apply-debilitated-teen').click(clickEvent => {
-      let newValue = (this.actor.system.teen.combat.damage.applyDebilitated) ? false : true;
-      this.actor.update({"system.teen.combat.damage.applyDebilitated": newValue});
+      let newValue = (this.actor.system.teen.combat.damageTrack.applyDebilitated) ? false : true;
+      this.actor.update({"system.teen.combat.damageTrack.applyDebilitated": newValue});
     });
 
     /**

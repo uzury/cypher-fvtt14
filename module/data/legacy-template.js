@@ -662,6 +662,7 @@ export const LEGACY_TEMPLATE = {
         "type": "light armor",
         "rating": 0,
         "cost": 0,
+        "freelyUse": false,
         "notes": ""
       },
       "settings": {

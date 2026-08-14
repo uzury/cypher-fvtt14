@@ -59,11 +59,14 @@ export async function rollEngineOutput(data) {
   };
 
   // Skill information
+  const localizedExpert = game.i18n.localize("CYPHERSYSTEM.Expert");
+  const expertLabel = localizedExpert === "CYPHERSYSTEM.Expert" ? "Expert" : localizedExpert;
   let skillRating = {
     "-1": `${game.i18n.localize("CYPHERSYSTEM.SkillLevel")}: ${game.i18n.localize("CYPHERSYSTEM.Inability")}<br>`,
     "0": `${game.i18n.localize("CYPHERSYSTEM.SkillLevel")}: ${game.i18n.localize("CYPHERSYSTEM.Practiced")}<br>`,
     "1": `${game.i18n.localize("CYPHERSYSTEM.SkillLevel")}: ${game.i18n.localize("CYPHERSYSTEM.Trained")}<br>`,
-    "2": `${game.i18n.localize("CYPHERSYSTEM.SkillLevel")}: ${game.i18n.localize("CYPHERSYSTEM.Specialized")}<br>`
+    "2": `${game.i18n.localize("CYPHERSYSTEM.SkillLevel")}: ${game.i18n.localize("CYPHERSYSTEM.Specialized")}<br>`,
+    "3": `${game.i18n.localize("CYPHERSYSTEM.SkillLevel")}: ${expertLabel}<br>`
   };
   let skillInfo = (skillRating[data.skillLevel] || skillRating[0]);
 
@@ -75,8 +78,33 @@ export async function rollEngineOutput(data) {
     `${game.i18n.localize("CYPHERSYSTEM.Effort")}: ${data.effortToEase} ${game.i18n.localize("CYPHERSYSTEM.levels")}<br>` :
     `${game.i18n.localize("CYPHERSYSTEM.Effort")}: ${data.effortToEase} ${game.i18n.localize("CYPHERSYSTEM.level")}<br>`;
 
+  // Cypher 2026 Wound hindrance information
+  let woundHindranceInfo = "";
+  const woundHindrance = Math.max(0, Number(data.woundHindrance ?? 0));
+  if (woundHindrance === 1) {
+    woundHindranceInfo = `Wounds: Hindered by 1 step<br>`;
+  } else if (woundHindrance > 1) {
+    woundHindranceInfo = `Wounds: Hindered by ${woundHindrance} steps<br>`;
+  }
+
   // Stress information
   let stressInfo = "";
+
+  // Cypher 2026 Armor information
+  let armorModifierInfo = "";
+  const armorModifier = Number(data.armorModifier ?? 0);
+  const armorProfile = data.armorProfile ?? {};
+  const armorSteps = Math.abs(armorModifier);
+  const armorStepWord = armorSteps === 1 ? "step" : "steps";
+  if (armorModifier !== 0 && armorProfile.typeLabel) {
+    if (armorProfile.reason === "block") {
+      armorModifierInfo = `Armor: ${armorProfile.typeLabel} — Block eased by ${armorSteps} ${armorStepWord}<br>`;
+    } else if (armorProfile.reason === "dodge") {
+      armorModifierInfo = `Armor: ${armorProfile.typeLabel} — Dodge hindered by ${armorSteps} ${armorStepWord}<br>`;
+    } else if (armorProfile.reason === "speed") {
+      armorModifierInfo = `Armor: ${armorProfile.typeLabel} — Speed tasks hindered by ${armorSteps} ${armorStepWord} (not freely used)<br>`;
+    }
+  }
 
   if (actor.system.settings.combat.stress.active && data.stressModifier == 1) {
     stressInfo = `${game.i18n.localize("CYPHERSYSTEM.Stress")}: ${data.stressModifier} ${game.i18n.localize("CYPHERSYSTEM.level")}<br>`;
@@ -113,7 +141,7 @@ export async function rollEngineOutput(data) {
   let styleDifficultyDetailsExpanded = `<div class="roll-result-difficulty-details expanded">`;
   let styleDifficultyDetails = (showDetails) ? styleDifficultyDetailsExpanded : styleDifficultyDetailsHidden;
 
-  let difficultyDetailsInfo = styleDifficultyDetails + baseDifficultyInfo + skillInfo + assetsInfo + effortToEaseInfo + stressInfo + difficultyInfo + `</div>`;
+  let difficultyDetailsInfo = styleDifficultyDetails + baseDifficultyInfo + skillInfo + assetsInfo + effortToEaseInfo + woundHindranceInfo + armorModifierInfo + stressInfo + difficultyInfo + `</div>`;
 
   // Create block
   let difficultyBlock = `<div class="roll-result-box"><b><a class="roll-result-difficulty">` + taskDifficulty + `</a></b><br>` + difficultyDetailsInfo + `</div>`;
@@ -339,14 +367,30 @@ export async function rollEngineOutput(data) {
   let infoHR = (info) ? "<hr class='roll-result-hr'>" : "";
 
   // Cypher 2026 roll card
+  const isCoreStatRoll =
+    !data.itemID &&
+    ["Might", "Speed", "Intellect"].includes(data.pool);
+
+  const statRollDisplayName = {
+    Might: "Might",
+    Speed: "Speed",
+    Intellect: "Intelligence"
+  }[data.pool] ?? data.pool;
+
   const cardTitleText = data.title || game.i18n.localize("CYPHERSYSTEM.StatRoll");
   const titleSeparatorIndex = cardTitleText.indexOf(":");
-  const cardCategoryText = titleSeparatorIndex >= 0
-    ? cardTitleText.slice(0, titleSeparatorIndex).trim()
-    : "";
-  const cardNameText = titleSeparatorIndex >= 0
-    ? cardTitleText.slice(titleSeparatorIndex + 1).trim()
-    : cardTitleText.trim();
+
+  const cardCategoryText = isCoreStatRoll
+    ? game.i18n.localize("CYPHERSYSTEM.StatRoll")
+    : titleSeparatorIndex >= 0
+      ? cardTitleText.slice(0, titleSeparatorIndex).trim()
+      : "";
+
+  const cardNameText = isCoreStatRoll
+    ? statRollDisplayName
+    : titleSeparatorIndex >= 0
+      ? cardTitleText.slice(titleSeparatorIndex + 1).trim()
+      : cardTitleText.trim();
 
   const cardTitleContent = `
     ${cardCategoryText ? `<span class="cypher-roll-title-category">${htmlEscape(cardCategoryText)}</span>` : ""}

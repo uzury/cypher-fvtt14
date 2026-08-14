@@ -1,0 +1,213 @@
+<section class="cypher-v2-part cypher-v2-pools">
+  <div class="cypher-v2-section-title">
+    <h2>Character Pools</h2>
+  </div>
+
+  <div class="cypher-v2-pool-grid">
+    {{#each pools as |pool|}}
+      <article class="cypher-v2-pool-card">
+        <div class="cypher-v2-pool-top">
+          {{#if ../rollSettings.enabled}}
+            <button
+              type="button"
+              class="cypher-v2-pool-roll"
+              data-action="rollPool"
+              data-pool="{{pool.key}}"
+              title="Roll {{pool.label}}"
+            >
+              <span>{{pool.label}}</span>
+</button>
+          {{else}}
+            <span>{{pool.label}}</span>
+          {{/if}}
+
+          <label class="cypher-v2-edge-edit">
+            <small>{{localize "CYPHERSYSTEM.Edge"}}</small>
+            <input
+              class="cypher-v2-edit cypher-v2-edge-input"
+              type="number"
+              name="{{pool.edgeField}}"
+              value="{{pool.edge}}"
+              aria-label="{{pool.label}} {{localize 'CYPHERSYSTEM.Edge'}}"
+              {{#unless ../canEditStatic}}disabled{{/unless}}
+            >
+          </label>
+          <label
+            class="cypher-v2-base-max-edit"
+            title="Base maximum before Lasting/Permanent Damage"
+          >
+            <small>BASE</small>
+            <input
+              class="cypher-v2-edit cypher-v2-base-max-input"
+              type="number"
+              name="{{pool.maxField}}"
+              value="{{pool.max}}"
+              min="0"
+              {{#unless ../canEditStatic}}disabled{{/unless}}
+            >
+          </label>
+        </div>
+
+        <div class="cypher-v2-pool-value-row cypher-v2-pool-value-row-core">
+          <button
+            type="button"
+            class="cypher-v2-pool-button"
+            data-pool-action="decrease"
+            data-field="{{pool.valueField}}"
+            data-max-field="{{pool.maxField}}"
+            title="Decrease {{pool.label}} by 1"
+            {{#unless ../editable}}disabled{{/unless}}
+          >
+            <i class="fa-solid fa-chevron-left"></i>
+          </button>
+
+          <div class="cypher-v2-pool-value cypher-v2-pool-value-edit">
+            <input
+              class="cypher-v2-edit cypher-v2-pool-current"
+              type="text"
+              inputmode="numeric"
+              data-field="{{pool.valueField}}"
+              data-max-field="{{pool.maxField}}"
+              value="{{pool.value}}"
+              aria-label="{{pool.label}}"
+              title="Set value or use +2, -2, *2, /2"
+              {{#unless ../editable}}disabled{{/unless}}
+            >
+            <span>/</span>
+            <span
+            class="cypher-v2-pool-effective-max {{#if pool.hasLastingDamage}}is-reduced{{/if}}"
+            title="Effective maximum: base {{pool.max}}{{#if pool.hasLastingDamage}} minus {{pool.lastingDamage}} Lasting/Permanent Damage{{/if}}"
+          >{{pool.effectiveMax}}</span>
+          </div>
+
+          <button
+            type="button"
+            class="cypher-v2-pool-button"
+            data-pool-action="increase"
+            data-field="{{pool.valueField}}"
+            data-max-field="{{pool.maxField}}"
+            title="Increase {{pool.label}} by 1"
+            {{#unless ../editable}}disabled{{/unless}}
+          >
+            <i class="fa-solid fa-chevron-right"></i>
+          </button>
+
+          <button
+            type="button"
+            class="cypher-v2-pool-button cypher-v2-pool-reset"
+            data-pool-action="reset"
+            data-field="{{pool.valueField}}"
+            data-max-field="{{pool.maxField}}"
+            title="Reset {{pool.label}} to maximum"
+            {{#unless ../editable}}disabled{{/unless}}
+          >
+            <i class="fa-solid fa-rotate-left"></i>
+          </button>
+
+          <button
+            type="button"
+            class="cypher-v2-pool-button cypher-v2-pool-damage"
+            data-action="applyPoolDamage"
+            data-pool="{{pool.key}}"
+            title="Apply damage to {{pool.label}}"
+            aria-label="Apply damage to {{pool.label}}"
+            {{#unless ../editable}}disabled{{/unless}}
+          >
+            <i class="fa-solid fa-heart-crack"></i>
+          </button>
+        </div>
+
+        <div class="cypher-v2-track">
+          <span style="width: {{pool.percent}}%"></span>
+        </div>
+      </article>
+    {{/each}}
+
+    {{#if additionalPool}}
+      <article class="cypher-v2-pool-card cypher-v2-pool-additional">
+        <div class="cypher-v2-pool-top">
+          <span>{{additionalPool.label}}</span>
+
+          {{#if additionalPool.hasEdge}}
+            <label class="cypher-v2-edge-edit">
+              <small>{{localize "CYPHERSYSTEM.Edge"}}</small>
+              <input
+                class="cypher-v2-edit cypher-v2-edge-input"
+                type="number"
+                name="{{additionalPool.edgeField}}"
+                value="{{additionalPool.edge}}"
+                aria-label="{{additionalPool.label}} {{localize 'CYPHERSYSTEM.Edge'}}"
+                {{#unless canEditStatic}}disabled{{/unless}}
+              >
+            </label>
+          {{/if}}
+        </div>
+
+        <div class="cypher-v2-pool-value-row">
+          <button
+            type="button"
+            class="cypher-v2-pool-button"
+            data-pool-action="decrease"
+            data-field="{{additionalPool.valueField}}"
+            data-max-field="{{additionalPool.maxField}}"
+            title="Decrease {{additionalPool.label}} by 1"
+            {{#unless editable}}disabled{{/unless}}
+          >
+            <i class="fa-solid fa-chevron-left"></i>
+          </button>
+
+          <div class="cypher-v2-pool-value cypher-v2-pool-value-edit">
+            <input
+              class="cypher-v2-edit cypher-v2-pool-current"
+              type="text"
+              inputmode="numeric"
+              data-field="{{additionalPool.valueField}}"
+              data-max-field="{{additionalPool.maxField}}"
+              value="{{additionalPool.value}}"
+              aria-label="{{additionalPool.label}}"
+              title="Set value or use +2, -2, *2, /2"
+              {{#unless editable}}disabled{{/unless}}
+            >
+            <span>/</span>
+            <input
+              class="cypher-v2-edit cypher-v2-pool-max"
+              type="number"
+              name="{{additionalPool.maxField}}"
+              value="{{additionalPool.max}}"
+              aria-label="{{additionalPool.label}} maximum"
+              {{#unless canEditStatic}}disabled{{/unless}}
+            >
+          </div>
+
+          <button
+            type="button"
+            class="cypher-v2-pool-button"
+            data-pool-action="increase"
+            data-field="{{additionalPool.valueField}}"
+            data-max-field="{{additionalPool.maxField}}"
+            title="Increase {{additionalPool.label}} by 1"
+            {{#unless editable}}disabled{{/unless}}
+          >
+            <i class="fa-solid fa-chevron-right"></i>
+          </button>
+
+          <button
+            type="button"
+            class="cypher-v2-pool-button cypher-v2-pool-reset"
+            data-pool-action="reset"
+            data-field="{{additionalPool.valueField}}"
+            data-max-field="{{additionalPool.maxField}}"
+            title="Reset {{additionalPool.label}} to maximum"
+            {{#unless editable}}disabled{{/unless}}
+          >
+            <i class="fa-solid fa-rotate-left"></i>
+          </button>
+        </div>
+
+        <div class="cypher-v2-track">
+          <span style="width: {{additionalPool.percent}}%"></span>
+        </div>
+      </article>
+    {{/if}}
+  </div>
+</section>

@@ -20,6 +20,12 @@
         {{else}}
           <input name="baseDifficulty" id="baseDifficulty" type="number" value="{{this.baseDifficulty}}" class="roll-engine-input disabled" /><br>
         {{/if}}
+        {{#unless this.teen}}
+          <label class="roll-engine-label">Armor Task:</label>
+          <select name="armorTask" id="armorTask" class="dialog-select roll-engine-select">
+            {{selectOptions armorTaskChoices selected=this.armorTask valueAttr="key" labelAttr="label"}}
+          </select><br>
+        {{/unless}}
         <label class="roll-engine-label">{{localize "CYPHERSYSTEM.SkillLevel"}}:</label>
         <select name="skillLevel" id="skillLevel" class="dialog-select roll-engine-select">
           {{selectOptions skillRatingChoices selected=this.skillLevel valueAttr="key" labelAttr="label" localize=true}}
@@ -88,6 +94,9 @@
           {{/if}}
           {{#if this.speedCostArmor}}
             <label class="roll-engine-label-summary">{{this.speedCostArmor}}</label>
+          {{/if}}
+          {{#if this.summaryArmor}}
+            <label class="roll-engine-label-summary">{{this.summaryArmor}}</label>
           {{/if}}
           {{#if (gt this.stressModifier 0)}}
             <label class="roll-engine-label-summary">{{this.summaryStressLevels}}</label>

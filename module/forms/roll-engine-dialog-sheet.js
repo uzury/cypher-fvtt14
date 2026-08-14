@@ -5,6 +5,8 @@
 
 import {rollEngineComputation} from "../utilities/roll-engine/roll-engine-computation.js";
 import {useEffectiveDifficulty} from "../utilities/roll-engine/roll-engine-main.js";
+import {getWoundHindrance} from "../utilities/wound-utilities.js";
+import {getArmorRollModifier} from "../utilities/armor-utilities.js";
 import {
   getBackgroundImage,
   getBackgroundImageOverlayOpacity,
@@ -68,19 +70,9 @@ export class RollEngineDialogSheet extends FormApplication {
     data.effortUltimateDamageTotal = data.effortToEase + data.effortOtherUses - data.freeEffort;
     data.effortApplied = data.effortToEase + data.effortOtherUses + data.effortDamage;
 
-    // Damage Track
-    data.impairedString = "";
-    if (
-      actor.system.combat.damageTrack.state == "Impaired" &&
-      actor.system.combat.damageTrack.applyImpaired
-    ) {
-      data.impairedString = game.i18n.localize("CYPHERSYSTEM.PCIsImpaired");
-    } else if (
-      actor.system.combat.damageTrack.state == "Debilitated" &&
-      actor.system.combat.damageTrack.applyDebilitated
-    ) {
-      data.impairedString = game.i18n.localize("CYPHERSYSTEM.PCIsDebilitated");
-    }
+    // Cypher 2026 Wounds / legacy Teen condition summary
+    data.woundHindrance = data.teen ? 0 : getWoundHindrance(actor);
+    data.impairedString = rollConditionSummary(actor, data.teen);
 
     // Stress
     data.stressModifier = 0;
@@ -88,15 +80,17 @@ export class RollEngineDialogSheet extends FormApplication {
       data.stressModifier = actor.system.combat.stress.levels;
     }
 
-    // Armor
-    data.armorCost = !data.teen
-      ? actor.system.combat.armor.costTotal
-      : actor.system.teen.combat.armor.speedCostTotal;
+    // Armor: Cypher 2026 modifies task difficulty; Teen preserves legacy Speed Effort cost.
+    data.armorTask = ["block", "dodge"].includes(data.armorTask) ? data.armorTask : "normal";
+    data.armorProfile = data.teen
+      ? {steps: 0, modifier: 0, reason: "", typeLabel: "", freelyUse: false}
+      : getArmorRollModifier(actor, {pool: data.pool, armorTask: data.armorTask});
+    data.armorModifier = data.armorProfile.modifier;
+    data.summaryArmor = formatArmorSummary(data.armorProfile);
+    data.armorCost = data.teen ? Number(actor.system.teen?.combat?.armor?.speedCostTotal ?? 0) : 0;
     data.speedCostArmor =
-      data.pool == "Speed" && data.armorCost > 0
-        ? game.i18n.format("CYPHERSYSTEM.SpeedEffortAdditionalCostPerLevel", {
-          armorCost: data.armorCost
-        })
+      data.teen && data.pool == "Speed" && data.armorCost > 0
+        ? game.i18n.format("CYPHERSYSTEM.SpeedEffortAdditionalCostPerLevel", {armorCost: data.armorCost})
         : "";
 
     // Summary
@@ -218,7 +212,8 @@ export class RollEngineDialogSheet extends FormApplication {
       {key: "-1", label: "CYPHERSYSTEM.Inability"},
       {key: "0", label: "CYPHERSYSTEM.Practiced"},
       {key: "1", label: "CYPHERSYSTEM.Trained"},
-      {key: "2", label: "CYPHERSYSTEM.Specialized"}
+      {key: "2", label: "CYPHERSYSTEM.Specialized"},
+      {key: "3", label: "Expert"}
     ];
 
     data.numberAssetChoices = {
@@ -242,6 +237,12 @@ export class RollEngineDialogSheet extends FormApplication {
       "hindered": "CYPHERSYSTEM.hinderedBy"
     };
 
+    data.armorTaskChoices = [
+      {key: "normal", label: "Normal task"},
+      {key: "block", label: "Block"},
+      {key: "dodge", label: "Dodge"}
+    ];
+
     // Return data
     return data;
   }
@@ -263,6 +264,7 @@ export class RollEngineDialogSheet extends FormApplication {
     data.damagePerLOE = formData.damagePerLOE ? formData.damagePerLOE : 3;
     data.freeEffort = parseInt(formData.freeEffort);
     data.easedOrHindered = formData.easedOrHindered;
+    data.armorTask = ["block", "dodge"].includes(formData.armorTask) ? formData.armorTask : "normal";
     data.difficultyModifier = formData.difficultyModifier ? formData.difficultyModifier : 0;
     data.bonus = formData.bonus ? formData.bonus : 0;
     data.poolPointCost = formData.poolPointCost ? formData.poolPointCost : 0;
@@ -279,18 +281,9 @@ export class RollEngineDialogSheet extends FormApplication {
     data.intellectValue =
       data.pool == "Intellect" ? data.intellectValue - data.summaryTotalCost : data.intellectValue;
 
-    data.impairedString = "";
-    if (
-      actor.system.combat.damageTrack.state == "Impaired" &&
-      actor.system.combat.damageTrack.applyImpaired
-    ) {
-      data.impairedString = game.i18n.localize("CYPHERSYSTEM.PCIsImpaired");
-    } else if (
-      actor.system.combat.damageTrack.state == "Debilitated" &&
-      actor.system.combat.damageTrack.applyDebilitated
-    ) {
-      data.impairedString = game.i18n.localize("CYPHERSYSTEM.PCIsDebilitated");
-    }
+    // Cypher 2026 Wounds / legacy Teen condition summary
+    data.woundHindrance = data.teen ? 0 : getWoundHindrance(actor);
+    data.impairedString = rollConditionSummary(actor, data.teen);
 
     // Stress
     data.stressModifier = 0;
@@ -298,14 +291,15 @@ export class RollEngineDialogSheet extends FormApplication {
       data.stressModifier = actor.system.combat.stress.levels;
     }
 
-    data.armorCost = !data.teen
-      ? actor.system.combat.armor.costTotal
-      : actor.system.teen.combat.armor.speedCostTotal;
+    data.armorProfile = data.teen
+      ? {steps: 0, modifier: 0, reason: "", typeLabel: "", freelyUse: false}
+      : getArmorRollModifier(actor, {pool: data.pool, armorTask: data.armorTask});
+    data.armorModifier = data.armorProfile.modifier;
+    data.summaryArmor = formatArmorSummary(data.armorProfile);
+    data.armorCost = data.teen ? Number(actor.system.teen?.combat?.armor?.speedCostTotal ?? 0) : 0;
     data.speedCostArmor =
-      data.pool == "Speed" && data.armorCost > 0
-        ? game.i18n.format("CYPHERSYSTEM.SpeedEffortAdditionalCostPerLevel", {
-          armorCost: data.armorCost
-        })
+      data.teen && data.pool == "Speed" && data.armorCost > 0
+        ? game.i18n.format("CYPHERSYSTEM.SpeedEffortAdditionalCostPerLevel", {armorCost: data.armorCost})
         : "";
 
     data.exceedEffort = data.summaryTooMuchEffort ? "exceeded" : "";
@@ -338,11 +332,11 @@ export class RollEngineDialogSheet extends FormApplication {
         : "";
 
     // Summary
-    data.summaryFinalDifficulty = summaryFinalDifficulty(formData);
-    data.summaryTaskModified = summaryTaskModified(formData);
+    data.summaryFinalDifficulty = summaryFinalDifficulty(data);
+    data.summaryTaskModified = summaryTaskModified(data);
     data.summaryStressLevels = summaryStressLevels(data);
-    data.summaryTotalDamage = summaryTotalDamage(formData);
-    data.summaryTotalCostArray = summaryTotalCost(actor, formData, data.teen);
+    data.summaryTotalDamage = summaryTotalDamage(data);
+    data.summaryTotalCostArray = summaryTotalCost(actor, data, data.teen);
     data.summaryTotalCost = data.summaryTotalCostArray[0];
     data.summaryTotalCostString = data.summaryTotalCostArray[1];
     data.summaryTooMuchEffort = summaryCheckEffort(actor, data);
@@ -468,7 +462,7 @@ function summaryFinalDifficulty(data) {
   let difficultyModifier =
     data.easedOrHindered == "hindered" ? data.difficultyModifier * -1 : data.difficultyModifier;
   let sum =
-    data.skillLevel + data.assets + data.effortToEase + difficultyModifier - data.stressModifier;
+    data.skillLevel + data.assets + data.effortToEase + difficultyModifier + Number(data.armorModifier ?? 0) - data.stressModifier - Number(data.woundHindrance ?? 0);
   let finalDifficulty = useEffectiveDifficulty(data.baseDifficulty)
     ? parseInt(data.baseDifficulty)
     : Math.max(parseInt(data.baseDifficulty) - sum, 0);
@@ -485,6 +479,17 @@ function summaryFinalDifficulty(data) {
       : "";
 
   return finalDifficultyString;
+}
+
+function formatArmorSummary(profile) {
+  const modifier = Number(profile?.modifier ?? 0);
+  const steps = Math.abs(modifier);
+  if (!modifier || !profile?.typeLabel) return "";
+  const stepWord = steps === 1 ? "step" : "steps";
+  if (profile.reason === "block") return `Armor: ${profile.typeLabel} — Block eased by ${steps} ${stepWord}.`;
+  if (profile.reason === "dodge") return `Armor: ${profile.typeLabel} — Dodge hindered by ${steps} ${stepWord}.`;
+  if (profile.reason === "speed") return `Armor: ${profile.typeLabel} — Speed tasks hindered by ${steps} ${stepWord} (not freely used).`;
+  return "";
 }
 
 function summaryStressLevels(data) {
@@ -510,7 +515,7 @@ function summaryTaskModified(data) {
     data.easedOrHindered == "hindered" ? data.difficultyModifier * -1 : data.difficultyModifier;
 
   let sum =
-    data.skillLevel + data.assets + data.effortToEase + difficultyModifier - data.stressModifier;
+    data.skillLevel + data.assets + data.effortToEase + difficultyModifier + Number(data.armorModifier ?? 0) - data.stressModifier - Number(data.woundHindrance ?? 0);
 
   let taskModifiedString = "";
 
@@ -545,27 +550,46 @@ function summaryTotalDamage(data) {
   return totalDamageString;
 }
 
+function rollConditionSummary(actor, teen) {
+  if (!teen) {
+    const amount = getWoundHindrance(actor);
+    if (amount <= 0) return "";
+    if (amount === 1) return game.i18n.localize("CYPHERSYSTEM.TaskHinderedByStep");
+    return game.i18n.format("CYPHERSYSTEM.TaskHinderedBySteps", {amount});
+  }
+
+  const damageTrack = actor.system.teen?.combat?.damageTrack ?? {};
+  if (damageTrack.state == "Impaired" && damageTrack.applyImpaired) {
+    return game.i18n.localize("CYPHERSYSTEM.PCIsImpaired");
+  }
+  if (damageTrack.state == "Debilitated" && damageTrack.applyDebilitated) {
+    return game.i18n.localize("CYPHERSYSTEM.PCIsDebilitated");
+  }
+  return "";
+}
+
 function summaryTotalCost(actor, data, teen) {
   let armorCost = 0;
 
-  if (data.pool == "Speed") {
-    armorCost = !teen
-      ? actor.system.combat.armor.costTotal
-      : actor.system.teen.combat.armor.speedCostTotal;
+  if (teen && data.pool == "Speed") {
+    armorCost = Number(actor.system.teen?.combat?.armor?.speedCostTotal ?? 0);
   }
 
+  // Impaired/Debilitated effort surcharges are legacy Teen behavior only.
   let impairedCost = 0;
-  if (
-    actor.system.combat.damageTrack.state == "Impaired" &&
-    actor.system.combat.damageTrack.applyImpaired
-  ) {
-    impairedCost = 1;
-  }
-  if (
-    actor.system.combat.damageTrack.state == "Debilitated" &&
-    actor.system.combat.damageTrack.applyDebilitated
-  ) {
-    impairedCost = 1;
+  if (teen) {
+    if (
+      actor.system.teen.combat.damageTrack.state == "Impaired" &&
+      actor.system.teen.combat.damageTrack.applyImpaired
+    ) {
+      impairedCost = 1;
+    }
+    if (
+      actor.system.teen.combat.damageTrack.state == "Debilitated" &&
+      actor.system.teen.combat.damageTrack.applyDebilitated
+    ) {
+      impairedCost = 1;
+    }
   }
 
   let edge = 0;
