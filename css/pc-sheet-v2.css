@@ -2283,3 +2283,389 @@ body.theme-dark .cypher-pc-v2:not(.theme-light) .cypher-v2-armor-block {
 .cypher-pc-v2 .cypher-v2-wound-treatment > i {
   color: #45b97c;
 }
+
+/* Cypher PC V2 - Skills -------------------------------------------------- */
+.cypher-pc-v2 .cypher-v2-skills {
+  display: grid;
+  gap: 10px;
+  padding: 12px 16px 16px;
+  background: var(--v2-paper);
+}
+
+.cypher-pc-v2 .cypher-v2-skills-hero {
+  display: grid;
+  grid-template-columns: minmax(220px, 1fr) minmax(340px, 1.35fr);
+  align-items: center;
+  gap: 14px;
+  padding: 12px 14px;
+  border: 1px solid var(--v2-line);
+  border-left: 4px solid var(--v2-red);
+  border-radius: 8px;
+  background: var(--v2-surface);
+  box-shadow: 0 2px 8px var(--v2-shadow);
+}
+
+.cypher-pc-v2 .cypher-v2-skills-heading h2,
+.cypher-pc-v2 .cypher-v2-skill-category-header h3 {
+  margin: 1px 0 0;
+  color: var(--v2-ink);
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.cypher-pc-v2 .cypher-v2-skills-heading h2 {
+  font-size: 18px;
+}
+
+.cypher-pc-v2 .cypher-v2-skills-heading p {
+  max-width: 48ch;
+  margin: 4px 0 0;
+  color: var(--v2-muted);
+  font-size: 9px;
+  line-height: 1.35;
+}
+
+.cypher-pc-v2 .cypher-v2-skills-kicker {
+  color: var(--v2-red);
+  font-size: 7px;
+  font-weight: 900;
+  letter-spacing: .12em;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.cypher-pc-v2 .cypher-v2-skill-rank-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 5px;
+}
+
+.cypher-pc-v2 .cypher-v2-skill-rank {
+  display: grid;
+  grid-template-columns: 24px minmax(0, 1fr);
+  align-items: center;
+  gap: 5px;
+  min-width: 0;
+  padding: 5px 6px;
+  border: 1px solid var(--v2-line);
+  border-radius: 6px;
+  background: var(--v2-surface2);
+}
+
+.cypher-pc-v2 .cypher-v2-skill-rank strong {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: color-mix(in srgb, currentColor 12%, transparent);
+  color: inherit;
+  font-size: 9px;
+  font-weight: 900;
+}
+
+.cypher-pc-v2 .cypher-v2-skill-rank span {
+  overflow: hidden;
+  color: inherit;
+  font-size: 7px;
+  font-weight: 900;
+  text-overflow: ellipsis;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.cypher-pc-v2 .cypher-v2-skill-rank.is-inability,
+.cypher-pc-v2 .cypher-v2-skill-rating.is-inability {
+  color: #bd3549;
+}
+
+.cypher-pc-v2 .cypher-v2-skill-rank.is-trained,
+.cypher-pc-v2 .cypher-v2-skill-rating.is-trained {
+  color: #2b6fa3;
+}
+
+.cypher-pc-v2 .cypher-v2-skill-rank.is-specialized,
+.cypher-pc-v2 .cypher-v2-skill-rating.is-specialized {
+  color: #7551a3;
+}
+
+.cypher-pc-v2 .cypher-v2-skill-rank.is-expert,
+.cypher-pc-v2 .cypher-v2-skill-rating.is-expert {
+  color: #27825a;
+}
+
+.cypher-pc-v2 .cypher-v2-skill-categories {
+  display: grid;
+  gap: 10px;
+}
+
+.cypher-pc-v2 .cypher-v2-skill-category {
+  overflow: hidden;
+  border: 1px solid var(--v2-line);
+  border-radius: 8px;
+  background: var(--v2-surface);
+  box-shadow: 0 2px 8px var(--v2-shadow);
+}
+
+.cypher-pc-v2 .cypher-v2-skill-category-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  min-height: 40px;
+  padding: 7px 10px 7px 12px;
+  border-bottom: 1px solid var(--v2-line);
+  background: color-mix(in srgb, var(--v2-surface2) 62%, transparent);
+}
+
+.cypher-pc-v2 .cypher-v2-skill-category-header h3 {
+  font-size: 13px;
+}
+
+.cypher-pc-v2 .cypher-v2-skill-category-tools {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.cypher-pc-v2 .cypher-v2-skill-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 22px;
+  height: 20px;
+  padding: 0 6px;
+  border: 1px solid var(--v2-line);
+  border-radius: 999px;
+  color: var(--v2-muted);
+  font-size: 8px;
+  font-weight: 900;
+}
+
+.cypher-pc-v2 .cypher-v2-skill-add,
+.cypher-pc-v2 .cypher-v2-skill-icon-button,
+.cypher-pc-v2 .cypher-v2-skill-favorite {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 0;
+  min-height: 0;
+  margin: 0;
+  padding: 0;
+  border: 1px solid transparent;
+  background: transparent;
+  box-shadow: none;
+  line-height: 1;
+}
+
+.cypher-pc-v2 .cypher-v2-skill-add {
+  width: 24px;
+  height: 24px;
+  border-color: color-mix(in srgb, var(--v2-red) 35%, transparent);
+  border-radius: 6px;
+  color: var(--v2-red);
+  font-size: 9px;
+}
+
+.cypher-pc-v2 .cypher-v2-skill-add:hover,
+.cypher-pc-v2 .cypher-v2-skill-add:focus-visible,
+.cypher-pc-v2 .cypher-v2-skill-icon-button:hover,
+.cypher-pc-v2 .cypher-v2-skill-icon-button:focus-visible {
+  border-color: color-mix(in srgb, var(--v2-red) 55%, var(--v2-line));
+  background: color-mix(in srgb, var(--v2-red) 10%, transparent);
+  color: var(--v2-red);
+}
+
+.cypher-pc-v2 .cypher-v2-skill-item {
+  display: grid;
+  grid-template-columns: 22px 34px minmax(0, 1fr) max-content;
+  align-items: center;
+  gap: 7px;
+  min-width: 0;
+  padding: 6px 8px;
+  border-bottom: 1px solid var(--v2-line);
+}
+
+.cypher-pc-v2 .cypher-v2-skill-item:last-child {
+  border-bottom: 0;
+}
+
+.cypher-pc-v2 .cypher-v2-skill-favorite {
+  width: 22px;
+  height: 22px;
+  border-radius: 5px;
+  color: color-mix(in srgb, var(--v2-muted) 65%, transparent);
+  font-size: 9px;
+}
+
+.cypher-pc-v2 .cypher-v2-skill-favorite:not(.is-readonly):hover,
+.cypher-pc-v2 .cypher-v2-skill-favorite:not(.is-readonly):focus-visible,
+.cypher-pc-v2 .cypher-v2-skill-favorite.is-favorite {
+  color: #d7a63c;
+}
+
+.cypher-pc-v2 .cypher-v2-skill-image {
+  width: 34px;
+  height: 34px;
+  border: 1px solid var(--v2-line);
+  border-radius: 6px;
+  object-fit: cover;
+}
+
+.cypher-pc-v2 .cypher-v2-skill-main,
+.cypher-pc-v2 .cypher-v2-skill-name-wrap {
+  min-width: 0;
+}
+
+.cypher-pc-v2 .cypher-v2-skill-name {
+  display: block;
+  overflow: hidden;
+  width: 100%;
+  min-height: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+  color: var(--v2-ink);
+  font-size: 11px;
+  font-weight: 900;
+  line-height: 1.15;
+  text-align: left;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.cypher-pc-v2 .cypher-v2-skill-name:hover,
+.cypher-pc-v2 .cypher-v2-skill-name:focus-visible {
+  color: var(--v2-red);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.cypher-pc-v2 .cypher-v2-skill-meta {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 4px 8px;
+  margin-top: 3px;
+  color: var(--v2-muted);
+  font-size: 7px;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.cypher-pc-v2 .cypher-v2-skill-meta > span {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  white-space: nowrap;
+}
+
+.cypher-pc-v2 .cypher-v2-skill-rating {
+  padding: 2px 5px;
+  border: 1px solid color-mix(in srgb, currentColor 30%, transparent);
+  border-radius: 999px;
+  background: color-mix(in srgb, currentColor 7%, transparent);
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.cypher-pc-v2 .cypher-v2-skill-rating.is-practiced {
+  color: var(--v2-muted);
+}
+
+.cypher-pc-v2 .cypher-v2-skill-rating strong {
+  font-size: 7px;
+  font-weight: 900;
+}
+
+.cypher-pc-v2 .cypher-v2-skill-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 3px;
+}
+
+.cypher-pc-v2 .cypher-v2-skill-icon-button {
+  width: 23px;
+  height: 24px;
+  border-color: color-mix(in srgb, var(--v2-line) 80%, transparent);
+  border-radius: 5px;
+  color: var(--v2-muted);
+  font-size: 9px;
+}
+
+.cypher-pc-v2 .cypher-v2-skill-roll {
+  border-color: color-mix(in srgb, var(--v2-red) 34%, transparent);
+  background: color-mix(in srgb, var(--v2-red) 8%, transparent);
+  color: var(--v2-red);
+}
+
+.cypher-pc-v2 .cypher-v2-skill-item.is-archived {
+  opacity: .48;
+}
+
+.cypher-pc-v2 .cypher-v2-skill-item.is-archived .cypher-v2-skill-name {
+  text-decoration: line-through;
+  text-decoration-thickness: 1px;
+}
+
+.cypher-pc-v2.cypher-v2-alt-down .cypher-v2-skill-delete .cypher-v2-archive-default-icon {
+  display: none;
+}
+
+.cypher-pc-v2.cypher-v2-alt-down .cypher-v2-skill-delete .cypher-v2-archive-alt-icon {
+  display: inline-block;
+}
+
+.cypher-pc-v2.cypher-v2-alt-down .cypher-v2-skill-delete {
+  border-color: rgba(208, 75, 88, .55);
+  background: rgba(208, 75, 88, .13);
+  color: #d04b58;
+}
+
+.cypher-pc-v2 .cypher-v2-skill-empty {
+  padding: 14px 12px;
+  color: var(--v2-muted);
+  font-size: 9px;
+  font-style: italic;
+  text-align: center;
+}
+
+.cypher-pc-v2.theme-dark .cypher-v2-skill-rank.is-trained,
+.cypher-pc-v2.theme-dark .cypher-v2-skill-rating.is-trained,
+body.theme-dark .cypher-pc-v2:not(.theme-light) .cypher-v2-skill-rank.is-trained,
+body.theme-dark .cypher-pc-v2:not(.theme-light) .cypher-v2-skill-rating.is-trained {
+  color: #69afe0;
+}
+
+.cypher-pc-v2.theme-dark .cypher-v2-skill-rank.is-specialized,
+.cypher-pc-v2.theme-dark .cypher-v2-skill-rating.is-specialized,
+body.theme-dark .cypher-pc-v2:not(.theme-light) .cypher-v2-skill-rank.is-specialized,
+body.theme-dark .cypher-pc-v2:not(.theme-light) .cypher-v2-skill-rating.is-specialized {
+  color: #c197ee;
+}
+
+.cypher-pc-v2.theme-dark .cypher-v2-skill-rank.is-expert,
+.cypher-pc-v2.theme-dark .cypher-v2-skill-rating.is-expert,
+body.theme-dark .cypher-pc-v2:not(.theme-light) .cypher-v2-skill-rank.is-expert,
+body.theme-dark .cypher-pc-v2:not(.theme-light) .cypher-v2-skill-rating.is-expert {
+  color: #63d99a;
+}
+
+@media (max-width: 760px) {
+  .cypher-pc-v2 .cypher-v2-skills-hero {
+    grid-template-columns: 1fr;
+  }
+
+  .cypher-pc-v2 .cypher-v2-skill-item {
+    grid-template-columns: 22px 30px minmax(0, 1fr) max-content;
+  }
+
+  .cypher-pc-v2 .cypher-v2-skill-image {
+    width: 30px;
+    height: 30px;
+  }
+}

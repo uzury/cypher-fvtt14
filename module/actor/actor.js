@@ -72,6 +72,7 @@ export class CypherActor extends Actor {
         if (i.system.basic.skillRating == "Inability") skillRating = -1;
         if (i.system.basic.skillRating == "Trained") skillRating = 1;
         if (i.system.basic.skillRating == "Specialized") skillRating = 2;
+        if (i.system.basic.skillRating == "Expert") skillRating = 3;
 
         if (i.system.basic.modifier == "hindered") modifiedBy = modifiedBy * -1;
 

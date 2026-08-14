@@ -1,0 +1,147 @@
+<section class="cypher-v2-part cypher-v2-skills" data-cypher-v2-tab-panel="skills">
+  <header class="cypher-v2-skills-hero">
+    <div class="cypher-v2-skills-heading">
+      <span class="cypher-v2-skills-kicker">{{localize "CYPHERSYSTEM.SkillsV2Training"}}</span>
+      <h2>{{localize "CYPHERSYSTEM.Skills"}}</h2>
+      <p>{{localize "CYPHERSYSTEM.SkillsV2Summary"}}</p>
+    </div>
+
+    <div class="cypher-v2-skill-rank-grid" aria-label="{{localize 'CYPHERSYSTEM.SkillsV2RankGuide'}}">
+      {{#each skillRanks as |rank|}}
+        <div class="cypher-v2-skill-rank is-{{rank.tone}}">
+          <strong>{{rank.stepsLabel}}</strong>
+          <span>{{rank.label}}</span>
+        </div>
+      {{/each}}
+    </div>
+  </header>
+
+  <div class="cypher-v2-skill-categories">
+    {{#each skillCategories as |category|}}
+      <article class="cypher-v2-skill-category">
+        <header class="cypher-v2-skill-category-header">
+          <div>
+            <span class="cypher-v2-skills-kicker">{{localize "CYPHERSYSTEM.SkillsV2Category"}}</span>
+            <h3>{{category.label}}</h3>
+          </div>
+
+          <div class="cypher-v2-skill-category-tools">
+            <span class="cypher-v2-skill-count">{{category.count}}</span>
+            {{#if ../editable}}
+              <button
+                type="button"
+                class="cypher-v2-skill-add"
+                data-action="createSkillItem"
+                data-skill-category="{{category.id}}"
+                title="{{localize 'CYPHERSYSTEM.SkillsV2Create'}}"
+                aria-label="{{localize 'CYPHERSYSTEM.SkillsV2Create'}}"
+              >
+                <i class="fa-solid fa-plus"></i>
+              </button>
+            {{/if}}
+          </div>
+        </header>
+
+        <div class="cypher-v2-skill-list">
+          {{#each category.skills as |skill|}}
+            <div class="cypher-v2-skill-item {{#if skill.archived}}is-archived{{/if}}">
+              {{#if ../../editable}}
+                <button
+                  type="button"
+                  class="cypher-v2-skill-favorite {{#if skill.favorite}}is-favorite{{/if}}"
+                  data-action="toggleSkillFavorite"
+                  data-item-id="{{skill.id}}"
+                  title="{{localize 'CYPHERSYSTEM.ItemFavorite'}}"
+                  aria-label="{{localize 'CYPHERSYSTEM.ItemFavorite'}}"
+                >
+                  <i class="{{#if skill.favorite}}fa-solid{{else}}fa-regular{{/if}} fa-star"></i>
+                </button>
+              {{else}}
+                <span class="cypher-v2-skill-favorite is-readonly {{#if skill.favorite}}is-favorite{{/if}}">
+                  <i class="{{#if skill.favorite}}fa-solid{{else}}fa-regular{{/if}} fa-star"></i>
+                </span>
+              {{/if}}
+
+              <img class="cypher-v2-skill-image" src="{{skill.img}}" alt="{{skill.name}}">
+
+              <div class="cypher-v2-skill-main">
+                <div class="cypher-v2-skill-name-wrap">
+                  <button
+                    type="button"
+                    class="cypher-v2-skill-name"
+                    data-action="skillItemDescription"
+                    data-item-id="{{skill.id}}"
+                    data-cypher-v2-card-preview
+                    title="{{localize 'CYPHERSYSTEM.SkillsV2SendToChat'}}"
+                  >
+                    {{skill.name}}
+                  </button>
+                  <template class="cypher-v2-item-tooltip-template">{{{skill.previewHtml}}}</template>
+                </div>
+
+                <div class="cypher-v2-skill-meta">
+                  <span class="cypher-v2-skill-rating is-{{skill.ratingTone}}">
+                    <strong>{{skill.stepsLabel}}</strong>
+                    {{skill.ratingLabel}}
+                  </span>
+                  <span><i class="fa-solid fa-gauge-high"></i> {{skill.poolLabel}}</span>
+                  {{#if skill.assets}}
+                    <span><i class="fa-solid fa-toolbox"></i> {{localize "CYPHERSYSTEM.Assets"}} {{skill.assets}}</span>
+                  {{/if}}
+                </div>
+              </div>
+
+              <div class="cypher-v2-skill-actions">
+                {{#if ../../rollSettings.enabled}}
+                  {{#unless skill.archived}}
+                    <button
+                      type="button"
+                      class="cypher-v2-skill-icon-button cypher-v2-skill-roll"
+                      data-action="rollSkill"
+                      data-item-id="{{skill.id}}"
+                      title="{{localize 'CYPHERSYSTEM.RollItem'}}"
+                      aria-label="{{localize 'CYPHERSYSTEM.RollItem'}}"
+                    >
+                      <i class="fa-solid fa-dice-d20"></i>
+                    </button>
+                  {{/unless}}
+                {{/if}}
+
+                {{#if ../../editable}}
+                  <button
+                    type="button"
+                    class="cypher-v2-skill-icon-button"
+                    data-action="editSkillItem"
+                    data-item-id="{{skill.id}}"
+                    title="{{localize 'CYPHERSYSTEM.EditItem'}}"
+                    aria-label="{{localize 'CYPHERSYSTEM.EditItem'}}"
+                  >
+                    <i class="fa-solid fa-pen-to-square"></i>
+                  </button>
+
+                  <button
+                    type="button"
+                    class="cypher-v2-skill-icon-button cypher-v2-skill-delete"
+                    data-action="deleteSkillItem"
+                    data-item-id="{{skill.id}}"
+                    title="{{#if skill.archived}}{{localize 'CYPHERSYSTEM.UnarchiveItem'}}{{else}}{{localize 'CYPHERSYSTEM.ArchiveItem'}}{{/if}}"
+                    aria-label="{{#if skill.archived}}{{localize 'CYPHERSYSTEM.UnarchiveItem'}}{{else}}{{localize 'CYPHERSYSTEM.ArchiveItem'}}{{/if}}"
+                  >
+                    {{#if skill.archived}}
+                      <i class="fa-solid fa-arrow-rotate-left cypher-v2-archive-default-icon"></i>
+                    {{else}}
+                      <i class="fa-solid fa-box-archive cypher-v2-archive-default-icon"></i>
+                    {{/if}}
+                    <i class="fa-solid fa-trash-xmark cypher-v2-archive-alt-icon"></i>
+                  </button>
+                {{/if}}
+              </div>
+            </div>
+          {{else}}
+            <div class="cypher-v2-skill-empty">{{localize "CYPHERSYSTEM.SkillsV2Empty"}}</div>
+          {{/each}}
+        </div>
+      </article>
+    {{/each}}
+  </div>
+</section>

@@ -38,6 +38,7 @@ export class CypherItem extends Item {
     if (systemData.basic.skillRating == "Inability") skillRating = -1;
     if (systemData.basic.skillRating == "Trained") skillRating = 1;
     if (systemData.basic.skillRating == "Specialized") skillRating = 2;
+    if (systemData.basic.skillRating == "Expert") skillRating = 3;
 
     if (systemData.basic.modifier == "hindered") modifiedBy = modifiedBy * -1;
 

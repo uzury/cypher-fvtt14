@@ -38,7 +38,8 @@ export function itemRollMacroQuick(actor, itemID, teen) {
       "Inability": game.i18n.localize("CYPHERSYSTEM.Inability"),
       "Practiced": game.i18n.localize("CYPHERSYSTEM.Practiced"),
       "Trained": game.i18n.localize("CYPHERSYSTEM.Trained"),
-      "Specialized": game.i18n.localize("CYPHERSYSTEM.Specialized")
+      "Specialized": game.i18n.localize("CYPHERSYSTEM.Specialized"),
+      "Expert": game.i18n.localize("CYPHERSYSTEM.Expert")
     };
     let skillInfo = (relevantSkill[item.system.basic.rating] || relevantSkill["Practiced"]);
 
@@ -50,7 +51,8 @@ export function itemRollMacroQuick(actor, itemID, teen) {
       "Inability": -1,
       "Practiced": 0,
       "Trained": 1,
-      "Specialized": 2
+      "Specialized": 2,
+      "Expert": 3
     };
 
     // Set difficulty modifier
@@ -77,7 +79,8 @@ export function itemRollMacroQuick(actor, itemID, teen) {
       "Inability": -1,
       "Practiced": 0,
       "Trained": 1,
-      "Specialized": 2
+      "Specialized": 2,
+      "Expert": 3
     };
     let skillRating = (attackSkill[item.system.basic.skillRating] || 0);
 

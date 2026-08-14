@@ -248,6 +248,7 @@ export class CypherItemSheet extends foundry.appv1.sheets.ItemSheet {
     };
 
     data.skillRatingChoices = {
+      "Expert": "CYPHERSYSTEM.Expert",
       "Specialized": "CYPHERSYSTEM.Specialized",
       "Trained": "CYPHERSYSTEM.Trained",
       "Practiced": "CYPHERSYSTEM.Practiced",
