@@ -3778,3 +3778,64 @@ body.theme-dark .cypher-roll-card .cypher-roll-outcome .roll-initiative {
   height: 70px;
   font-size: 48px;
 }
+
+/* === Cypher 2026 roll cards: fix natural 20 status/effect overlap === */
+
+.cypher-roll-card .cypher-roll-hero {
+  display: grid;
+  grid-template-columns: 140px minmax(0, 1fr);
+  column-gap: 18px;
+  align-items: start;
+}
+
+.cypher-roll-card .cypher-roll-die-column {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+.cypher-roll-card .cypher-roll-status {
+  width: 100%;
+  max-width: 132px;
+  box-sizing: border-box;
+  text-align: center;
+  white-space: normal;
+  line-height: 1.1;
+  padding: 6px 8px;
+}
+
+.cypher-roll-card .cypher-roll-summary {
+  min-width: 0;
+}
+
+.cypher-roll-card .cypher-roll-title {
+  min-width: 0;
+}
+
+.cypher-roll-card .cypher-roll-outcome {
+  min-width: 0;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 6px;
+  text-align: right;
+}
+
+.cypher-roll-card .cypher-roll-outcome .roll-effect,
+.cypher-roll-card .cypher-roll-outcome .cypher-roll-effect,
+.cypher-roll-card .cypher-roll-outcome span {
+  max-width: 100%;
+  white-space: normal;
+  word-break: break-word;
+}
+
+.cypher-roll-card .cypher-roll-difficulty {
+  min-width: 0;
+}
+
+.cypher-roll-card .cypher-roll-formula-inline {
+  min-width: 0;
+}

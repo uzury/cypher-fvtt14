@@ -1,10 +1,11 @@
 import {summaryCheckEffort} from "../../forms/roll-engine-dialog-sheet.js";
-import {payPoolPoints} from "../actor-utilities.js";
+import {adjustPoolPointsExact, payPoolPoints} from "../actor-utilities.js";
 import {rollEngineForm} from "./roll-engine-form.js";
 import {useEffectiveDifficulty} from "./roll-engine-main.js";
 import {rollEngineOutput} from "./roll-engine-output.js";
 import {getWoundHindrance} from "../wound-utilities.js";
 import {getArmorRollModifier} from "../armor-utilities.js";
+import {getNatural20CostTransition} from "./roll-cost-utilities.js";
 
 export async function rollEngineComputation(data) {
   let actor = fromUuidSync(data.actorUuid);
@@ -96,8 +97,42 @@ export async function rollEngineComputation(data) {
     let edge = actor.system.pools[data.pool.toLowerCase()].edge;
     payPoolPointsInfo = [true, Math.max(0, data.costCalculated - edge), edge];
   }
-  data.costTotal = payPoolPointsInfo[1];
+  data.costTotal = Number(payPoolPointsInfo[1] ?? 0);
   data.edge = payPoolPointsInfo[2];
+
+  // Cypher 2026 natural 20: the action's stat-Pool cost becomes 0.
+  // Preserve the actual post-Edge amount paid so rerolls can transition the
+  // same action between paid and refunded states without double-refunding.
+  if (!data.reroll || data.actionCostPaid === undefined || data.actionCostPaid === null) {
+    data.actionCostPaid = data.costTotal;
+    data.natural20Refunded = false;
+  } else {
+    data.actionCostPaid = Math.max(0, Number(data.actionCostPaid) || 0);
+    data.costTotal = data.actionCostPaid;
+  }
+
+  const natural20Transition = getNatural20CostTransition({
+    teen: data.teen,
+    pool: data.pool,
+    rollTotal: data.roll.total,
+    costPaid: data.actionCostPaid,
+    wasRefunded: data.natural20Refunded,
+    reroll: data.reroll
+  });
+
+  if (natural20Transition.poolDelta !== 0) {
+    const adjusted = await adjustPoolPointsExact(
+      actor,
+      natural20Transition.poolDelta,
+      data.pool,
+      data.teen
+    );
+    if (!adjusted) return null;
+  }
+
+  data.natural20Refunded = natural20Transition.refunded;
+  data.natural20RefundAmount = natural20Transition.refundAmount;
+  data.finalCostTotal = natural20Transition.finalCost;
 
   // Calculate roll modifiers
   let difficultyModifier =

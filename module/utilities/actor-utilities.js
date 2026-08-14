@@ -37,29 +37,59 @@ export async function payPoolPoints(actor, costCalculated, pool, teen, edge) {
       ui.notifications.info(game.i18n.localize("CYPHERSYSTEM.NotEnoughMight"));
       return false;
     }
-    (teen) ? actor.update({"system.teen.pools.might.value": mightValue - costCalculated}) : actor.update({"system.pools.might.value": mightValue - costCalculated});
+    (teen) ? await actor.update({"system.teen.pools.might.value": mightValue - costCalculated}) : await actor.update({"system.pools.might.value": mightValue - costCalculated});
   } else if (pool == "Speed") {
     if (costCalculated > speedValue && !ruleBreakingRolls) {
       ui.notifications.info(game.i18n.localize("CYPHERSYSTEM.NotEnoughSpeed"));
       return false;
     }
-    (teen) ? actor.update({"system.teen.pools.speed.value": intellectValue - costCalculated}) : actor.update({"system.pools.speed.value": speedValue - costCalculated});
+    (teen) ? await actor.update({"system.teen.pools.speed.value": intellectValue - costCalculated}) : await actor.update({"system.pools.speed.value": speedValue - costCalculated});
   } else if (pool == "Intellect") {
     if (costCalculated > intellectValue && !ruleBreakingRolls) {
       ui.notifications.info(game.i18n.localize("CYPHERSYSTEM.NotEnoughIntellect"));
       return false;
     }
-    (teen) ? actor.update({"system.teen.pools.intellect.value": intellectValue - costCalculated}) : actor.update({"system.pools.intellect.value": intellectValue - costCalculated});
+    (teen) ? await actor.update({"system.teen.pools.intellect.value": intellectValue - costCalculated}) : await actor.update({"system.pools.intellect.value": intellectValue - costCalculated});
   } else if (pool == "XP") {
     if (costCalculated > actor.system.basic.xp && !ruleBreakingRolls) {
       ui.notifications.info(game.i18n.localize("CYPHERSYSTEM.NotEnoughXP"));
       return false;
     }
-    actor.update({"system.basic.xp": actor.system.basic.xp - costCalculated});
+    await actor.update({"system.basic.xp": actor.system.basic.xp - costCalculated});
   }
 
   let payPoolPointsInfo = [true, costCalculated, edge, pool];
   return payPoolPointsInfo;
+}
+
+export async function adjustPoolPointsExact(actor, amount, pool, teen = false) {
+  const poolKey = String(pool ?? "").toLowerCase();
+  if (!["might", "speed", "intellect"].includes(poolKey)) return false;
+
+  const pools = teen ? actor.system.teen?.pools : actor.system.pools;
+  const currentValue = Number(pools?.[poolKey]?.value ?? 0);
+  const delta = Number(amount);
+  if (!Number.isFinite(delta) || delta === 0) return true;
+
+  const nextValue = currentValue + delta;
+  const ruleBreakingRolls = game.settings.get("cyphersystem", "ruleBreakingRolls");
+
+  if (nextValue < 0 && !ruleBreakingRolls) {
+    const warningKey = {
+      might: "CYPHERSYSTEM.NotEnoughMight",
+      speed: "CYPHERSYSTEM.NotEnoughSpeed",
+      intellect: "CYPHERSYSTEM.NotEnoughIntellect"
+    }[poolKey];
+    ui.notifications.info(game.i18n.localize(warningKey));
+    return false;
+  }
+
+  const path = teen
+    ? `system.teen.pools.${poolKey}.value`
+    : `system.pools.${poolKey}.value`;
+
+  await actor.update({[path]: nextValue});
+  return true;
 }
 
 export async function regainPoolPoints(actor, cost, pool, teen) {

@@ -224,29 +224,31 @@ export async function rollEngineOutput(data) {
     }
   };
 
+  const displayedCostTotal = Math.max(0, Number(data.finalCostTotal ?? data.costTotal ?? 0));
+
   let costTotalInfo = {
     "Might": function () {
-      return (data.costTotal != 1) ?
-        `${game.i18n.localize("CYPHERSYSTEM.Cost")}: ${data.costTotal} ${game.i18n.localize("CYPHERSYSTEM.MightPoints")}` :
-        `${game.i18n.localize("CYPHERSYSTEM.Cost")}: ${data.costTotal} ${game.i18n.localize("CYPHERSYSTEM.MightPoint")}`;
+      return (displayedCostTotal != 1) ?
+        `${game.i18n.localize("CYPHERSYSTEM.Cost")}: ${displayedCostTotal} ${game.i18n.localize("CYPHERSYSTEM.MightPoints")}` :
+        `${game.i18n.localize("CYPHERSYSTEM.Cost")}: ${displayedCostTotal} ${game.i18n.localize("CYPHERSYSTEM.MightPoint")}`;
     },
     "Speed": function () {
-      return (data.costTotal != 1) ?
-        `${game.i18n.localize("CYPHERSYSTEM.Cost")}: ${data.costTotal} ${game.i18n.localize("CYPHERSYSTEM.SpeedPoints")}` :
-        `${game.i18n.localize("CYPHERSYSTEM.Cost")}: ${data.costTotal} ${game.i18n.localize("CYPHERSYSTEM.SpeedPoint")}`;
+      return (displayedCostTotal != 1) ?
+        `${game.i18n.localize("CYPHERSYSTEM.Cost")}: ${displayedCostTotal} ${game.i18n.localize("CYPHERSYSTEM.SpeedPoints")}` :
+        `${game.i18n.localize("CYPHERSYSTEM.Cost")}: ${displayedCostTotal} ${game.i18n.localize("CYPHERSYSTEM.SpeedPoint")}`;
     },
     "Intellect": function () {
-      return (data.costTotal != 1) ?
-        `${game.i18n.localize("CYPHERSYSTEM.Cost")}: ${data.costTotal} ${game.i18n.localize("CYPHERSYSTEM.IntellectPoints")}` :
-        `${game.i18n.localize("CYPHERSYSTEM.Cost")}: ${data.costTotal} ${game.i18n.localize("CYPHERSYSTEM.IntellectPoint")}`;
+      return (displayedCostTotal != 1) ?
+        `${game.i18n.localize("CYPHERSYSTEM.Cost")}: ${displayedCostTotal} ${game.i18n.localize("CYPHERSYSTEM.IntellectPoints")}` :
+        `${game.i18n.localize("CYPHERSYSTEM.Cost")}: ${displayedCostTotal} ${game.i18n.localize("CYPHERSYSTEM.IntellectPoint")}`;
     },
     "Pool": function () {
-      return (data.costTotal != 1) ?
-        `${game.i18n.localize("CYPHERSYSTEM.Cost")}: ${data.costTotal} ${game.i18n.localize("CYPHERSYSTEM.AnyPoolPoints")}` :
-        `${game.i18n.localize("CYPHERSYSTEM.Cost")}: ${data.costTotal} ${game.i18n.localize("CYPHERSYSTEM.AnyPoolPoint")}`;
+      return (displayedCostTotal != 1) ?
+        `${game.i18n.localize("CYPHERSYSTEM.Cost")}: ${displayedCostTotal} ${game.i18n.localize("CYPHERSYSTEM.AnyPoolPoints")}` :
+        `${game.i18n.localize("CYPHERSYSTEM.Cost")}: ${displayedCostTotal} ${game.i18n.localize("CYPHERSYSTEM.AnyPoolPoint")}`;
     },
     "XP": function () {
-      return `${game.i18n.localize("CYPHERSYSTEM.Cost")}: ${data.costTotal} ${game.i18n.localize("CYPHERSYSTEM.XP")}`;
+      return `${game.i18n.localize("CYPHERSYSTEM.Cost")}: ${displayedCostTotal} ${game.i18n.localize("CYPHERSYSTEM.XP")}`;
     }
   };
 
@@ -267,7 +269,12 @@ export async function rollEngineOutput(data) {
   let poolCostInfoString = poolCostInfo[data.pool]() + "<br>";
   let costTotalInfoString = costTotalInfo[data.pool]();
 
-  let costDetailsInfo = styleCostDetails + poolCostInfoString + effortInfo + edgeInfo + `</div>`;
+  const natural20RefundAmount = Math.max(0, Number(data.natural20RefundAmount ?? 0));
+  const natural20RefundInfo = data.natural20Refunded && natural20RefundAmount > 0
+    ? `<br>${game.i18n.localize("CYPHERSYSTEM.RegainPoints")}: ${natural20RefundAmount}`
+    : "";
+
+  let costDetailsInfo = styleCostDetails + poolCostInfoString + effortInfo + edgeInfo + natural20RefundInfo + `</div>`;
 
   let costInfoBlock = "";
   if (data.poolPointCost != 0 || data.costCalculated != 0) {
@@ -356,7 +363,7 @@ export async function rollEngineOutput(data) {
 
   // Add regain points button
   let regainPointsButton = "";
-  if (data.costTotal > 0 && data.roll.total == 20 && ["Might", "Speed", "Intellect"].includes(data.pool)) {
+  if (data.teen && data.costTotal > 0 && data.roll.total == 20 && ["Might", "Speed", "Intellect"].includes(data.pool)) {
     regainPointsButton = `<a class='regain-points' title='${game.i18n.localize("CYPHERSYSTEM.RegainPoints")}' data-user='${game.user.id}' data-actor-uuid='${actorUuid}' data-cost='${data.costTotal}' data-pool='${data.pool}' data-teen='${data.teen}'><i class="fa-item fas fa-coins"></i></a>`;
   }
 
