@@ -9,15 +9,88 @@
     <span>{{localize "CYPHERSYSTEM.Combat"}}</span>
   </button>
 
-  <button type="button" disabled>
+  <button
+    type="button"
+    data-action="changeTab"
+    data-tab="abilities"
+    aria-describedby="cypher-v2-abilities-tab-info-{{actor.id}}"
+  >
     <i class="fa-solid fa-sparkles"></i>
     <span>{{localize "CYPHERSYSTEM.Abilities"}}</span>
   </button>
 
-  <button type="button" data-action="changeTab" data-tab="skills">
+  <div
+    id="cypher-v2-abilities-tab-info-{{actor.id}}"
+    class="cypher-v2-nav-info is-abilities"
+    role="tooltip"
+  >
+    <div class="cypher-v2-nav-info-card">
+      <div class="cypher-v2-skills-heading cypher-v2-abilities-heading">
+        <span class="cypher-v2-skills-kicker">{{localize "CYPHERSYSTEM.AbilitiesV2Understanding"}}</span>
+        <h2>{{localize "CYPHERSYSTEM.Abilities"}}</h2>
+        <p>{{localize "CYPHERSYSTEM.AbilitiesV2Summary"}}</p>
+      </div>
+
+      <div class="cypher-v2-ability-guide" aria-label="{{localize 'CYPHERSYSTEM.AbilitiesV2Guide'}}">
+        <div class="cypher-v2-ability-guide-item">
+          <i class="fa-solid fa-coins" aria-hidden="true"></i>
+          <div>
+            <strong>{{localize "CYPHERSYSTEM.AbilitiesV2NameCost"}}</strong>
+            <span>{{localize "CYPHERSYSTEM.AbilitiesV2NameCostHint"}}</span>
+          </div>
+        </div>
+
+        <div class="cypher-v2-ability-guide-item">
+          <i class="fa-solid fa-bolt" aria-hidden="true"></i>
+          <div>
+            <strong>{{localize "CYPHERSYSTEM.AbilitiesV2EffectEffort"}}</strong>
+            <span>{{localize "CYPHERSYSTEM.AbilitiesV2EffectEffortHint"}}</span>
+          </div>
+        </div>
+
+        <div class="cypher-v2-ability-guide-item">
+          <i class="fa-solid fa-hourglass-half" aria-hidden="true"></i>
+          <div>
+            <strong>{{localize "CYPHERSYSTEM.AbilitiesV2Timing"}}</strong>
+            <span>{{localize "CYPHERSYSTEM.AbilitiesV2TimingHint"}}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <button
+    type="button"
+    data-action="changeTab"
+    data-tab="skills"
+    aria-describedby="cypher-v2-skills-tab-info-{{actor.id}}"
+  >
     <i class="fa-solid fa-list-check"></i>
     <span>{{localize "CYPHERSYSTEM.Skills"}}</span>
   </button>
+
+  <div
+    id="cypher-v2-skills-tab-info-{{actor.id}}"
+    class="cypher-v2-nav-info is-skills"
+    role="tooltip"
+  >
+    <div class="cypher-v2-nav-info-card">
+      <div class="cypher-v2-skills-heading">
+        <span class="cypher-v2-skills-kicker">{{localize "CYPHERSYSTEM.SkillsV2Training"}}</span>
+        <h2>{{localize "CYPHERSYSTEM.Skills"}}</h2>
+        <p>{{localize "CYPHERSYSTEM.SkillsV2Summary"}}</p>
+      </div>
+
+      <div class="cypher-v2-skill-rank-grid" aria-label="{{localize 'CYPHERSYSTEM.SkillsV2RankGuide'}}">
+        {{#each skillRanks as |rank|}}
+          <div class="cypher-v2-skill-rank is-{{rank.tone}}">
+            <strong>{{rank.stepsLabel}}</strong>
+            <span>{{rank.label}}</span>
+          </div>
+        {{/each}}
+      </div>
+    </div>
+  </div>
 
   <button type="button" disabled>
     <i class="fa-solid fa-backpack"></i>

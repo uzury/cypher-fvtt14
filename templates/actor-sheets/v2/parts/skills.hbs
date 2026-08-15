@@ -1,21 +1,4 @@
 <section class="cypher-v2-part cypher-v2-skills" data-cypher-v2-tab-panel="skills">
-  <header class="cypher-v2-skills-hero">
-    <div class="cypher-v2-skills-heading">
-      <span class="cypher-v2-skills-kicker">{{localize "CYPHERSYSTEM.SkillsV2Training"}}</span>
-      <h2>{{localize "CYPHERSYSTEM.Skills"}}</h2>
-      <p>{{localize "CYPHERSYSTEM.SkillsV2Summary"}}</p>
-    </div>
-
-    <div class="cypher-v2-skill-rank-grid" aria-label="{{localize 'CYPHERSYSTEM.SkillsV2RankGuide'}}">
-      {{#each skillRanks as |rank|}}
-        <div class="cypher-v2-skill-rank is-{{rank.tone}}">
-          <strong>{{rank.stepsLabel}}</strong>
-          <span>{{rank.label}}</span>
-        </div>
-      {{/each}}
-    </div>
-  </header>
-
   <div class="cypher-v2-skill-categories">
     {{#each skillCategories as |category|}}
       <article class="cypher-v2-skill-category">

@@ -12,14 +12,14 @@ export async function rollEngineComputation(data) {
 
   // Determine whether roll formula
   let teen = actor.system.basic.unmaskedForm == "Teen" ? true : false;
-  let rollFormula = "1d20";
-  if (teen && actor.system.teen.settings.general.rollTwoD20 && !data.reroll) {
+  let rollFormula = data.skipRoll ? "0" : "1d20";
+  if (!data.skipRoll && teen && actor.system.teen.settings.general.rollTwoD20 && !data.reroll) {
     rollFormula = "2d20kh1";
-  } else if (!teen && actor.system.settings.general.rollTwoD20 && !data.reroll) {
+  } else if (!data.skipRoll && !teen && actor.system.settings.general.rollTwoD20 && !data.reroll) {
     rollFormula = "2d20kh1";
   }
 
-  // Roll dice
+  // Cost-only actions use a deterministic zero result instead of a hidden d20.
   data.roll = await new Roll(rollFormula).evaluate();
 
   // Check for effort

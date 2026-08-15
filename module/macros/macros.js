@@ -526,14 +526,10 @@ export async function itemRollMacro(
   if (!freeEffort) freeEffort = item.system.settings.rollButton.freeEffort;
   if (!additionalCost) {
     if (item.type == "ability") {
-      let checkPlus = item.system.basic.cost.slice(-1);
-      if (checkPlus == "+") {
-        let cost = item.system.basic.cost.slice(0, -1);
-        additionalCost = cost;
-      } else {
-        let cost = item.system.basic.cost;
-        additionalCost = cost;
-      }
+      const configuredCost = String(item.system.basic?.cost ?? "").trim();
+      additionalCost = configuredCost.endsWith("+")
+        ? configuredCost.slice(0, -1)
+        : configuredCost;
     } else {
       additionalCost = item.system.settings.rollButton.additionalCost;
     }

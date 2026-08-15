@@ -29,7 +29,46 @@ function escapeItemCardText(value) {
     .replaceAll("'", "&#039;");
 }
 
-async function buildItemCard(actor, item) {
+function getAbilityDisplayData(item) {
+  const rawCost = String(item.system.basic?.cost ?? "").trim();
+  const hasCost = rawCost !== "" && rawCost !== "0";
+  const pool = item.system.basic?.pool ?? "Pool";
+  const poolLabels = {
+    Might: game.i18n.localize("CYPHERSYSTEM.Might"),
+    Speed: game.i18n.localize("CYPHERSYSTEM.Speed"),
+    Intellect: game.i18n.localize("CYPHERSYSTEM.Intellect"),
+    Pool: game.i18n.localize("CYPHERSYSTEM.AnyPool"),
+    XP: game.i18n.localize("CYPHERSYSTEM.XP")
+  };
+  const poolLabel = poolLabels[pool] ?? String(pool);
+  const category = item.system.settings?.general?.sorting ?? "Ability";
+  const isSpell = category === "Spell";
+  const spellPowerLabels = {
+    low: game.i18n.localize("CYPHERSYSTEM.AbilitiesV2LowPower"),
+    mid: game.i18n.localize("CYPHERSYSTEM.AbilitiesV2MediumPower"),
+    high: game.i18n.localize("CYPHERSYSTEM.AbilitiesV2AdvancedPower")
+  };
+  const spellPower = item.system.settings?.general?.spellTier ?? "low";
+  const spellPowerLabel = isSpell
+    ? spellPowerLabels[spellPower] ?? spellPowerLabels.low
+    : "";
+  const costLabel = hasCost
+    ? `${rawCost} ${poolLabel}`
+    : game.i18n.localize("CYPHERSYSTEM.AbilitiesV2NoCost");
+  const costMetaLabel = hasCost
+    ? `${game.i18n.localize("CYPHERSYSTEM.PointCost")}: ${costLabel}`
+    : costLabel;
+
+  return {
+    category,
+    costLabel,
+    costMetaLabel,
+    hasCost,
+    spellPowerLabel
+  };
+}
+
+async function buildItemCard(actor, item, {meta = ""} = {}) {
   const description = await foundry.applications.ux.TextEditor.implementation.enrichHTML(
     item.system.description ?? "",
     {
@@ -47,6 +86,7 @@ async function buildItemCard(actor, item) {
     item?.system?.basic?.type || localizedItemType || item?.type || "Item"
   );
   const itemImage = escapeItemCardText(item?.img ?? "icons/svg/item-bag.svg");
+  const itemMeta = escapeItemCardText(meta);
 
   return `
     <div class="cypher-item-card">
@@ -65,6 +105,7 @@ async function buildItemCard(actor, item) {
         <div class="cypher-item-heading-text">
           <div class="cypher-item-type">${itemType}</div>
           <div class="cypher-item-name">${itemName}</div>
+          ${itemMeta ? `<div class="cypher-item-meta">${itemMeta}</div>` : ""}
         </div>
       </div>
 
@@ -101,7 +142,13 @@ export class CypherActorSheetPCV2 extends HandlebarsApplicationMixin(ActorSheetV
       editSkillItem: this._editSkillItem,
       toggleSkillFavorite: this._toggleSkillFavorite,
       deleteSkillItem: this._deleteSkillItem,
-      skillItemDescription: this._skillItemDescription
+      skillItemDescription: this._skillItemDescription,
+      useAbility: this._useAbility,
+      createAbilityItem: this._createAbilityItem,
+      editAbilityItem: this._editAbilityItem,
+      toggleAbilityFavorite: this._toggleAbilityFavorite,
+      deleteAbilityItem: this._deleteAbilityItem,
+      abilityItemDescription: this._abilityItemDescription
     },
     position: {width: 820, height: 760},
     window: {resizable: true},
@@ -117,6 +164,7 @@ export class CypherActorSheetPCV2 extends HandlebarsApplicationMixin(ActorSheetV
     navigation: {template: "systems/cyphersystem/templates/actor-sheets/v2/parts/navigation.hbs"},
     overview: {template: "systems/cyphersystem/templates/actor-sheets/v2/parts/overview.hbs"},
     combat: {template: "systems/cyphersystem/templates/actor-sheets/v2/parts/combat.hbs"},
+    abilities: {template: "systems/cyphersystem/templates/actor-sheets/v2/parts/abilities.hbs"},
     skills: {template: "systems/cyphersystem/templates/actor-sheets/v2/parts/skills.hbs"}
   };
 
@@ -164,7 +212,7 @@ export class CypherActorSheetPCV2 extends HandlebarsApplicationMixin(ActorSheetV
     event.preventDefault();
 
     const tab = target.dataset.tab;
-    if (!["overview", "combat", "skills"].includes(tab)) return;
+    if (!["overview", "combat", "abilities", "skills"].includes(tab)) return;
 
     this._activeTab = tab;
     this._syncTabs();
@@ -976,6 +1024,121 @@ export class CypherActorSheetPCV2 extends HandlebarsApplicationMixin(ActorSheetV
     await item.update({"system.archived": !Boolean(item.system.archived)});
   }
 
+  static async _useAbility(event, target) {
+    event.preventDefault();
+    if (!this.isEditable) return;
+
+    const item = this.actor.items.get(target.dataset.itemId);
+    if (!item || item.type !== "ability" || item.system.archived) return;
+
+    const macroUuid = item.system.settings?.rollButton?.macroUuid ?? "";
+
+    await itemRollMacro(
+      this.actor,
+      item.id,
+      "", "", "", "", "", "", "", "", "", "", "", "",
+      true,
+      "",
+      macroUuid,
+      ""
+    );
+  }
+
+  static async _createAbilityItem(event, target) {
+    event.preventDefault();
+    if (!this.isEditable) return;
+
+    const category = target.dataset.abilityCategory;
+    const categories = ["Ability", "AbilityTwo", "AbilityThree", "AbilityFour", "Spell"];
+    if (!categories.includes(category)) return;
+
+    const isTeen = this.actor.system.basic?.unmaskedForm === "Teen";
+    if (isTeen && category !== "Ability") return;
+
+    const nameKey = isTeen ? "CYPHERSYSTEM.NewTeenAbility" : "CYPHERSYSTEM.NewAbility";
+    const created = await this.actor.createEmbeddedDocuments("Item", [{
+      name: game.i18n.localize(nameKey),
+      type: "ability",
+      system: {
+        settings: {
+          general: {
+            sorting: category,
+            unmaskedForm: isTeen ? "Teen" : "Mask"
+          }
+        }
+      }
+    }]);
+
+    created[0]?.sheet?.render(true);
+  }
+
+  static _editAbilityItem(event, target) {
+    event.preventDefault();
+    if (!this.isEditable) return;
+
+    const item = this.actor.items.get(target.dataset.itemId);
+    if (!item || item.type !== "ability") return;
+
+    item.sheet?.render(true);
+  }
+
+  static async _toggleAbilityFavorite(event, target) {
+    event.preventDefault();
+    if (!this.isEditable) return;
+
+    const item = this.actor.items.get(target.dataset.itemId);
+    if (!item || item.type !== "ability") return;
+
+    await item.update({"system.favorite": !Boolean(item.system.favorite)});
+  }
+
+  static async _abilityItemDescription(event, target) {
+    event.preventDefault();
+
+    const item = this.actor.items.get(target.dataset.itemId);
+    if (!item || item.type !== "ability") return;
+
+    const ability = getAbilityDisplayData(item);
+    const isTeen = this.actor.system.basic?.unmaskedForm === "Teen";
+    const cardMeta = [ability.costMetaLabel, isTeen ? "" : ability.spellPowerLabel]
+      .filter(Boolean)
+      .join(" · ");
+    const content = await buildItemCard(this.actor, item, {meta: cardMeta});
+
+    await ChatMessage.create({
+      speaker: ChatMessage.getSpeaker({actor: this.actor}),
+      content,
+      flags: {
+        itemID: item.id,
+        cyphersystem: {
+          cardType: "item-description",
+          actorUuid: this.actor.uuid,
+          itemUuid: item.uuid,
+          itemId: item.id
+        }
+      }
+    });
+  }
+
+  static async _deleteAbilityItem(event, target) {
+    event.preventDefault();
+    if (!this.isEditable) return;
+
+    const item = this.actor.items.get(target.dataset.itemId);
+    if (!item || item.type !== "ability") return;
+
+    const altPressed =
+      Boolean(event.altKey) ||
+      Boolean(game.keyboard?.isModifierActive?.("Alt"));
+
+    if (altPressed) {
+      await item.delete();
+      return;
+    }
+
+    await item.update({"system.archived": !Boolean(item.system.archived)});
+  }
+
   static async _rollSkill(event, target) {
     event.preventDefault();
     if (!this.isEditable) return;
@@ -1312,8 +1475,133 @@ export class CypherActorSheetPCV2 extends HandlebarsApplicationMixin(ActorSheetV
         .replaceAll("-", " ")
         .replace(/\b\w/g, character => character.toUpperCase());
 
-    const visibleCombatItems = [...actor.items]
+    const sortedItems = [...actor.items]
       .sort((a, b) => (a.sort ?? 0) - (b.sort ?? 0) || a.name.localeCompare(b.name));
+
+    const currentAbilityForm = isTeen ? "Teen" : "Mask";
+    const hideArchivedAbilities = Boolean(system.settings?.general?.hideArchive);
+    const validAbilityCategories = ["Ability", "AbilityTwo", "AbilityThree", "AbilityFour", "Spell"];
+    const matchingAbilityItems = sortedItems
+      .filter(item => {
+        if (item.type !== "ability") return false;
+        if (hideArchivedAbilities && item.system.archived) return false;
+
+        const storedForm = item.system.settings?.general?.unmaskedForm;
+        const itemForm = ["Mask", "Teen"].includes(storedForm)
+          ? storedForm
+          : currentAbilityForm;
+        return itemForm === currentAbilityForm;
+      })
+      .sort((a, b) => {
+        const archiveOrder = Number(Boolean(a.system.archived)) - Number(Boolean(b.system.archived));
+        if (archiveOrder) return archiveOrder;
+
+        const favoriteOrder = Number(Boolean(b.system.favorite)) - Number(Boolean(a.system.favorite));
+        if (favoriteOrder) return favoriteOrder;
+
+        return (a.sort ?? 0) - (b.sort ?? 0) || a.name.localeCompare(b.name);
+      });
+
+    const preparedAbilities = await Promise.all(
+      matchingAbilityItems.map(async item => {
+        const display = getAbilityDisplayData(item);
+        const category = isTeen
+          ? "Ability"
+          : validAbilityCategories.includes(display.category)
+            ? display.category
+            : "Ability";
+        const isSpell = category === "Spell";
+        const cardMeta = [display.costMetaLabel, isSpell ? display.spellPowerLabel : ""]
+          .filter(Boolean)
+          .join(" · ");
+
+        return {
+          id: item.id,
+          archived: Boolean(item.system.archived),
+          favorite: Boolean(item.system.favorite),
+          name: item.name,
+          img: item.img,
+          category,
+          costLabel: display.costLabel,
+          hasCost: display.hasCost,
+          isSpell,
+          spellPowerLabel: isSpell ? display.spellPowerLabel : "",
+          previewHtml: await buildItemCard(actor, item, {meta: cardMeta})
+        };
+      })
+    );
+
+    const abilitiesByCategory = {
+      Ability: [],
+      AbilityTwo: [],
+      AbilityThree: [],
+      AbilityFour: [],
+      Spell: []
+    };
+
+    for (const ability of preparedAbilities) {
+      abilitiesByCategory[ability.category].push(ability);
+    }
+
+    const abilitySettings = system.settings?.abilities ?? {};
+    const abilityCategoryDefinitions = [
+      {
+        id: "Ability",
+        label: abilitySettings.labelCategory1 || game.i18n.localize("CYPHERSYSTEM.Abilities"),
+        configured: true,
+        isSpell: false
+      },
+      {
+        id: "AbilityTwo",
+        label: abilitySettings.labelCategory2 || game.i18n.localize("CYPHERSYSTEM.AbilityCategoryTwo"),
+        configured: Boolean(abilitySettings.labelCategory2),
+        isSpell: false
+      },
+      {
+        id: "AbilityThree",
+        label: abilitySettings.labelCategory3 || game.i18n.localize("CYPHERSYSTEM.AbilityCategoryThree"),
+        configured: Boolean(abilitySettings.labelCategory3),
+        isSpell: false
+      },
+      {
+        id: "AbilityFour",
+        label: abilitySettings.labelCategory4 || game.i18n.localize("CYPHERSYSTEM.AbilityCategoryFour"),
+        configured: Boolean(abilitySettings.labelCategory4),
+        isSpell: false
+      },
+      {
+        id: "Spell",
+        label: abilitySettings.labelSpells || game.i18n.localize("CYPHERSYSTEM.Spells"),
+        configured: Boolean(abilitySettings.labelSpells),
+        isSpell: true
+      }
+    ];
+
+    const hideEmptyAbilityCategories = Boolean(system.settings?.general?.hideEmptyCategories);
+    const abilityCategories = abilityCategoryDefinitions
+      .filter(category => !isTeen || category.id === "Ability")
+      .filter(category =>
+        category.id === "Ability" ||
+        category.configured ||
+        abilitiesByCategory[category.id].length > 0
+      )
+      .filter(category =>
+        category.id === "Ability" ||
+        !hideEmptyAbilityCategories ||
+        abilitiesByCategory[category.id].length > 0
+      )
+      .map(category => ({
+        id: category.id,
+        label: category.label,
+        isSpell: category.isSpell,
+        abilities: abilitiesByCategory[category.id],
+        count: abilitiesByCategory[category.id].length
+      }));
+
+    const preparedSpellsValue = Number(system.abilities?.preparedSpells ?? 0);
+    const preparedSpells = Number.isFinite(preparedSpellsValue)
+      ? Math.max(0, Math.trunc(preparedSpellsValue))
+      : 0;
 
     const skillRankValues = {
       Inability: -1,
@@ -1343,7 +1631,7 @@ export class CypherActorSheetPCV2 extends HandlebarsApplicationMixin(ActorSheetV
       Pool: game.i18n.localize("CYPHERSYSTEM.AnyPool")
     };
 
-    const matchingSkillItems = visibleCombatItems
+    const matchingSkillItems = sortedItems
       .filter(item => {
         if (item.type !== "skill") return false;
         if (hideArchivedSkills && item.system.archived) return false;
@@ -1453,7 +1741,7 @@ export class CypherActorSheetPCV2 extends HandlebarsApplicationMixin(ActorSheetV
       }));
 
     const combatAttacks = await Promise.all(
-      visibleCombatItems
+      sortedItems
         .filter(item => item.type === "attack")
         .map(async item => {
           const basic = item.system.basic ?? {};
@@ -1483,7 +1771,7 @@ export class CypherActorSheetPCV2 extends HandlebarsApplicationMixin(ActorSheetV
     );
 
     const combatArmor = await Promise.all(
-      visibleCombatItems
+      sortedItems
         .filter(item => item.type === "armor")
         .map(async item => {
           const basic = item.system.basic ?? {};
@@ -1517,7 +1805,7 @@ export class CypherActorSheetPCV2 extends HandlebarsApplicationMixin(ActorSheetV
     );
 
     const combatAmmo = await Promise.all(
-      visibleCombatItems
+      sortedItems
         .filter(item => item.type === "ammo")
         .map(async item => {
           const basic = item.system.basic ?? {};
@@ -1535,7 +1823,7 @@ export class CypherActorSheetPCV2 extends HandlebarsApplicationMixin(ActorSheetV
     );
 
     const combatLastingDamage = await Promise.all(
-      visibleCombatItems
+      sortedItems
         .filter(item => item.type === "lasting-damage")
         .map(async item => {
           const basic = item.system.basic ?? {};
@@ -1563,12 +1851,15 @@ export class CypherActorSheetPCV2 extends HandlebarsApplicationMixin(ActorSheetV
 
     Object.assign(context, {
       rollSettings: {
-        enabled: rollButtons >= 1 && canEdit
+        enabled: rollButtons === 1 && canEdit
       },
       rollMode: {
         label: useAllInOne ? "All-in-One" : "Quick Roll",
-        cssClass: useAllInOne ? "is-all-in-one" : "is-quick-roll"
+        cssClass: useAllInOne ? "is-all-in-one" : "is-quick-roll",
+        useAllInOne
       },
+      abilityCategories,
+      preparedSpells,
       skillRanks,
       skillCategories,
       combatAttacks,
@@ -1676,42 +1967,42 @@ export class CypherActorSheetPCV2 extends HandlebarsApplicationMixin(ActorSheetV
       button.addEventListener("click", event => this._onPoolControl(event));
     }
 
-    // Cypher PC V2 - combat card previews and Alt archive/delete feedback
-    this._cypherV2CombatInteractionAbort?.abort();
-    this._cypherV2CombatTooltip?.remove();
-    this._cypherV2CombatTooltip = null;
+    // Cypher PC V2 - shared Item card previews and Alt archive/delete feedback
+    this._cypherV2ItemInteractionAbort?.abort();
+    this._cypherV2ItemTooltip?.remove();
+    this._cypherV2ItemTooltip = null;
 
-    const combatInteractionAbort = new AbortController();
-    this._cypherV2CombatInteractionAbort = combatInteractionAbort;
-    const combatInteractionSignal = combatInteractionAbort.signal;
+    const itemInteractionAbort = new AbortController();
+    this._cypherV2ItemInteractionAbort = itemInteractionAbort;
+    const itemInteractionSignal = itemInteractionAbort.signal;
 
-    const setCombatAltState = active => {
+    const setItemAltState = active => {
       this.element?.classList.toggle("cypher-v2-alt-down", Boolean(active));
     };
 
-    setCombatAltState(Boolean(game.keyboard?.isModifierActive?.("Alt")));
+    setItemAltState(Boolean(game.keyboard?.isModifierActive?.("Alt")));
 
     window.addEventListener("keydown", keyEvent => {
-      if (keyEvent.key === "Alt") setCombatAltState(true);
-    }, {signal: combatInteractionSignal});
+      if (keyEvent.key === "Alt") setItemAltState(true);
+    }, {signal: itemInteractionSignal});
 
     window.addEventListener("keyup", keyEvent => {
-      if (keyEvent.key === "Alt" || !keyEvent.altKey) setCombatAltState(false);
-    }, {signal: combatInteractionSignal});
+      if (keyEvent.key === "Alt" || !keyEvent.altKey) setItemAltState(false);
+    }, {signal: itemInteractionSignal});
 
-    window.addEventListener("blur", () => setCombatAltState(false), {
-      signal: combatInteractionSignal
+    window.addEventListener("blur", () => setItemAltState(false), {
+      signal: itemInteractionSignal
     });
 
-    const hideCombatTooltip = () => {
-      this._cypherV2CombatTooltip?.remove();
-      this._cypherV2CombatTooltip = null;
+    const hideItemTooltip = () => {
+      this._cypherV2ItemTooltip?.remove();
+      this._cypherV2ItemTooltip = null;
     };
 
-    const showCombatTooltip = target => {
-      hideCombatTooltip();
+    const showItemTooltip = target => {
+      hideItemTooltip();
 
-      const wrapper = target.closest(".cypher-v2-combat-item-name-wrap");
+      const wrapper = target.parentElement;
       const template = wrapper?.querySelector(".cypher-v2-item-tooltip-template");
       if (!(template instanceof HTMLTemplateElement)) return;
 
@@ -1720,7 +2011,7 @@ export class CypherActorSheetPCV2 extends HandlebarsApplicationMixin(ActorSheetV
       tooltip.setAttribute("role", "tooltip");
       tooltip.append(template.content.cloneNode(true));
       document.body.append(tooltip);
-      this._cypherV2CombatTooltip = tooltip;
+      this._cypherV2ItemTooltip = tooltip;
 
       const targetRect = target.getBoundingClientRect();
       const tooltipRect = tooltip.getBoundingClientRect();
@@ -1744,28 +2035,28 @@ export class CypherActorSheetPCV2 extends HandlebarsApplicationMixin(ActorSheetV
     };
 
     for (const target of this.element.querySelectorAll("[data-cypher-v2-card-preview]")) {
-      target.addEventListener("mouseenter", () => showCombatTooltip(target), {
-        signal: combatInteractionSignal
+      target.addEventListener("mouseenter", () => showItemTooltip(target), {
+        signal: itemInteractionSignal
       });
-      target.addEventListener("mouseleave", hideCombatTooltip, {
-        signal: combatInteractionSignal
+      target.addEventListener("mouseleave", hideItemTooltip, {
+        signal: itemInteractionSignal
       });
-      target.addEventListener("focus", () => showCombatTooltip(target), {
-        signal: combatInteractionSignal
+      target.addEventListener("focus", () => showItemTooltip(target), {
+        signal: itemInteractionSignal
       });
-      target.addEventListener("blur", hideCombatTooltip, {
-        signal: combatInteractionSignal
+      target.addEventListener("blur", hideItemTooltip, {
+        signal: itemInteractionSignal
       });
     }
 
-    window.addEventListener("scroll", hideCombatTooltip, {
+    window.addEventListener("scroll", hideItemTooltip, {
       capture: true,
-      signal: combatInteractionSignal
+      signal: itemInteractionSignal
     });
-    window.addEventListener("resize", hideCombatTooltip, {
-      signal: combatInteractionSignal
+    window.addEventListener("resize", hideItemTooltip, {
+      signal: itemInteractionSignal
     });
-}
+  }
 
   _syncTabs() {
     const activeTab = this._activeTab ?? "overview";
