@@ -1,0 +1,73 @@
+<section class="cypher-character-arc-form">
+  <header class="cypher-character-arc-form-header">
+    <div class="cypher-character-arc-form-icon" aria-hidden="true">
+      <i class="fa-solid fa-route"></i>
+    </div>
+    <label class="cypher-character-arc-name">
+      <span>{{localize "CYPHERSYSTEM.CharacterArc"}}</span>
+      <input
+        type="text"
+        name="name"
+        value="{{item.name}}"
+        placeholder="{{localize 'CYPHERSYSTEM.CharacterArcNew'}}"
+        {{#unless editable}}disabled{{/unless}}
+      >
+    </label>
+  </header>
+
+  <div class="cypher-character-arc-fields">
+    <label>
+      <span>{{localize "CYPHERSYSTEM.CharacterArcSteps"}}</span>
+      <input
+        type="number"
+        name="system.basic.steps"
+        value="{{arc.steps}}"
+        min="0"
+        max="100"
+        step="1"
+        {{#unless editable}}disabled{{/unless}}
+      >
+    </label>
+
+    <label>
+      <span>{{localize "CYPHERSYSTEM.CharacterArcStatus"}}</span>
+      <select name="system.basic.status" {{#unless editable}}disabled{{/unless}}>
+        {{selectOptions arc.statusChoices selected=arc.status}}
+      </select>
+    </label>
+
+    <label>
+      <span>{{localize "CYPHERSYSTEM.CharacterArcOutcome"}}</span>
+      <select name="system.basic.outcome" {{#unless editable}}disabled{{/unless}}>
+        {{selectOptions arc.outcomeChoices selected=arc.outcome}}
+      </select>
+    </label>
+  </div>
+
+  <div class="cypher-character-arc-description">
+    <span class="cypher-character-arc-description-label">{{localize "CYPHERSYSTEM.Description"}}</span>
+    {{#if editable}}
+      <prose-mirror
+        name="system.description"
+        data-document-uuid="{{item.uuid}}"
+        value="{{arc.description}}"
+        collaborate="true"
+      >{{{arc.descriptionHtml}}}</prose-mirror>
+    {{else}}
+      <div class="cypher-character-arc-description-content">
+        {{#if arc.description}}
+          {{{arc.descriptionHtml}}}
+        {{else}}
+          <p class="hint">{{localize "CYPHERSYSTEM.CharacterArcDescriptionHint"}}</p>
+        {{/if}}
+      </div>
+    {{/if}}
+  </div>
+
+  {{#if editable}}
+    <label class="cypher-character-arc-archived">
+      <input type="checkbox" name="system.archived" {{checked item.system.archived}}>
+      <span>{{localize "CYPHERSYSTEM.CharacterArcArchived"}}</span>
+    </label>
+  {{/if}}
+</section>

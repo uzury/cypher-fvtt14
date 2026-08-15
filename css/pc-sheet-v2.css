@@ -822,6 +822,7 @@ body.theme-dark .cypher-pc-v2:not(.theme-light) .cypher-v2-recovery-roll-button 
   }
 }
 
+
 /* Cypher PC V2 - compact combat and pools follow-up */
 
 /* Keep the ApplicationV2 window fixed while the content area scrolls. */
@@ -3470,4 +3471,777 @@ body.theme-dark .cypher-pc-v2:not(.theme-light) .cypher-v2-capacity-card.has-war
   .cypher-pc-v2 .cypher-v2-equipment-guide {
     grid-template-columns: 1fr;
   }
+}
+
+/* Cypher PC V2 - Notes & Character Arc ================================ */
+
+.cypher-pc-v2 .cypher-v2-notes {
+  padding: 12px 18px 20px;
+  background: var(--v2-paper);
+}
+
+.cypher-pc-v2 .cypher-v2-notes > .cypher-v2-notes-heading {
+  display: none !important;
+}
+
+.cypher-pc-v2 .cypher-v2-note-card > header span {
+  display: block;
+  color: var(--v2-red);
+  font-size: 8px;
+  font-weight: 900;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+}
+
+.cypher-pc-v2 .cypher-v2-note-card > header h3 {
+  margin: 2px 0 3px;
+  color: var(--v2-ink);
+  font-weight: 900;
+}
+
+.cypher-pc-v2 .cypher-v2-note-card > header p {
+  margin: 0;
+  color: var(--v2-muted);
+  line-height: 1.4;
+}
+
+.cypher-pc-v2 .cypher-v2-notes-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.cypher-pc-v2 .cypher-v2-note-card {
+  min-width: 0;
+  overflow: hidden;
+  border: 1px solid var(--v2-line);
+  border-radius: 9px;
+  background: var(--v2-surface);
+  box-shadow: 0 2px 8px var(--v2-shadow);
+}
+
+.cypher-pc-v2 .cypher-v2-note-card-wide {
+  grid-column: 1 / -1;
+}
+
+.cypher-pc-v2 .cypher-v2-note-card > header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 78px;
+  padding: 11px 13px 9px;
+  border-bottom: 1px solid var(--v2-line);
+  background: var(--v2-surface2);
+}
+
+.cypher-pc-v2 .cypher-v2-note-card > header > div {
+  min-width: 0;
+}
+
+.cypher-pc-v2 .cypher-v2-note-card > header h3 {
+  font-size: 14px;
+}
+
+.cypher-pc-v2 .cypher-v2-note-card > header p {
+  font-size: 9px;
+}
+
+.cypher-pc-v2 .cypher-v2-note-card > header > i {
+  color: var(--v2-red);
+  font-size: 15px;
+}
+
+.cypher-pc-v2 .cypher-v2-character-arc-card {
+  border-top: 3px solid var(--v2-red);
+}
+
+.cypher-pc-v2 .cypher-v2-character-arc-card > header {
+  background: linear-gradient(
+    135deg,
+    color-mix(in srgb, var(--v2-red) 10%, var(--v2-surface2)),
+    var(--v2-surface2)
+  );
+}
+
+.cypher-pc-v2 .cypher-v2-arc-guide {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 7px 10px;
+  border-bottom: 1px solid var(--v2-line);
+  background: color-mix(in srgb, var(--v2-red) 5%, var(--v2-surface));
+  color: var(--v2-muted);
+  font-size: 7px;
+  font-weight: 900;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+}
+
+.cypher-pc-v2 .cypher-v2-arc-guide > i {
+  color: var(--v2-red);
+  font-size: 6px;
+}
+
+.cypher-pc-v2 .cypher-v2-note-editor {
+  min-height: 190px;
+  padding: 10px 12px 12px;
+  color: var(--v2-ink);
+}
+
+.cypher-pc-v2 .cypher-v2-character-arc-editor {
+  min-height: 156px;
+}
+
+.cypher-pc-v2 .cypher-v2-character-arc-header-tools {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: 7px;
+}
+
+.cypher-pc-v2 .cypher-v2-note-card > header .cypher-v2-character-arc-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: auto;
+  min-width: 25px;
+  height: 22px;
+  margin: 0;
+  padding: 0 7px;
+  border: 1px solid var(--v2-red);
+  border-radius: 999px;
+  background: var(--v2-red);
+  color: #fff;
+  font-size: 9px;
+  font-weight: 900;
+  line-height: 1;
+  letter-spacing: 0;
+}
+
+.cypher-pc-v2 .cypher-v2-character-arc-create {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 25px;
+  height: 25px;
+  margin: 0;
+  border: 1px solid color-mix(in srgb, var(--v2-red) 35%, var(--v2-line));
+  border-radius: 6px;
+  background: color-mix(in srgb, var(--v2-red) 8%, var(--v2-surface));
+  color: var(--v2-red);
+  font-size: 10px;
+  font-weight: 900;
+}
+
+.cypher-pc-v2 .cypher-v2-character-arc-create:hover,
+.cypher-pc-v2 .cypher-v2-character-arc-create:focus-visible {
+  border-color: var(--v2-red);
+  background: var(--v2-red);
+  color: #fff;
+}
+
+.cypher-pc-v2 .cypher-v2-character-arc-list {
+  display: grid;
+  gap: 9px;
+  min-height: 190px;
+  padding: 10px;
+}
+
+.cypher-pc-v2 .cypher-v2-character-arc-item {
+  overflow: hidden;
+  border: 1px solid var(--v2-line);
+  border-left: 3px solid var(--v2-red);
+  border-radius: 7px;
+  background: var(--v2-surface);
+  color: var(--v2-ink);
+}
+
+.cypher-pc-v2 .cypher-v2-character-arc-item.is-completed {
+  border-left-color: #398661;
+}
+
+.cypher-pc-v2 .cypher-v2-character-arc-item.is-archived {
+  opacity: .52;
+}
+
+.cypher-pc-v2 .cypher-v2-character-arc-item.is-archived .cypher-v2-character-arc-title {
+  text-decoration: line-through;
+  text-decoration-thickness: 1px;
+}
+
+.cypher-pc-v2 .cypher-v2-character-arc-item-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 8px 9px;
+  border-bottom: 0;
+  background: color-mix(in srgb, var(--v2-surface2) 62%, transparent);
+  cursor: pointer;
+  list-style: none;
+}
+
+.cypher-pc-v2 .cypher-v2-character-arc-item-heading::-webkit-details-marker {
+  display: none;
+}
+
+.cypher-pc-v2 .cypher-v2-character-arc-item-heading::marker {
+  content: "";
+}
+
+.cypher-pc-v2 .cypher-v2-character-arc-item-heading:hover {
+  background: color-mix(in srgb, var(--v2-red) 5%, var(--v2-surface2));
+}
+
+.cypher-pc-v2 .cypher-v2-character-arc-item-heading:focus-visible {
+  outline: 2px solid color-mix(in srgb, var(--v2-red) 55%, transparent);
+  outline-offset: -2px;
+}
+
+.cypher-pc-v2 .cypher-v2-character-arc-details[open] > .cypher-v2-character-arc-item-heading {
+  border-bottom: 1px solid var(--v2-line);
+}
+
+.cypher-pc-v2 .cypher-v2-character-arc-title-wrap {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.cypher-pc-v2 .cypher-v2-character-arc-title-line {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+}
+
+.cypher-pc-v2 .cypher-v2-character-arc-disclosure {
+  flex: 0 0 auto;
+  color: var(--v2-muted);
+  font-size: 7px;
+  transition: transform 120ms ease;
+}
+
+.cypher-pc-v2 .cypher-v2-character-arc-details[open] .cypher-v2-character-arc-disclosure {
+  transform: rotate(90deg);
+}
+
+.cypher-pc-v2 .cypher-v2-character-arc-title {
+  display: block;
+  overflow: hidden;
+  max-width: 100%;
+  min-height: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+  color: var(--v2-ink);
+  font-size: 12px;
+  font-weight: 900;
+  line-height: 1.2;
+  text-align: left;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.cypher-pc-v2 .cypher-v2-character-arc-title:hover,
+.cypher-pc-v2 .cypher-v2-character-arc-title:focus-visible {
+  color: var(--v2-red);
+}
+
+.cypher-pc-v2 .cypher-v2-character-arc-status {
+  display: block;
+  margin-top: 3px;
+  padding-left: 13px;
+  color: var(--v2-red);
+  font-size: 7px;
+  font-weight: 900;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+}
+
+.cypher-pc-v2 .cypher-v2-character-arc-status.is-completed {
+  color: #398661;
+}
+
+.cypher-pc-v2.theme-dark .cypher-v2-character-arc-status.is-completed,
+body.theme-dark .cypher-pc-v2:not(.theme-light) .cypher-v2-character-arc-status.is-completed {
+  color: #63d99a;
+}
+
+.cypher-pc-v2 .cypher-v2-character-arc-actions {
+  display: flex;
+  flex: 0 0 auto;
+  gap: 4px;
+}
+
+.cypher-pc-v2 .cypher-v2-character-arc-icon-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 25px;
+  height: 25px;
+  min-height: 0;
+  margin: 0;
+  padding: 0;
+  border: 1px solid transparent;
+  border-radius: 5px;
+  background: transparent;
+  box-shadow: none;
+  color: var(--v2-muted);
+  font-size: 10px;
+}
+
+.cypher-pc-v2 .cypher-v2-character-arc-icon-button:hover,
+.cypher-pc-v2 .cypher-v2-character-arc-icon-button:focus-visible {
+  border-color: var(--v2-line);
+  background: var(--v2-surface);
+  color: var(--v2-red);
+}
+
+.cypher-pc-v2.cypher-v2-alt-down .cypher-v2-character-arc-archive .cypher-v2-archive-default-icon {
+  display: none;
+}
+
+.cypher-pc-v2.cypher-v2-alt-down .cypher-v2-character-arc-archive .cypher-v2-archive-alt-icon {
+  display: inline-block;
+}
+
+.cypher-pc-v2.cypher-v2-alt-down .cypher-v2-character-arc-archive {
+  border-color: rgba(208, 75, 88, .55);
+  background: rgba(208, 75, 88, .13);
+  color: #d04b58;
+}
+
+.cypher-pc-v2 .cypher-v2-character-arc-description {
+  min-height: 43px;
+  padding: 8px 9px;
+  color: var(--v2-ink);
+  font-size: 10px;
+  line-height: 1.4;
+}
+
+.cypher-pc-v2 .cypher-v2-character-arc-description > :first-child,
+.cypher-pc-v2 .cypher-v2-character-arc-legacy-content > :first-child {
+  margin-top: 0;
+}
+
+.cypher-pc-v2 .cypher-v2-character-arc-description > :last-child,
+.cypher-pc-v2 .cypher-v2-character-arc-legacy-content > :last-child {
+  margin-bottom: 0;
+}
+
+.cypher-pc-v2 .cypher-v2-character-arc-progress {
+  padding: 7px 9px 8px;
+  border-top: 1px solid var(--v2-line);
+  background: color-mix(in srgb, var(--v2-red) 3%, var(--v2-surface));
+}
+
+.cypher-pc-v2 .cypher-v2-character-arc-progress-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 6px;
+  color: var(--v2-muted);
+  font-size: 7px;
+  font-weight: 900;
+  letter-spacing: .07em;
+  text-transform: uppercase;
+}
+
+.cypher-pc-v2 .cypher-v2-character-arc-progress-heading > span {
+  color: var(--v2-ink);
+  font-size: 9px;
+}
+
+.cypher-pc-v2 .cypher-v2-character-arc-marks {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+.cypher-pc-v2 .cypher-v2-character-arc-mark {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  min-height: 0;
+  margin: 0;
+  padding: 0;
+  border: 1px solid var(--v2-red);
+  border-radius: 5px;
+  background: var(--v2-red);
+  box-shadow: none;
+  color: #fff;
+  font-size: 8px;
+}
+
+.cypher-pc-v2 button.cypher-v2-character-arc-mark:hover,
+.cypher-pc-v2 button.cypher-v2-character-arc-mark:focus-visible {
+  filter: brightness(1.12);
+}
+
+.cypher-pc-v2 .cypher-v2-character-arc-mark.is-add {
+  border-style: dashed;
+  background: transparent;
+  color: var(--v2-red);
+}
+
+.cypher-pc-v2 .cypher-v2-character-arc-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  min-height: 37px;
+  padding: 6px 9px;
+  border-top: 1px solid var(--v2-line);
+}
+
+.cypher-pc-v2 .cypher-v2-character-arc-xp-note {
+  color: var(--v2-muted);
+  font-size: 8px;
+  font-weight: 700;
+}
+
+.cypher-pc-v2 .cypher-v2-character-arc-climax {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  min-height: 27px;
+  margin: 0;
+  padding: 4px 8px;
+  border: 1px solid var(--v2-red);
+  border-radius: 5px;
+  background: transparent;
+  box-shadow: none;
+  color: var(--v2-red);
+  font-size: 8px;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.cypher-pc-v2 .cypher-v2-character-arc-climax:hover,
+.cypher-pc-v2 .cypher-v2-character-arc-climax:focus-visible {
+  background: var(--v2-red);
+  color: #fff;
+}
+
+.cypher-pc-v2 .cypher-v2-character-arc-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  min-height: 170px;
+  color: var(--v2-muted);
+  text-align: center;
+}
+
+.cypher-pc-v2 .cypher-v2-character-arc-empty > i {
+  color: color-mix(in srgb, var(--v2-red) 55%, var(--v2-muted));
+  font-size: 20px;
+}
+
+.cypher-pc-v2 .cypher-v2-character-arc-empty > p {
+  margin: 0;
+  font-size: 9px;
+}
+
+.cypher-pc-v2 .cypher-v2-character-arc-legacy {
+  margin: 0 10px 10px;
+  overflow: hidden;
+  border: 1px dashed color-mix(in srgb, #b78918 55%, var(--v2-line));
+  border-radius: 7px;
+  background: color-mix(in srgb, #b78918 7%, var(--v2-surface));
+}
+
+.cypher-pc-v2 .cypher-v2-character-arc-legacy-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 8px 9px;
+  border-bottom: 1px dashed color-mix(in srgb, #b78918 45%, var(--v2-line));
+}
+
+.cypher-pc-v2 .cypher-v2-character-arc-legacy-heading strong,
+.cypher-pc-v2 .cypher-v2-character-arc-legacy-heading span {
+  display: block;
+}
+
+.cypher-pc-v2 .cypher-v2-character-arc-legacy-heading strong {
+  color: var(--v2-ink);
+  font-size: 9px;
+}
+
+.cypher-pc-v2 .cypher-v2-character-arc-legacy-heading span {
+  margin-top: 2px;
+  color: var(--v2-muted);
+  font-size: 7px;
+}
+
+.cypher-pc-v2 .cypher-v2-character-arc-legacy-heading button {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  min-height: 25px;
+  margin: 0;
+  padding: 4px 7px;
+  border: 1px solid color-mix(in srgb, #b78918 60%, var(--v2-line));
+  border-radius: 5px;
+  background: transparent;
+  box-shadow: none;
+  color: #8a6d00;
+  font-size: 8px;
+  font-weight: 900;
+}
+
+.cypher-pc-v2.theme-dark .cypher-v2-character-arc-legacy-heading button,
+body.theme-dark .cypher-pc-v2:not(.theme-light) .cypher-v2-character-arc-legacy-heading button {
+  color: #efc96e;
+}
+
+.cypher-pc-v2 .cypher-v2-character-arc-legacy-content {
+  max-height: 130px;
+  overflow: auto;
+  padding: 8px 9px;
+  color: var(--v2-ink);
+  font-size: 9px;
+  line-height: 1.4;
+}
+
+.cypher-pc-v2 .cypher-v2-description-editor,
+.cypher-pc-v2 .cypher-v2-gm-note-editor {
+  min-height: 135px;
+}
+
+.cypher-pc-v2 .cypher-v2-note-editor prose-mirror,
+.cypher-pc-v2 .cypher-v2-note-content {
+  color: var(--v2-ink);
+  font-size: 11px;
+  line-height: 1.5;
+}
+
+.cypher-pc-v2 .cypher-v2-note-editor prose-mirror {
+  --color-text-primary: var(--v2-ink);
+  --color-text-dark-primary: var(--v2-ink);
+  --color-text-light-primary: var(--v2-ink);
+  --color-text-light-highlight: var(--v2-ink);
+}
+
+.cypher-pc-v2 .cypher-v2-note-editor prose-mirror .editor-content,
+.cypher-pc-v2 .cypher-v2-note-editor prose-mirror .ProseMirror,
+.cypher-pc-v2 .cypher-v2-note-editor prose-mirror [contenteditable="true"] {
+  color: var(--v2-ink) !important;
+  caret-color: var(--v2-ink) !important;
+  -webkit-text-fill-color: var(--v2-ink) !important;
+  background-color: transparent !important;
+  text-shadow: none !important;
+}
+
+.cypher-pc-v2 .cypher-v2-note-editor prose-mirror .editor-content *,
+.cypher-pc-v2 .cypher-v2-note-editor prose-mirror .ProseMirror,
+.cypher-pc-v2 .cypher-v2-note-editor prose-mirror .ProseMirror *,
+.cypher-pc-v2 .cypher-v2-note-editor prose-mirror [contenteditable="true"],
+.cypher-pc-v2 .cypher-v2-note-editor prose-mirror [contenteditable="true"] * {
+  color: var(--v2-ink) !important;
+  -webkit-text-fill-color: currentColor !important;
+  text-shadow: none !important;
+}
+
+.cypher-pc-v2 .cypher-v2-note-content > :first-child,
+.cypher-pc-v2 .cypher-v2-note-editor prose-mirror > :first-child {
+  margin-top: 0;
+}
+
+.cypher-pc-v2 .cypher-v2-note-content > :last-child,
+.cypher-pc-v2 .cypher-v2-note-editor prose-mirror > :last-child {
+  margin-bottom: 0;
+}
+
+.cypher-pc-v2 .cypher-v2-note-empty {
+  margin: 0;
+  color: var(--v2-muted);
+  font-style: italic;
+}
+
+.cypher-pc-v2 .cypher-v2-gm-note-card {
+  border-color: color-mix(in srgb, #7a55b8 45%, var(--v2-line));
+}
+
+.cypher-pc-v2 .cypher-v2-gm-note-card > header > i,
+.cypher-pc-v2 .cypher-v2-gm-note-card > header span {
+  color: #7a55b8;
+}
+
+.cypher-pc-v2.theme-dark .cypher-v2-gm-note-card > header > i,
+.cypher-pc-v2.theme-dark .cypher-v2-gm-note-card > header span,
+body.theme-dark .cypher-pc-v2:not(.theme-light) .cypher-v2-gm-note-card > header > i,
+body.theme-dark .cypher-pc-v2:not(.theme-light) .cypher-v2-gm-note-card > header span {
+  color: #bda0eb;
+}
+
+@media (max-width: 760px) {
+  .cypher-pc-v2 .cypher-v2-notes-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .cypher-pc-v2 .cypher-v2-note-card-wide {
+    grid-column: auto;
+  }
+}
+
+/* Cypher Character Arc Item Sheet V2 ================================== */
+
+.cypher-character-arc-sheet-v2 {
+  --arc-red: #b01932;
+  --arc-paper: #f3f2ee;
+  --arc-surface: #fff;
+  --arc-surface2: #e8e7e2;
+  --arc-ink: #17191d;
+  --arc-muted: #6d7178;
+  --arc-line: #c9c8c2;
+}
+
+.cypher-character-arc-sheet-v2.theme-dark,
+body.theme-dark .cypher-character-arc-sheet-v2:not(.theme-light) {
+  --arc-paper: #171b22;
+  --arc-surface: #20262f;
+  --arc-surface2: #2b323c;
+  --arc-ink: #eef1f5;
+  --arc-muted: #a9b0b9;
+  --arc-line: #444d58;
+}
+
+.cypher-character-arc-sheet-v2 .window-content {
+  padding: 0;
+  background: var(--arc-paper);
+  color: var(--arc-ink);
+}
+
+.cypher-character-arc-sheet-v2 .cypher-character-arc-form {
+  display: flex;
+  flex-direction: column;
+  gap: 13px;
+  min-height: 100%;
+  padding: 16px;
+}
+
+.cypher-character-arc-sheet-v2 .cypher-character-arc-form-header {
+  display: grid;
+  grid-template-columns: 46px minmax(0, 1fr);
+  align-items: center;
+  gap: 11px;
+  padding-bottom: 13px;
+  border-bottom: 2px solid var(--arc-red);
+}
+
+.cypher-character-arc-sheet-v2 .cypher-character-arc-form-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 46px;
+  height: 46px;
+  border-radius: 9px;
+  background: color-mix(in srgb, var(--arc-red) 10%, var(--arc-surface));
+  color: var(--arc-red);
+  font-size: 20px;
+}
+
+.cypher-character-arc-sheet-v2 .cypher-character-arc-name,
+.cypher-character-arc-sheet-v2 .cypher-character-arc-fields > label {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.cypher-character-arc-sheet-v2 .cypher-character-arc-name > span,
+.cypher-character-arc-sheet-v2 .cypher-character-arc-fields label > span,
+.cypher-character-arc-sheet-v2 .cypher-character-arc-description-label {
+  color: var(--arc-muted);
+  font-size: 9px;
+  font-weight: 900;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+
+.cypher-character-arc-sheet-v2 .cypher-character-arc-name input,
+.cypher-character-arc-sheet-v2 .cypher-character-arc-fields input,
+.cypher-character-arc-sheet-v2 .cypher-character-arc-fields select {
+  width: 100%;
+  margin: 0;
+  border: 1px solid var(--arc-line);
+  background: var(--arc-surface);
+  color: var(--arc-ink);
+}
+
+.cypher-character-arc-sheet-v2 .cypher-character-arc-name input {
+  height: 34px;
+  font-size: 18px;
+  font-weight: 900;
+}
+
+.cypher-character-arc-sheet-v2 .cypher-character-arc-fields {
+  display: grid;
+  grid-template-columns: 90px repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.cypher-character-arc-sheet-v2 .cypher-character-arc-description {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  gap: 6px;
+  min-height: 310px;
+}
+
+.cypher-character-arc-sheet-v2 .cypher-character-arc-description prose-mirror,
+.cypher-character-arc-sheet-v2 .cypher-character-arc-description-content {
+  flex: 1 1 auto;
+  min-height: 280px;
+  padding: 10px;
+  border: 1px solid var(--arc-line);
+  border-radius: 7px;
+  background: var(--arc-surface);
+  color: var(--arc-ink);
+}
+
+.cypher-character-arc-sheet-v2 .cypher-character-arc-description prose-mirror {
+  --color-text-primary: var(--arc-ink);
+  --color-text-dark-primary: var(--arc-ink);
+  --color-text-light-primary: var(--arc-ink);
+}
+
+.cypher-character-arc-sheet-v2 .cypher-character-arc-description prose-mirror .editor-content,
+.cypher-character-arc-sheet-v2 .cypher-character-arc-description prose-mirror .ProseMirror,
+.cypher-character-arc-sheet-v2 .cypher-character-arc-description prose-mirror [contenteditable="true"] {
+  color: var(--arc-ink) !important;
+  caret-color: var(--arc-ink) !important;
+  -webkit-text-fill-color: var(--arc-ink) !important;
+}
+
+.cypher-character-arc-sheet-v2 .cypher-character-arc-description prose-mirror .editor-content *,
+.cypher-character-arc-sheet-v2 .cypher-character-arc-description prose-mirror .ProseMirror *,
+.cypher-character-arc-sheet-v2 .cypher-character-arc-description prose-mirror [contenteditable="true"] * {
+  color: var(--arc-ink) !important;
+  -webkit-text-fill-color: currentColor !important;
+  text-shadow: none !important;
+}
+
+.cypher-character-arc-sheet-v2 .cypher-character-arc-archived {
+  display: inline-flex;
+  align-items: center;
+  align-self: flex-start;
+  gap: 7px;
+  color: var(--arc-muted);
+  font-size: 10px;
+  font-weight: 800;
+}
+
+.cypher-character-arc-sheet-v2 .cypher-character-arc-archived input {
+  margin: 0;
 }

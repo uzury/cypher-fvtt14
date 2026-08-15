@@ -12,6 +12,7 @@
       "pc": {
         "htmlFields": [
           "notes",
+          "characterArc",
           "gmNotes",
           "description"
         ]
@@ -74,6 +75,11 @@
         ]
       },
       "cypher": {
+        "htmlFields": [
+          "description"
+        ]
+      },
+      "character-arc": {
         "htmlFields": [
           "description"
         ]

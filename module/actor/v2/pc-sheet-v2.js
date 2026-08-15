@@ -69,7 +69,11 @@ function getAbilityDisplayData(item) {
   };
 }
 
-async function buildItemCard(actor, item, {meta = "", typeLabel = ""} = {}) {
+async function buildItemCard(actor, item, {
+  linkName = false,
+  meta = "",
+  typeLabel = ""
+} = {}) {
   const description = await foundry.applications.ux.TextEditor.implementation.enrichHTML(
     item.system.description ?? "",
     {
@@ -92,6 +96,12 @@ async function buildItemCard(actor, item, {meta = "", typeLabel = ""} = {}) {
   );
   const itemImage = escapeItemCardText(item?.img ?? "icons/svg/item-bag.svg");
   const itemMeta = escapeItemCardText(meta);
+  const itemTitle = linkName && item?.uuid
+    ? await foundry.applications.ux.TextEditor.implementation.enrichHTML(
+      `@UUID[${item.uuid}]`,
+      {async: true, relativeTo: item}
+    )
+    : itemName;
 
   return `
     <div class="cypher-item-card">
@@ -109,7 +119,7 @@ async function buildItemCard(actor, item, {meta = "", typeLabel = ""} = {}) {
       <div class="cypher-item-heading">
         <div class="cypher-item-heading-text">
           <div class="cypher-item-type">${itemType}</div>
-          <div class="cypher-item-name">${itemName}</div>
+          <div class="cypher-item-name">${itemTitle}</div>
           ${itemMeta ? `<div class="cypher-item-meta">${itemMeta}</div>` : ""}
         </div>
       </div>
@@ -117,6 +127,74 @@ async function buildItemCard(actor, item, {meta = "", typeLabel = ""} = {}) {
       <div class="cypher-item-divider"></div>
       <div class="cypher-item-body">${description}</div>
     </div>`;
+}
+
+const CHARACTER_ARC_MAX_STEPS = 100;
+
+function normalizeCharacterArcSteps(value) {
+  const steps = Number(value ?? 0);
+  return Math.min(
+    CHARACTER_ARC_MAX_STEPS,
+    Math.max(0, Number.isFinite(steps) ? Math.trunc(steps) : 0)
+  );
+}
+
+function getCharacterArcDisplayData(item) {
+  const basic = item.system.basic ?? {};
+  const completed = basic.status === "completed";
+  const outcome = completed && ["success", "failure"].includes(basic.outcome)
+    ? basic.outcome
+    : "";
+  const steps = normalizeCharacterArcSteps(basic.steps);
+  const statusLabel = game.i18n.localize(
+    completed
+      ? "CYPHERSYSTEM.CharacterArcCompleted"
+      : "CYPHERSYSTEM.CharacterArcActive"
+  );
+  const outcomeLabel = outcome
+    ? game.i18n.localize(
+      outcome === "success"
+        ? "CYPHERSYSTEM.CharacterArcSuccess"
+        : "CYPHERSYSTEM.CharacterArcFailure"
+    )
+    : "";
+  const xpLabel = outcome
+    ? game.i18n.localize(
+      outcome === "success"
+        ? "CYPHERSYSTEM.CharacterArcSuccessXP"
+        : "CYPHERSYSTEM.CharacterArcFailureXP"
+    )
+    : "";
+
+  return {completed, outcome, outcomeLabel, statusLabel, steps, xpLabel};
+}
+
+async function sendCharacterArcCard(actor, item) {
+  const arc = getCharacterArcDisplayData(item);
+  const meta = [
+    `${game.i18n.localize("CYPHERSYSTEM.CharacterArcSteps")}: ${arc.steps}`,
+    arc.outcomeLabel ? `${arc.statusLabel} — ${arc.outcomeLabel}` : arc.statusLabel,
+    arc.xpLabel
+  ].filter(Boolean).join(" · ");
+  const content = await buildItemCard(actor, item, {
+    linkName: true,
+    meta,
+    typeLabel: game.i18n.localize("CYPHERSYSTEM.CharacterArc")
+  });
+
+  return ChatMessage.create({
+    speaker: ChatMessage.getSpeaker({actor}),
+    content,
+    flags: {
+      itemID: item.id,
+      cyphersystem: {
+        cardType: "character-arc",
+        actorUuid: actor.uuid,
+        itemUuid: item.uuid,
+        itemId: item.id
+      }
+    }
+  });
 }
 
 const EQUIPMENT_ITEM_TYPES = new Set([
@@ -388,7 +466,15 @@ export class CypherActorSheetPCV2 extends HandlebarsApplicationMixin(ActorSheetV
       identifyEquipmentItem: this._identifyEquipmentItem,
       rollEquipmentLevel: this._rollEquipmentLevel,
       useCypher: this._useCypher,
-      activateArtifact: this._activateArtifact
+      activateArtifact: this._activateArtifact,
+      createCharacterArc: this._createCharacterArc,
+      editCharacterArc: this._editCharacterArc,
+      addCharacterArcStep: this._addCharacterArcStep,
+      setCharacterArcSteps: this._setCharacterArcSteps,
+      completeCharacterArc: this._completeCharacterArc,
+      toggleCharacterArcArchive: this._toggleCharacterArcArchive,
+      characterArcToChat: this._characterArcToChat,
+      importLegacyCharacterArc: this._importLegacyCharacterArc
     },
     position: {width: 820, height: 760},
     window: {resizable: true},
@@ -406,7 +492,8 @@ export class CypherActorSheetPCV2 extends HandlebarsApplicationMixin(ActorSheetV
     combat: {template: "systems/cyphersystem/templates/actor-sheets/v2/parts/combat.hbs"},
     abilities: {template: "systems/cyphersystem/templates/actor-sheets/v2/parts/abilities.hbs"},
     skills: {template: "systems/cyphersystem/templates/actor-sheets/v2/parts/skills.hbs"},
-    equipment: {template: "systems/cyphersystem/templates/actor-sheets/v2/parts/equipment.hbs"}
+    equipment: {template: "systems/cyphersystem/templates/actor-sheets/v2/parts/equipment.hbs"},
+    notes: {template: "systems/cyphersystem/templates/actor-sheets/v2/parts/notes.hbs"}
   };
 
   get title() {
@@ -453,7 +540,7 @@ export class CypherActorSheetPCV2 extends HandlebarsApplicationMixin(ActorSheetV
     event.preventDefault();
 
     const tab = target.dataset.tab;
-    if (!["overview", "combat", "abilities", "skills", "equipment"].includes(tab)) return;
+    if (!["overview", "combat", "abilities", "skills", "equipment", "notes"].includes(tab)) return;
 
     this._activeTab = tab;
     this._syncTabs();
@@ -1706,6 +1793,167 @@ export class CypherActorSheetPCV2 extends HandlebarsApplicationMixin(ActorSheetV
     }
   }
 
+  static async _createCharacterArc(event) {
+    event.preventDefault();
+    if (!this.isEditable) return;
+
+    const [item] = await this.actor.createEmbeddedDocuments("Item", [{
+      name: game.i18n.localize("CYPHERSYSTEM.CharacterArcNew"),
+      type: "character-arc"
+    }]);
+    item?.sheet?.render(true);
+  }
+
+  static _editCharacterArc(event, target) {
+    event.preventDefault();
+    if (!this.isEditable) return;
+
+    const item = this.actor.items.get(target.dataset.itemId);
+    if (!item || item.type !== "character-arc") return;
+    item.sheet?.render(true);
+  }
+
+  static async _addCharacterArcStep(event, target) {
+    event.preventDefault();
+    if (!this.isEditable) return;
+
+    const item = this.actor.items.get(target.dataset.itemId);
+    if (!item || item.type !== "character-arc" || item.system.archived) return;
+
+    const arc = getCharacterArcDisplayData(item);
+    if (arc.completed) return;
+    if (arc.steps >= CHARACTER_ARC_MAX_STEPS) {
+      ui.notifications.warn(
+        game.i18n.format("CYPHERSYSTEM.CharacterArcStepLimit", {
+          max: CHARACTER_ARC_MAX_STEPS
+        })
+      );
+      return;
+    }
+
+    await item.update({"system.basic.steps": arc.steps + 1});
+  }
+
+  static async _setCharacterArcSteps(event, target) {
+    event.preventDefault();
+    if (!this.isEditable) return;
+
+    const item = this.actor.items.get(target.dataset.itemId);
+    if (!item || item.type !== "character-arc" || item.system.archived) return;
+
+    const arc = getCharacterArcDisplayData(item);
+    if (arc.completed) return;
+
+    const mark = Number(target.dataset.stepValue);
+    if (!Number.isInteger(mark) || mark < 1 || mark > arc.steps) return;
+    await item.update({"system.basic.steps": mark - 1});
+  }
+
+  static async _completeCharacterArc(event, target) {
+    event.preventDefault();
+    if (!this.isEditable) return;
+
+    const item = this.actor.items.get(target.dataset.itemId);
+    if (!item || item.type !== "character-arc" || item.system.archived) return;
+
+    const arc = getCharacterArcDisplayData(item);
+    if (arc.completed) return;
+
+    const success = escapeItemCardText(game.i18n.localize("CYPHERSYSTEM.CharacterArcSuccess"));
+    const failure = escapeItemCardText(game.i18n.localize("CYPHERSYSTEM.CharacterArcFailure"));
+    const successXP = escapeItemCardText(game.i18n.localize("CYPHERSYSTEM.CharacterArcSuccessXP"));
+    const failureXP = escapeItemCardText(game.i18n.localize("CYPHERSYSTEM.CharacterArcFailureXP"));
+    const response = await foundry.applications.api.DialogV2.input({
+      window: {
+        title: game.i18n.format("CYPHERSYSTEM.CharacterArcClimaxTitle", {name: item.name})
+      },
+      content: `
+        <div class="form-group">
+          <label>${escapeItemCardText(game.i18n.localize("CYPHERSYSTEM.CharacterArcOutcome"))}</label>
+          <div class="form-fields">
+            <select name="outcome" autofocus>
+              <option value="success">${success} — ${successXP}</option>
+              <option value="failure">${failure} — ${failureXP}</option>
+            </select>
+          </div>
+          <p class="hint">${escapeItemCardText(game.i18n.localize("CYPHERSYSTEM.CharacterArcClimaxHint"))}</p>
+        </div>`,
+      ok: {
+        label: game.i18n.localize("CYPHERSYSTEM.CharacterArcClimax"),
+        icon: "fa-solid fa-flag-checkered"
+      },
+      rejectClose: false,
+      modal: true
+    });
+    if (!response || !["success", "failure"].includes(response.outcome)) return;
+
+    await item.update({
+      "system.basic.status": "completed",
+      "system.basic.outcome": response.outcome,
+      "system.basic.completedAt": new Date().toISOString()
+    });
+    ui.notifications.info(
+      game.i18n.format("CYPHERSYSTEM.CharacterArcClimaxRecorded", {name: item.name})
+    );
+  }
+
+  static async _toggleCharacterArcArchive(event, target) {
+    event.preventDefault();
+    if (!this.isEditable) return;
+
+    const item = this.actor.items.get(target.dataset.itemId);
+    if (!item || item.type !== "character-arc") return;
+
+    const altPressed =
+      Boolean(event.altKey) ||
+      Boolean(game.keyboard?.isModifierActive?.("Alt"));
+    if (altPressed) {
+      await item.delete();
+      return;
+    }
+
+    await item.update({"system.archived": !Boolean(item.system.archived)});
+  }
+
+  static async _characterArcToChat(event, target) {
+    event.preventDefault();
+
+    const canView = Boolean(
+      this.actor.testUserPermission(game.user, CONST.DOCUMENT_OWNERSHIP_LEVELS.OBSERVER) ||
+      this.actor.compendium?.locked
+    );
+    if (!canView) return;
+
+    const item = this.actor.items.get(target.dataset.itemId);
+    if (!item || item.type !== "character-arc") return;
+    await sendCharacterArcCard(this.actor, item);
+  }
+
+  static async _importLegacyCharacterArc(event) {
+    event.preventDefault();
+    if (!this.isEditable) return;
+
+    const legacyDescription = String(this.actor.system.characterArc ?? "").trim();
+    if (!legacyDescription) return;
+
+    let item = null;
+    try {
+      [item] = await this.actor.createEmbeddedDocuments("Item", [{
+        name: game.i18n.localize("CYPHERSYSTEM.CharacterArcImported"),
+        type: "character-arc",
+        system: {description: legacyDescription}
+      }]);
+      await this.actor.update({"system.characterArc": ""});
+    } catch (error) {
+      if (item) await item.delete();
+      ui.notifications.error(error.message);
+      return;
+    }
+
+    ui.notifications.info(game.i18n.localize("CYPHERSYSTEM.CharacterArcImportComplete"));
+    item?.sheet?.render(true);
+  }
+
   async _enableEquipmentSection(type) {
     const paths = {
       cypher: "system.settings.equipment.cyphers.active",
@@ -2551,6 +2799,76 @@ export class CypherActorSheetPCV2 extends HandlebarsApplicationMixin(ActorSheetV
 
     const lastingDamageEnabled = Boolean(system.settings?.combat?.lastingDamage?.active);
 
+    const canViewPrivateNotes = Boolean(
+      actor.testUserPermission(game.user, CONST.DOCUMENT_OWNERSHIP_LEVELS.OBSERVER) ||
+      actor.compendium?.locked
+    );
+    const canViewGMNotes = Boolean(game.user.isGM);
+    const notesSource = {
+      notes: canViewPrivateNotes ? String(system.notes ?? "") : "",
+      characterArc: canViewPrivateNotes ? String(system.characterArc ?? "") : "",
+      description: String(system.description ?? ""),
+      gmNotes: canViewGMNotes ? String(system.gmNotes ?? "") : ""
+    };
+    const enrichNote = content => foundry.applications.ux.TextEditor.implementation.enrichHTML(
+      content,
+      {
+        async: true,
+        secrets: actor.isOwner,
+        relativeTo: actor
+      }
+    );
+    const [notesHtml, characterArcHtml, descriptionHtml, gmNotesHtml] = await Promise.all([
+      canViewPrivateNotes ? enrichNote(notesSource.notes) : "",
+      canViewPrivateNotes ? enrichNote(notesSource.characterArc) : "",
+      enrichNote(notesSource.description),
+      canViewGMNotes ? enrichNote(notesSource.gmNotes) : ""
+    ]);
+    const characterArcDocuments = canViewPrivateNotes
+      ? sortedItems
+        .filter(item => item.type === "character-arc")
+        .filter(item => !generalSettings.hideArchive || !item.system.archived)
+        .sort((a, b) => {
+          const archivedOrder = Number(Boolean(a.system.archived)) -
+            Number(Boolean(b.system.archived));
+          if (archivedOrder) return archivedOrder;
+
+          const completedOrder = Number(a.system.basic?.status === "completed") -
+            Number(b.system.basic?.status === "completed");
+          if (completedOrder) return completedOrder;
+
+          return (a.sort ?? 0) - (b.sort ?? 0) || a.name.localeCompare(b.name);
+        })
+      : [];
+    const characterArcs = await Promise.all(characterArcDocuments.map(async item => {
+      const arc = getCharacterArcDisplayData(item);
+      const description = String(item.system.description ?? "");
+      const descriptionHtml = await foundry.applications.ux.TextEditor.implementation.enrichHTML(
+        description,
+        {
+          async: true,
+          secrets: item.isOwner,
+          relativeTo: item
+        }
+      );
+
+      return {
+        id: item.id,
+        name: item.name,
+        img: item.img,
+        archived: Boolean(item.system.archived),
+        completed: arc.completed,
+        outcome: arc.outcome,
+        outcomeLabel: arc.outcomeLabel,
+        statusLabel: arc.statusLabel,
+        steps: arc.steps,
+        stepMarks: Array.from({length: arc.steps}, (_, index) => ({number: index + 1})),
+        xpLabel: arc.xpLabel,
+        description,
+        descriptionHtml
+      };
+    }));
+
     Object.assign(context, {
       rollSettings: {
         enabled: rollButtons === 1 && canEdit
@@ -2591,6 +2909,21 @@ export class CypherActorSheetPCV2 extends HandlebarsApplicationMixin(ActorSheetV
       combatLastingDamage,
       ammoEnabled,
       lastingDamageEnabled,
+      canViewPrivateNotes,
+      canViewGMNotes,
+      characterArcs,
+      legacyCharacterArc: {
+        hasContent: Boolean(notesSource.characterArc.trim()),
+        source: notesSource.characterArc,
+        html: characterArcHtml
+      },
+      notesSource,
+      notesHtml: {
+        notes: notesHtml,
+        characterArc: characterArcHtml,
+        description: descriptionHtml,
+        gmNotes: gmNotesHtml
+      },
       woundRows,
       woundMaxChoices,
       woundHindrance,

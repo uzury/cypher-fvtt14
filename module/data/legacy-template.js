@@ -110,6 +110,7 @@ export const LEGACY_TEMPLATE = {
         "cypherLimit": 2
       },
       "notes": "",
+      "characterArc": "",
       "gmNotes": "",
       "description": "",
       "settings": {
@@ -573,6 +574,7 @@ export const LEGACY_TEMPLATE = {
       "armor",
       "artifact",
       "attack",
+      "character-arc",
       "cypher",
       "equipment",
       "lasting-damage",
@@ -710,6 +712,18 @@ export const LEGACY_TEMPLATE = {
         "general": {
           "unmaskedForm": "Mask"
         }
+      }
+    },
+    "character-arc": {
+      "templates": [
+        "version",
+        "core"
+      ],
+      "basic": {
+        "steps": 0,
+        "status": "active",
+        "outcome": "",
+        "completedAt": ""
       }
     },
     "cypher": {

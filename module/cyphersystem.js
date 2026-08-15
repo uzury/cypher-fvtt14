@@ -1,4 +1,5 @@
 import {CypherActorSheetPCV2} from "./actor/v2/pc-sheet-v2.js";
+import {CypherCharacterArcItemSheetV2} from "./item/v2/character-arc-sheet-v2.js";
 import {decorateCypherChatMessage} from "./utilities/chat-card-redesign.js";
 // Import actors & items
 import {CypherActor} from "./actor/actor.js";
@@ -126,6 +127,7 @@ Hooks.once("init", async function () {
     CypherActorSheetVehicle,
     CypherActorSheetMarker,
     CypherItemSheet,
+    CypherCharacterArcItemSheetV2,
 
     // Macros
     quickRollMacro,
@@ -234,6 +236,16 @@ Hooks.once("init", async function () {
     makeDefault: true,
     label: "CYPHERSYSTEM.SheetClassItem"
   });
+  foundry.applications.apps.DocumentSheetConfig.registerSheet(
+    foundry.documents.Item,
+    game.system.id,
+    CypherCharacterArcItemSheetV2,
+    {
+      types: ["character-arc"],
+      makeDefault: true,
+      label: "CYPHERSYSTEM.CharacterArcSheet"
+    }
+  );
 
   // Load initiative settings
   initiativeSettings();
@@ -436,7 +448,9 @@ Hooks.on("preCreateItem", function (item, data, options, id) {
 
   if (item.img == "icons/svg/item-bag.svg") {
     item.updateSource({
-      img: `systems/cyphersystem/icons/items/${item.type}.svg`
+      img: item.type === "character-arc"
+        ? "icons/svg/book.svg"
+        : `systems/cyphersystem/icons/items/${item.type}.svg`
     });
   }
   if (

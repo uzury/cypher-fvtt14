@@ -2521,6 +2521,32 @@ section.cypher-note > p {
   overflow-wrap: anywhere;
 }
 
+.cypher-item-card .cypher-item-name .content-link {
+  display: inline;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  color: inherit;
+  font: inherit;
+  letter-spacing: inherit;
+  line-height: inherit;
+  text-shadow: none;
+}
+
+.cypher-item-card .cypher-item-name .content-link > i {
+  display: none;
+}
+
+.cypher-item-card .cypher-item-name .content-link:hover,
+.cypher-item-card .cypher-item-name .content-link:focus-visible {
+  color: var(--cypher-item-accent);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
 .cypher-item-card .cypher-item-meta {
   margin-top: 3px;
   color: var(--cypher-item-muted);
