@@ -1,10 +1,19 @@
+{{#unless isLimited}}
 <section class="cypher-v2-part cypher-v2-overview" data-cypher-v2-tab-panel="overview">
   <article class="cypher-v2-panel primary">
     <div class="cypher-v2-panel-icon"><i class="fa-solid fa-user"></i></div>
-    <div><span>IDENTITY</span><h3>{{profile.name}}</h3><p>{{profile.sentence}}</p></div>
+    <div>
+      <span>IDENTITY</span>
+      <h3>{{profile.name}}</h3>
+      <p>{{profile.sentence}}</p>
+      {{#if profile.descriptionPreview}}
+        <p class="cypher-v2-overview-description">{{profile.descriptionPreview}}</p>
+      {{/if}}
+    </div>
   </article>
   <article class="cypher-v2-panel">
     <div class="cypher-v2-panel-icon"><i class="fa-solid fa-dice-d20"></i></div>
     <div><span>PROTOTYPE</span><h3>Visual shell first</h3><p>This first V2 pass is read-only. Editing, rolls, items, wounds, recovery, and tabs will be migrated after the design is approved.</p></div>
   </article>
 </section>
+{{/unless}}

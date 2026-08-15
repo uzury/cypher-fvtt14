@@ -19,7 +19,7 @@
 .cypher-pc-v2 .cypher-v2-pool-top{display:flex;justify-content:space-between;align-items:baseline;gap:8px}.cypher-pc-v2 .cypher-v2-pool-top>span{color:var(--v2-red);font-size:12px;font-weight:900;text-transform:uppercase}.cypher-pc-v2 .cypher-v2-pool-top small{color:var(--v2-muted);font-size:9px;font-weight:800;text-transform:uppercase}.cypher-pc-v2 .cypher-v2-pool-top small strong{color:var(--v2-ink);font-size:14px}
 .cypher-pc-v2 .cypher-v2-pool-value{display:flex;justify-content:center;align-items:baseline;gap:6px;margin:7px 0 8px}.cypher-pc-v2 .cypher-v2-pool-value strong{font-size:38px;line-height:1}.cypher-pc-v2 .cypher-v2-pool-value span{color:var(--v2-muted);font-size:19px}.cypher-pc-v2 .cypher-v2-pool-value em{color:var(--v2-muted);font-size:20px;font-style:normal;font-weight:800}
 .cypher-pc-v2 .cypher-v2-track{height:5px;overflow:hidden;border-radius:99px;background:var(--v2-surface2)}.cypher-pc-v2 .cypher-v2-track span{display:block;height:100%;border-radius:inherit;background:linear-gradient(90deg,var(--v2-red),var(--v2-red2))}.cypher-pc-v2 .cypher-v2-pool-additional{grid-column:1/-1}
-.cypher-pc-v2 .cypher-v2-navigation{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));border-block:1px solid var(--v2-line);background:var(--v2-surface)}.cypher-pc-v2 .cypher-v2-navigation button{display:flex;align-items:center;justify-content:center;gap:6px;min-height:42px;margin:0;border:0;border-right:1px solid var(--v2-line);border-radius:0;background:transparent;color:var(--v2-muted);font-size:10px;font-weight:900;text-transform:uppercase}.cypher-pc-v2 .cypher-v2-navigation button.active{color:var(--v2-ink);box-shadow:inset 0 -3px 0 var(--v2-red)}.cypher-pc-v2 .cypher-v2-navigation button:disabled{opacity:.45}
+.cypher-pc-v2 .cypher-v2-navigation{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));border-block:1px solid var(--v2-line);background:var(--v2-surface)}.cypher-pc-v2 .cypher-v2-navigation [data-action="changeTab"]{display:flex;align-items:center;justify-content:center;gap:6px;min-height:42px;margin:0;border:0;border-right:1px solid var(--v2-line);border-radius:0;background:transparent;color:var(--v2-muted);font-size:10px;font-weight:900;text-transform:uppercase}.cypher-pc-v2 .cypher-v2-navigation [data-action="changeTab"].active{color:var(--v2-ink);box-shadow:inset 0 -3px 0 var(--v2-red)}
 .cypher-pc-v2 .cypher-v2-overview{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;padding:18px 22px 24px;background:var(--v2-paper)}.cypher-pc-v2 .cypher-v2-panel{display:grid;grid-template-columns:42px 1fr;gap:12px;min-height:112px;padding:15px;border:1px solid var(--v2-line);border-radius:10px;background:var(--v2-surface);box-shadow:0 2px 8px var(--v2-shadow)}.cypher-pc-v2 .cypher-v2-panel.primary{border-left:4px solid var(--v2-red)}.cypher-pc-v2 .cypher-v2-panel-icon{display:flex;align-items:center;justify-content:center;width:42px;height:42px;border-radius:9px;background:#ece7e8;color:var(--v2-red)}.cypher-pc-v2 .cypher-v2-panel h3{margin:2px 0 5px;font-size:15px}.cypher-pc-v2 .cypher-v2-panel p{margin:0;color:var(--v2-muted);font-size:11px;line-height:1.45}
 .cypher-pc-v2.theme-dark,body.theme-dark .cypher-pc-v2:not(.theme-light){--v2-paper:#171b22;--v2-surface:#20262f;--v2-surface2:#2b323c;--v2-ink:#eef1f5;--v2-muted:#a9b0b9;--v2-line:#444d58;--v2-shadow:rgba(0,0,0,.34)}.cypher-pc-v2.theme-dark .cypher-v2-panel-icon,body.theme-dark .cypher-pc-v2:not(.theme-light) .cypher-v2-panel-icon{background:#30252b;color:#f06b80}
 
@@ -873,8 +873,18 @@ body.theme-dark .cypher-pc-v2:not(.theme-light) .cypher-v2-recovery-roll-button 
   font-size: 17px;
 }
 
-.cypher-pc-v2 .cypher-v2-navigation button {
+.cypher-pc-v2 .cypher-v2-navigation [data-action="changeTab"] {
   min-height: 38px;
+}
+
+.cypher-pc-v2 .cypher-v2-overview-description {
+  display: -webkit-box;
+  max-height: calc(3 * 1.45em);
+  margin-top: 6px !important;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
 }
 
 /* Overview is still comfortable, but less vertically expensive. */
@@ -1084,7 +1094,7 @@ body.theme-dark .cypher-pc-v2:not(.theme-light) .cypher-v2-recovery-roll-button 
   overflow: visible;
 }
 
-.cypher-pc-v2 .cypher-v2-navigation > button {
+.cypher-pc-v2 .cypher-v2-navigation > [data-action="changeTab"] {
   width: 100%;
   min-width: 0;
   margin: 0 !important;
@@ -1195,7 +1205,11 @@ body.theme-dark .cypher-pc-v2:not(.theme-light) .cypher-v2-recovery-roll-button 
   box-sizing: border-box !important;
 }
 
-.cypher-pc-v2 .cypher-v2-navigation > button {
+.cypher-pc-v2 .cypher-v2-navigation.is-limited {
+  grid-template-columns: minmax(0, 1fr) !important;
+}
+
+.cypher-pc-v2 .cypher-v2-navigation > [data-action="changeTab"] {
   display: flex !important;
   align-items: center;
   justify-content: center;
@@ -1216,25 +1230,23 @@ body.theme-dark .cypher-pc-v2:not(.theme-light) .cypher-v2-recovery-roll-button 
   font-size: 10px;
   font-weight: 900;
   text-transform: uppercase;
+  text-decoration: none;
+  cursor: pointer;
 
   overflow: hidden;
   box-sizing: border-box !important;
 }
 
-.cypher-pc-v2 .cypher-v2-navigation > button:last-child {
+.cypher-pc-v2 .cypher-v2-navigation > [data-action="changeTab"]:last-child {
   border-right: 0;
 }
 
-.cypher-pc-v2 .cypher-v2-navigation > button.active {
+.cypher-pc-v2 .cypher-v2-navigation > [data-action="changeTab"].active {
   color: var(--v2-ink);
   box-shadow: inset 0 -3px 0 var(--v2-red);
 }
 
-.cypher-pc-v2 .cypher-v2-navigation > button:disabled {
-  opacity: .45;
-}
-
-.cypher-pc-v2 .cypher-v2-navigation > button > span {
+.cypher-pc-v2 .cypher-v2-navigation > [data-action="changeTab"] > span {
   min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;

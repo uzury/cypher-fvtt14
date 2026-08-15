@@ -30,6 +30,15 @@ function escapeItemCardText(value) {
     .replaceAll("'", "&#039;");
 }
 
+function canUserObserveActor(actor) {
+  return Boolean(
+    actor?.testUserPermission(
+      game.user,
+      CONST.DOCUMENT_OWNERSHIP_LEVELS.OBSERVER
+    ) || actor?.compendium?.locked
+  );
+}
+
 function getAbilityDisplayData(item) {
   const rawCost = String(item.system.basic?.cost ?? "").trim();
   const hasCost = rawCost !== "" && rawCost !== "0";
@@ -541,6 +550,7 @@ export class CypherActorSheetPCV2 extends HandlebarsApplicationMixin(ActorSheetV
 
     const tab = target.dataset.tab;
     if (!["overview", "combat", "abilities", "skills", "equipment", "notes"].includes(tab)) return;
+    if (!canUserObserveActor(this.actor) && tab !== "notes") return;
 
     this._activeTab = tab;
     this._syncTabs();
@@ -1306,6 +1316,7 @@ export class CypherActorSheetPCV2 extends HandlebarsApplicationMixin(ActorSheetV
 
   static async _combatItemDescription(event, target) {
     event.preventDefault();
+    if (!canUserObserveActor(this.actor)) return;
 
     const item = this.actor.items.get(target.dataset.itemId);
     if (!item || !["attack", "armor", "ammo", "lasting-damage"].includes(item.type)) return;
@@ -1422,6 +1433,7 @@ export class CypherActorSheetPCV2 extends HandlebarsApplicationMixin(ActorSheetV
 
   static async _abilityItemDescription(event, target) {
     event.preventDefault();
+    if (!canUserObserveActor(this.actor)) return;
 
     const item = this.actor.items.get(target.dataset.itemId);
     if (!item || item.type !== "ability") return;
@@ -1535,6 +1547,7 @@ export class CypherActorSheetPCV2 extends HandlebarsApplicationMixin(ActorSheetV
 
   static async _skillItemDescription(event, target) {
     event.preventDefault();
+    if (!canUserObserveActor(this.actor)) return;
 
     const item = this.actor.items.get(target.dataset.itemId);
     if (!item || item.type !== "skill") return;
@@ -1654,6 +1667,7 @@ export class CypherActorSheetPCV2 extends HandlebarsApplicationMixin(ActorSheetV
 
   static async _equipmentItemDescription(event, target) {
     event.preventDefault();
+    if (!canUserObserveActor(this.actor)) return;
 
     const item = this.actor.items.get(target.dataset.itemId);
     if (!item || !EQUIPMENT_ITEM_TYPES.has(item.type)) return;
@@ -1917,12 +1931,7 @@ export class CypherActorSheetPCV2 extends HandlebarsApplicationMixin(ActorSheetV
 
   static async _characterArcToChat(event, target) {
     event.preventDefault();
-
-    const canView = Boolean(
-      this.actor.testUserPermission(game.user, CONST.DOCUMENT_OWNERSHIP_LEVELS.OBSERVER) ||
-      this.actor.compendium?.locked
-    );
-    if (!canView) return;
+    if (!canUserObserveActor(this.actor)) return;
 
     const item = this.actor.items.get(target.dataset.itemId);
     if (!item || item.type !== "character-arc") return;
@@ -1981,6 +1990,51 @@ export class CypherActorSheetPCV2 extends HandlebarsApplicationMixin(ActorSheetV
 
     const canEdit = this.isEditable;
     const canEditStatic = canEdit && !staticStatsLocked;
+    const canObserve = canUserObserveActor(actor);
+    const isLimited = !canObserve;
+
+    if (isLimited) {
+      const description = String(system.description ?? "");
+      const descriptionHtml = await foundry.applications.ux.TextEditor.implementation.enrichHTML(
+        description,
+        {
+          async: true,
+          secrets: false,
+          relativeTo: actor
+        }
+      );
+
+      Object.assign(context, {
+        actor,
+        editable: false,
+        canEditStatic: false,
+        staticStatsLocked,
+        canObserve: false,
+        isLimited: true,
+        canViewPrivateNotes: false,
+        canViewGMNotes: false,
+        characterArcs: [],
+        legacyCharacterArc: {
+          hasContent: false,
+          source: "",
+          html: ""
+        },
+        notesSource: {
+          notes: "",
+          characterArc: "",
+          description,
+          gmNotes: ""
+        },
+        notesHtml: {
+          notes: "",
+          characterArc: "",
+          description: descriptionHtml,
+          gmNotes: ""
+        }
+      });
+
+      return context;
+    }
 
     const rollButtons = Number(game.settings.get("cyphersystem", "rollButtons")) || 0;
     const useAllInOne = Boolean(game.settings.get("cyphersystem", "itemMacrosUseAllInOne"));
@@ -2047,6 +2101,10 @@ export class CypherActorSheetPCV2 extends HandlebarsApplicationMixin(ActorSheetV
     const descriptor = profile.descriptor ?? "";
     const type = isTeen ? "" : system.basic?.type ?? "";
     const focus = isTeen ? "" : system.basic?.focus ?? "";
+    const descriptionPreview = foundry.applications.ux.TextEditor.implementation.previewHTML(
+      String(system.description ?? ""),
+      500
+    );
 
     const who = game.i18n.localize("CYPHERSYSTEM.Who");
 
@@ -2799,10 +2857,7 @@ export class CypherActorSheetPCV2 extends HandlebarsApplicationMixin(ActorSheetV
 
     const lastingDamageEnabled = Boolean(system.settings?.combat?.lastingDamage?.active);
 
-    const canViewPrivateNotes = Boolean(
-      actor.testUserPermission(game.user, CONST.DOCUMENT_OWNERSHIP_LEVELS.OBSERVER) ||
-      actor.compendium?.locked
-    );
+    const canViewPrivateNotes = canObserve;
     const canViewGMNotes = Boolean(game.user.isGM);
     const notesSource = {
       notes: canViewPrivateNotes ? String(system.notes ?? "") : "",
@@ -2911,6 +2966,8 @@ export class CypherActorSheetPCV2 extends HandlebarsApplicationMixin(ActorSheetV
       lastingDamageEnabled,
       canViewPrivateNotes,
       canViewGMNotes,
+      canObserve,
+      isLimited,
       characterArcs,
       legacyCharacterArc: {
         hasContent: Boolean(notesSource.characterArc.trim()),
@@ -2940,6 +2997,7 @@ export class CypherActorSheetPCV2 extends HandlebarsApplicationMixin(ActorSheetV
         type,
         focus,
         sentence,
+        descriptionPreview,
         additionalSentence: isTeen
           ? ""
           : system.basic?.additionalSentence ?? "",
@@ -3151,7 +3209,9 @@ export class CypherActorSheetPCV2 extends HandlebarsApplicationMixin(ActorSheetV
       await this._normalizePoolValuesForLastingDamage();
     }
 
-    this._activeTab ??= "overview";
+    this._activeTab = context.isLimited
+      ? "notes"
+      : this._activeTab ?? "overview";
     this._syncTabs();
 
     // Cypher PC V2 - select full editable field on click
@@ -3285,8 +3345,10 @@ export class CypherActorSheetPCV2 extends HandlebarsApplicationMixin(ActorSheetV
       panel.hidden = panel.dataset.cypherV2TabPanel !== activeTab;
     }
 
-    for (const button of this.element.querySelectorAll("[data-action='changeTab']")) {
-      button.classList.toggle("active", button.dataset.tab === activeTab);
+    for (const tab of this.element.querySelectorAll("[data-action='changeTab']")) {
+      const active = tab.dataset.tab === activeTab;
+      tab.classList.toggle("active", active);
+      tab.setAttribute("aria-selected", String(active));
     }
   }
 
