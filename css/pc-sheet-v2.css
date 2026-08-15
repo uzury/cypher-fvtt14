@@ -1240,53 +1240,6 @@ body.theme-dark .cypher-pc-v2:not(.theme-light) .cypher-v2-recovery-roll-button 
   white-space: nowrap;
 }
 
-/* Rich help for Skills and Abilities lives on the tab strip, not in the
- * scrollable tab content. The transparent bottom padding bridges the pointer
- * upward from the tab to the card without making the page reflow. */
-.cypher-pc-v2 .cypher-v2-nav-info {
-  position: absolute;
-  bottom: 100%;
-  left: 50%;
-  z-index: 40;
-  width: min(760px, calc(100% - 24px));
-  padding-bottom: 6px;
-  opacity: 0;
-  visibility: hidden;
-  pointer-events: none;
-  transform: translate(-50%, 4px);
-  transition:
-    opacity .14s ease,
-    transform .14s ease,
-    visibility 0s linear .14s;
-}
-
-.cypher-pc-v2 .cypher-v2-nav-info-card {
-  display: grid;
-  grid-template-columns: minmax(180px, .85fr) minmax(0, 1.35fr);
-  align-items: center;
-  gap: 14px;
-  min-width: 0;
-  padding: 12px 14px;
-  border: 1px solid var(--v2-line);
-  border-left: 4px solid var(--v2-red);
-  border-radius: 8px;
-  background: var(--v2-surface);
-  box-shadow: 0 12px 28px rgba(0, 0, 0, .28);
-  color: var(--v2-ink);
-  text-align: left;
-  text-transform: none;
-}
-
-.cypher-pc-v2 .cypher-v2-navigation > button:hover + .cypher-v2-nav-info,
-.cypher-pc-v2 .cypher-v2-navigation > button:focus-visible + .cypher-v2-nav-info,
-.cypher-pc-v2 .cypher-v2-nav-info:hover {
-  opacity: 1;
-  visibility: visible;
-  pointer-events: auto;
-  transform: translate(-50%, 0);
-  transition-delay: 0s;
-}
-
 /* The Recovery panel border is the final bottom line. */
 .cypher-pc-v2 .cypher-v2-recovery-groups,
 .cypher-pc-v2 .cypher-v2-recovery-group:last-child {
@@ -2869,10 +2822,6 @@ body.theme-dark .cypher-pc-v2:not(.theme-light) .cypher-v2-ability-use {
 }
 
 @media (max-width: 760px) {
-  .cypher-pc-v2 .cypher-v2-nav-info-card {
-    grid-template-columns: 1fr;
-  }
-
   .cypher-pc-v2 .cypher-v2-skill-item {
     grid-template-columns: 22px 30px minmax(0, 1fr) max-content;
   }
@@ -2880,5 +2829,645 @@ body.theme-dark .cypher-pc-v2:not(.theme-light) .cypher-v2-ability-use {
   .cypher-pc-v2 .cypher-v2-skill-image {
     width: 30px;
     height: 30px;
+  }
+}
+
+/* Cypher PC V2 - Equipment --------------------------------------------- */
+.cypher-pc-v2 .cypher-v2-equipment {
+  display: grid;
+  gap: 10px;
+  padding: 12px 16px 18px;
+  background: var(--v2-paper);
+}
+
+.cypher-pc-v2 .cypher-v2-equipment-heading {
+  padding: 2px 2px 0;
+}
+
+.cypher-pc-v2 .cypher-v2-equipment-topbar {
+  display: grid;
+  grid-template-columns: minmax(240px, .72fr) minmax(0, 1.28fr);
+  align-items: stretch;
+  gap: 10px;
+}
+
+.cypher-pc-v2 .cypher-v2-equipment-heading h2,
+.cypher-pc-v2 .cypher-v2-equipment-panel-header h3,
+.cypher-pc-v2 .cypher-v2-equipment-overview-card h3 {
+  margin: 1px 0 0;
+  color: var(--v2-ink);
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.cypher-pc-v2 .cypher-v2-equipment-heading h2 {
+  font-size: 18px;
+}
+
+.cypher-pc-v2 .cypher-v2-equipment-heading p {
+  max-width: 64ch;
+  margin: 4px 0 0;
+  color: var(--v2-muted);
+  font-size: 9px;
+  line-height: 1.4;
+}
+
+.cypher-pc-v2 .cypher-v2-equipment-kicker {
+  color: var(--v2-red);
+  font-size: 7px;
+  font-weight: 900;
+  letter-spacing: .12em;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.cypher-pc-v2 .cypher-v2-equipment-summary {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 132px;
+  gap: 10px;
+}
+
+.cypher-pc-v2 .cypher-v2-equipment-overview-card,
+.cypher-pc-v2 .cypher-v2-equipment-panel {
+  overflow: hidden;
+  border: 1px solid var(--v2-line);
+  border-radius: 8px;
+  background: var(--v2-surface);
+  box-shadow: 0 2px 8px var(--v2-shadow);
+}
+
+.cypher-pc-v2 .cypher-v2-equipment-overview-card {
+  min-height: 82px;
+  padding: 8px 10px;
+}
+
+.cypher-pc-v2 .cypher-v2-equipment-overview-card > header,
+.cypher-pc-v2 .cypher-v2-equipment-panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.cypher-pc-v2 .cypher-v2-equipment-overview-card h3,
+.cypher-pc-v2 .cypher-v2-equipment-panel-header h3 {
+  font-size: 12px;
+}
+
+.cypher-pc-v2 .cypher-v2-equipment-overview-card > header > i {
+  color: var(--v2-red);
+  font-size: 15px;
+}
+
+.cypher-pc-v2 .cypher-v2-capacity-card {
+  padding-inline: 8px;
+}
+
+.cypher-pc-v2 .cypher-v2-capacity-card > header {
+  gap: 3px;
+}
+
+.cypher-pc-v2 .cypher-v2-capacity-card h3 {
+  font-size: 9px;
+}
+
+.cypher-pc-v2 .cypher-v2-capacity-card > header > i {
+  font-size: 11px;
+}
+
+.cypher-pc-v2 .cypher-v2-equipment-overview-card.is-inactive {
+  background: color-mix(in srgb, var(--v2-surface2) 58%, var(--v2-surface));
+}
+
+.cypher-pc-v2 .cypher-v2-equipment-inactive-note,
+.cypher-pc-v2 .cypher-v2-capacity-card > p {
+  margin: 8px 0 0;
+  color: var(--v2-muted);
+  font-size: 8px;
+  line-height: 1.35;
+}
+
+.cypher-pc-v2 .cypher-v2-capacity-card > p {
+  margin-top: 6px;
+  font-size: 7px;
+}
+
+.cypher-pc-v2 .cypher-v2-currency-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 5px;
+  margin-top: 8px;
+}
+
+.cypher-pc-v2 .cypher-v2-currency-entry {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 52px;
+  align-items: center;
+  gap: 4px;
+  min-width: 0;
+  padding: 4px 5px;
+  border: 1px solid var(--v2-line);
+  border-radius: 6px;
+  background: var(--v2-surface2);
+}
+
+.cypher-pc-v2 .cypher-v2-currency-entry.labels-hidden {
+  grid-template-columns: 1fr;
+}
+
+.cypher-pc-v2 .cypher-v2-currency-entry > span {
+  overflow: hidden;
+  color: var(--v2-muted);
+  font-size: 7px;
+  font-weight: 900;
+  text-overflow: ellipsis;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.cypher-pc-v2 .cypher-v2-currency-entry input,
+.cypher-pc-v2 .cypher-v2-currency-entry > strong {
+  width: 100%;
+  height: 23px;
+  padding: 1px 4px;
+  color: var(--v2-ink);
+  font-size: 11px;
+  font-weight: 900;
+  line-height: 21px;
+  text-align: center;
+}
+
+.cypher-pc-v2 .cypher-v2-capacity-value {
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+  margin-top: 4px;
+}
+
+.cypher-pc-v2 .cypher-v2-capacity-value > strong {
+  color: var(--v2-ink);
+  font-size: 20px;
+  line-height: 1;
+}
+
+.cypher-pc-v2 .cypher-v2-capacity-value > span {
+  color: var(--v2-muted);
+  font-size: 14px;
+  font-weight: 900;
+}
+
+.cypher-pc-v2 .cypher-v2-capacity-value input {
+  width: 36px;
+  height: 25px;
+  padding: 1px 4px;
+  color: var(--v2-ink);
+  font-size: 16px;
+  font-weight: 900;
+  text-align: center;
+}
+
+.cypher-pc-v2 .cypher-v2-capacity-card.has-warning {
+  border-color: color-mix(in srgb, #d7a63c 68%, var(--v2-line));
+  background: color-mix(in srgb, #d7a63c 7%, var(--v2-surface));
+}
+
+.cypher-pc-v2 .cypher-v2-capacity-card.is-over {
+  border-color: color-mix(in srgb, var(--v2-red) 72%, var(--v2-line));
+  background: color-mix(in srgb, var(--v2-red) 7%, var(--v2-surface));
+}
+
+.cypher-pc-v2 .cypher-v2-capacity-card.has-warning > p {
+  color: color-mix(in srgb, #a66d00 82%, var(--v2-ink));
+  font-weight: 800;
+}
+
+.cypher-pc-v2 .cypher-v2-capacity-card.is-over > p {
+  color: var(--v2-red2);
+}
+
+.cypher-pc-v2 .cypher-v2-equipment-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.08fr) minmax(0, .92fr);
+  align-items: start;
+  gap: 10px;
+}
+
+.cypher-pc-v2 .cypher-v2-equipment-column {
+  display: grid;
+  gap: 10px;
+  min-width: 0;
+}
+
+.cypher-pc-v2 .cypher-v2-equipment-panel-header {
+  min-height: 40px;
+  padding: 7px 9px 7px 11px;
+  border-bottom: 1px solid var(--v2-line);
+  background: color-mix(in srgb, var(--v2-surface2) 62%, transparent);
+}
+
+.cypher-pc-v2 .cypher-v2-cypher-panel {
+  border-left: 3px solid color-mix(in srgb, #2b6fa3 72%, var(--v2-line));
+}
+
+.cypher-pc-v2 .cypher-v2-artifact-panel {
+  border-left: 3px solid color-mix(in srgb, #7551a3 72%, var(--v2-line));
+}
+
+.cypher-pc-v2 .cypher-v2-equipment-panel-tools,
+.cypher-pc-v2 .cypher-v2-equipment-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 3px;
+}
+
+.cypher-pc-v2 .cypher-v2-equipment-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 22px;
+  height: 20px;
+  padding: 0 6px;
+  border: 1px solid var(--v2-line);
+  border-radius: 999px;
+  color: var(--v2-muted);
+  font-size: 8px;
+  font-weight: 900;
+}
+
+.cypher-pc-v2 .cypher-v2-equipment-add,
+.cypher-pc-v2 .cypher-v2-equipment-icon-button,
+.cypher-pc-v2 .cypher-v2-equipment-favorite,
+.cypher-pc-v2 .cypher-v2-equipment-stepper button,
+.cypher-pc-v2 .cypher-v2-equipment-level button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 0;
+  min-height: 0;
+  margin: 0;
+  padding: 0;
+  border: 1px solid transparent;
+  background: transparent;
+  box-shadow: none;
+  line-height: 1;
+}
+
+.cypher-pc-v2 .cypher-v2-equipment-add {
+  width: 24px;
+  height: 24px;
+  border-color: color-mix(in srgb, var(--v2-red) 35%, transparent);
+  border-radius: 6px;
+  color: var(--v2-red);
+  font-size: 9px;
+}
+
+.cypher-pc-v2 .cypher-v2-equipment-add:hover,
+.cypher-pc-v2 .cypher-v2-equipment-add:focus-visible,
+.cypher-pc-v2 .cypher-v2-equipment-icon-button:hover,
+.cypher-pc-v2 .cypher-v2-equipment-icon-button:focus-visible,
+.cypher-pc-v2 .cypher-v2-equipment-stepper button:hover,
+.cypher-pc-v2 .cypher-v2-equipment-stepper button:focus-visible {
+  border-color: color-mix(in srgb, var(--v2-red) 55%, var(--v2-line));
+  background: color-mix(in srgb, var(--v2-red) 10%, transparent);
+  color: var(--v2-red);
+}
+
+.cypher-pc-v2 .cypher-v2-equipment-list {
+  display: grid;
+}
+
+.cypher-pc-v2 .cypher-v2-equipment-item {
+  display: grid;
+  grid-template-columns: 20px 32px minmax(0, 1fr) max-content max-content;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  padding: 6px 7px;
+  border-bottom: 1px solid var(--v2-line);
+}
+
+.cypher-pc-v2 .cypher-v2-equipment-item:not(:has(.cypher-v2-equipment-favorite)) {
+  grid-template-columns: 32px minmax(0, 1fr) max-content max-content;
+}
+
+.cypher-pc-v2 .cypher-v2-equipment-item:last-child {
+  border-bottom: 0;
+}
+
+.cypher-pc-v2 .cypher-v2-equipment-item[draggable="true"] {
+  cursor: grab;
+}
+
+.cypher-pc-v2 .cypher-v2-equipment-item[draggable="true"]:active {
+  cursor: grabbing;
+}
+
+.cypher-pc-v2 .cypher-v2-equipment-favorite {
+  width: 20px;
+  height: 22px;
+  border-radius: 5px;
+  color: color-mix(in srgb, var(--v2-muted) 65%, transparent);
+  font-size: 9px;
+}
+
+.cypher-pc-v2 .cypher-v2-equipment-favorite:not(.is-readonly):hover,
+.cypher-pc-v2 .cypher-v2-equipment-favorite:not(.is-readonly):focus-visible,
+.cypher-pc-v2 .cypher-v2-equipment-favorite.is-favorite {
+  color: #d7a63c;
+}
+
+.cypher-pc-v2 .cypher-v2-equipment-image {
+  width: 32px;
+  height: 32px;
+  border: 1px solid var(--v2-line);
+  border-radius: 6px;
+  object-fit: cover;
+}
+
+.cypher-pc-v2 .cypher-v2-equipment-main,
+.cypher-pc-v2 .cypher-v2-equipment-name-wrap {
+  min-width: 0;
+}
+
+.cypher-pc-v2 .cypher-v2-equipment-name {
+  display: block;
+  overflow: hidden;
+  width: 100%;
+  min-height: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+  color: var(--v2-ink);
+  font-size: 10px;
+  font-weight: 900;
+  line-height: 1.2;
+  text-align: left;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.cypher-pc-v2 .cypher-v2-equipment-name:hover,
+.cypher-pc-v2 .cypher-v2-equipment-name:focus-visible {
+  color: var(--v2-red);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.cypher-pc-v2 .cypher-v2-equipment-meta {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 3px 7px;
+  margin-top: 3px;
+  color: var(--v2-muted);
+  font-size: 7px;
+  font-weight: 800;
+  line-height: 1.15;
+}
+
+.cypher-pc-v2 .cypher-v2-equipment-meta > span {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+}
+
+.cypher-pc-v2 .cypher-v2-equipment-meta .has-warning {
+  color: #b07b13;
+}
+
+.cypher-pc-v2 .cypher-v2-cypher-kind {
+  padding: 2px 5px;
+  border: 1px solid color-mix(in srgb, currentColor 30%, transparent);
+  border-radius: 999px;
+  background: color-mix(in srgb, currentColor 7%, transparent);
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.cypher-pc-v2 .cypher-v2-cypher-kind.is-nonphysical {
+  color: #2b6fa3;
+}
+
+.cypher-pc-v2 .cypher-v2-cypher-kind.is-manifest {
+  color: #7551a3;
+}
+
+.cypher-pc-v2 .cypher-v2-equipment-stepper {
+  display: grid;
+  grid-template-columns: 20px 25px 20px;
+  align-items: center;
+  overflow: hidden;
+  height: 25px;
+  border: 1px solid var(--v2-line);
+  border-radius: 6px;
+  background: var(--v2-surface2);
+}
+
+.cypher-pc-v2 .cypher-v2-equipment-stepper button {
+  width: 20px;
+  height: 23px;
+  color: var(--v2-muted);
+  font-size: 7px;
+}
+
+.cypher-pc-v2 .cypher-v2-equipment-stepper strong {
+  color: var(--v2-ink);
+  font-size: 9px;
+  text-align: center;
+}
+
+.cypher-pc-v2 .cypher-v2-equipment-level {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-width: 38px;
+  min-height: 30px;
+  padding: 2px 4px;
+  border-left: 1px solid var(--v2-line);
+}
+
+.cypher-pc-v2 .cypher-v2-equipment-level strong,
+.cypher-pc-v2 .cypher-v2-equipment-level button {
+  max-width: 70px;
+  color: var(--v2-ink);
+  font-size: 10px;
+  font-weight: 900;
+}
+
+.cypher-pc-v2 .cypher-v2-equipment-level button {
+  gap: 3px;
+  padding: 2px 3px;
+  border-radius: 4px;
+  color: var(--v2-red);
+}
+
+.cypher-pc-v2 .cypher-v2-equipment-level > span {
+  margin-top: 1px;
+  color: var(--v2-muted);
+  font-size: 6px;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.cypher-pc-v2 .cypher-v2-equipment-level.is-fallback strong {
+  color: #2b6fa3;
+}
+
+.cypher-pc-v2 .cypher-v2-equipment-icon-button {
+  width: 22px;
+  height: 23px;
+  border-color: color-mix(in srgb, var(--v2-line) 80%, transparent);
+  border-radius: 5px;
+  color: var(--v2-muted);
+  font-size: 8px;
+}
+
+.cypher-pc-v2 .cypher-v2-equipment-icon-button.is-use {
+  border-color: color-mix(in srgb, #d7a63c 50%, transparent);
+  background: color-mix(in srgb, #d7a63c 10%, transparent);
+  color: color-mix(in srgb, #a66d00 88%, var(--v2-ink));
+}
+
+.cypher-pc-v2 .cypher-v2-equipment-icon-button.is-identify {
+  border-color: color-mix(in srgb, #2b6fa3 44%, transparent);
+  background: color-mix(in srgb, #2b6fa3 9%, transparent);
+  color: #2b6fa3;
+}
+
+.cypher-pc-v2 .cypher-v2-equipment-item.is-archived {
+  opacity: .48;
+}
+
+.cypher-pc-v2 .cypher-v2-equipment-item.is-archived .cypher-v2-equipment-name {
+  text-decoration: line-through;
+  text-decoration-thickness: 1px;
+}
+
+.cypher-pc-v2 .cypher-v2-equipment-item.is-unidentified .cypher-v2-equipment-image {
+  filter: grayscale(1);
+  opacity: .72;
+}
+
+.cypher-pc-v2.cypher-v2-alt-down .cypher-v2-equipment-delete .cypher-v2-archive-default-icon {
+  display: none;
+}
+
+.cypher-pc-v2.cypher-v2-alt-down .cypher-v2-equipment-delete .cypher-v2-archive-alt-icon {
+  display: inline-block;
+}
+
+.cypher-pc-v2.cypher-v2-alt-down .cypher-v2-equipment-delete {
+  border-color: rgba(208, 75, 88, .55);
+  background: rgba(208, 75, 88, .13);
+  color: #d04b58;
+}
+
+.cypher-pc-v2 .cypher-v2-equipment-empty {
+  padding: 14px 10px;
+  color: var(--v2-muted);
+  font-size: 8px;
+  font-style: italic;
+  text-align: center;
+}
+
+.cypher-pc-v2 .cypher-v2-oddity-item {
+  grid-template-columns: 20px 32px minmax(0, 1fr) max-content;
+}
+
+.cypher-pc-v2 .cypher-v2-oddity-item:not(:has(.cypher-v2-equipment-favorite)) {
+  grid-template-columns: 32px minmax(0, 1fr) max-content;
+}
+
+.cypher-pc-v2 .cypher-v2-equipment-guide {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 5px;
+}
+
+.cypher-pc-v2 .cypher-v2-equipment-guide-item {
+  display: grid;
+  grid-template-columns: 25px minmax(0, 1fr);
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  padding: 6px;
+  border: 1px solid var(--v2-line);
+  border-radius: 6px;
+  background: var(--v2-surface2);
+}
+
+.cypher-pc-v2 .cypher-v2-equipment-guide-item > i {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 25px;
+  height: 25px;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--v2-red) 12%, transparent);
+  color: var(--v2-red);
+  font-size: 9px;
+}
+
+.cypher-pc-v2 .cypher-v2-equipment-guide-item strong,
+.cypher-pc-v2 .cypher-v2-equipment-guide-item span {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.cypher-pc-v2 .cypher-v2-equipment-guide-item strong {
+  color: var(--v2-ink);
+  font-size: 7px;
+  font-weight: 900;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.cypher-pc-v2 .cypher-v2-equipment-guide-item span {
+  margin-top: 2px;
+  color: var(--v2-muted);
+  font-size: 6px;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.cypher-pc-v2.theme-dark .cypher-v2-cypher-kind.is-nonphysical,
+body.theme-dark .cypher-pc-v2:not(.theme-light) .cypher-v2-cypher-kind.is-nonphysical,
+.cypher-pc-v2.theme-dark .cypher-v2-equipment-icon-button.is-identify,
+body.theme-dark .cypher-pc-v2:not(.theme-light) .cypher-v2-equipment-icon-button.is-identify {
+  color: #69afe0;
+}
+
+.cypher-pc-v2.theme-dark .cypher-v2-cypher-kind.is-manifest,
+body.theme-dark .cypher-pc-v2:not(.theme-light) .cypher-v2-cypher-kind.is-manifest {
+  color: #c197ee;
+}
+
+.cypher-pc-v2.theme-dark .cypher-v2-equipment-icon-button.is-use,
+body.theme-dark .cypher-pc-v2:not(.theme-light) .cypher-v2-equipment-icon-button.is-use {
+  color: #efc96e;
+}
+
+.cypher-pc-v2.theme-dark .cypher-v2-capacity-card.has-warning > p,
+body.theme-dark .cypher-pc-v2:not(.theme-light) .cypher-v2-capacity-card.has-warning > p {
+  color: #efc96e;
+}
+
+@media (max-width: 760px) {
+  .cypher-pc-v2 .cypher-v2-equipment-topbar,
+  .cypher-pc-v2 .cypher-v2-equipment-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .cypher-pc-v2 .cypher-v2-currency-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .cypher-pc-v2 .cypher-v2-equipment-guide {
+    grid-template-columns: 1fr;
   }
 }

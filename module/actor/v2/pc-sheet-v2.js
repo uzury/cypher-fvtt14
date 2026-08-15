@@ -19,6 +19,7 @@ import {
   getC2RecoveryPoolState
 } from "../../utilities/recovery-utilities.js";
 import {getArmorSteps} from "../../utilities/armor-utilities.js";
+import {chatCardMarkItemIdentified} from "../../utilities/chat-cards.js";
 // Cypher PC V2 - shared embedded Item card helpers
 function escapeItemCardText(value) {
   return String(value ?? "")
@@ -68,7 +69,7 @@ function getAbilityDisplayData(item) {
   };
 }
 
-async function buildItemCard(actor, item, {meta = ""} = {}) {
+async function buildItemCard(actor, item, {meta = "", typeLabel = ""} = {}) {
   const description = await foundry.applications.ux.TextEditor.implementation.enrichHTML(
     item.system.description ?? "",
     {
@@ -83,7 +84,11 @@ async function buildItemCard(actor, item, {meta = ""} = {}) {
   const itemName = escapeItemCardText(item?.name ?? "Item");
   const localizedItemType = game.i18n.localize(`TYPES.Item.${item?.type}`);
   const itemType = escapeItemCardText(
-    item?.system?.basic?.type || localizedItemType || item?.type || "Item"
+    typeLabel ||
+    (typeof item?.system?.basic?.type === "string" ? item.system.basic.type : "") ||
+    localizedItemType ||
+    item?.type ||
+    "Item"
   );
   const itemImage = escapeItemCardText(item?.img ?? "icons/svg/item-bag.svg");
   const itemMeta = escapeItemCardText(meta);
@@ -112,6 +117,231 @@ async function buildItemCard(actor, item, {meta = ""} = {}) {
       <div class="cypher-item-divider"></div>
       <div class="cypher-item-body">${description}</div>
     </div>`;
+}
+
+const EQUIPMENT_ITEM_TYPES = new Set([
+  "equipment",
+  "cypher",
+  "artifact",
+  "oddity",
+  "material"
+]);
+
+const EQUIPMENT_QUANTITY_TYPES = new Set(["equipment", "material"]);
+const EQUIPMENT_UNIQUE_TYPES = new Set(["cypher", "artifact", "oddity"]);
+
+function getEquipmentTypeLabel(item) {
+  return game.i18n.localize(`TYPES.Item.${item?.type}`) || String(item?.type ?? "");
+}
+
+function getPriceCategoryLabel(category) {
+  const keys = {
+    none: "CYPHERSYSTEM.None",
+    inexpensive: "CYPHERSYSTEM.PriceInexpensive",
+    moderate: "CYPHERSYSTEM.PriceModerate",
+    expensive: "CYPHERSYSTEM.PriceExpensive",
+    "very expensive": "CYPHERSYSTEM.PriceVeryExpensive",
+    exorbitant: "CYPHERSYSTEM.PriceExorbitant"
+  };
+
+  return game.i18n.localize(keys[category] ?? "CYPHERSYSTEM.None");
+}
+
+function getItemPriceLabel(actor, item) {
+  const storedMode = actor.system.settings?.general?.showPrice;
+  const mode = storedMode === true ? "category" : storedMode;
+  if (!["category", "priceTag", "both"].includes(mode)) return "";
+
+  const price = item.system.price ?? {};
+  const category = getPriceCategoryLabel(price.category ?? "none");
+  const priceTag = String(price.priceTag ?? "").trim();
+
+  if (mode === "category") return category;
+  if (mode === "priceTag") return priceTag || game.i18n.localize("CYPHERSYSTEM.None");
+  return priceTag ? `${category} / ${priceTag}` : category;
+}
+
+function getCypherDisplayData(item) {
+  const storedType = Array.isArray(item.system.basic?.type)
+    ? item.system.basic.type
+    : [0, 0];
+  const manifest = Number(storedType[0] ?? 0) === 2;
+  const fantastic = Number(storedType[1] ?? 0) === 1;
+  const storedLevel = String(item.system.basic?.level ?? "").trim();
+
+  return {
+    manifest,
+    fantastic,
+    level: storedLevel || String(manifest ? 6 : 4),
+    levelFallback: !storedLevel,
+    typeLabel: game.i18n.localize(
+      manifest
+        ? "CYPHERSYSTEM.EquipmentV2Manifest"
+        : "CYPHERSYSTEM.EquipmentV2Nonphysical"
+    )
+  };
+}
+
+function getUnidentifiedName(item) {
+  const configured = String(item.system.settings?.general?.nameUnidentified ?? "").trim();
+  if (configured) return configured;
+
+  return game.i18n.localize(
+    item.type === "artifact"
+      ? "CYPHERSYSTEM.UnidentifiedArtifact"
+      : "CYPHERSYSTEM.UnidentifiedCypher"
+  );
+}
+
+function parseArtifactDepletion(value) {
+  const raw = String(value ?? "").trim();
+  if (["—", "–", "-"].includes(raw)) return {never: true, raw};
+  if (!raw) return {unknown: true, raw};
+
+  const normalized = raw
+    .replace(/\[\[\s*\/r\s*([^\]]+)\]\]/gi, "$1")
+    .replaceAll("−", "-")
+    .trim();
+  const match = normalized.match(
+    /^(\d+)(?:\s*[-–—]\s*(\d+))?\s+in\s+((?:\d+)?d\d+)$/i
+  );
+  if (!match) return {unknown: true, raw};
+
+  const minimum = Number(match[1]);
+  const maximum = Number(match[2] ?? match[1]);
+  const formula = match[3].toLowerCase();
+  if (!Number.isInteger(minimum) || !Number.isInteger(maximum) || minimum > maximum) {
+    return {unknown: true, raw};
+  }
+
+  return {formula, minimum, maximum, never: false, unknown: false, raw};
+}
+
+function getEquipmentCardMeta(actor, item) {
+  const basic = item.system.basic ?? {};
+  const parts = [];
+
+  if (item.type === "cypher") {
+    const cypher = getCypherDisplayData(item);
+    parts.push(cypher.typeLabel);
+    parts.push(`${game.i18n.localize("CYPHERSYSTEM.Level")} ${cypher.level}`);
+  } else if (String(basic.level ?? "").trim()) {
+    parts.push(`${game.i18n.localize("CYPHERSYSTEM.Level")} ${basic.level}`);
+  }
+
+  if (item.type === "artifact" && String(basic.depletion ?? "").trim()) {
+    parts.push(`${game.i18n.localize("CYPHERSYSTEM.Depletion")}: ${basic.depletion}`);
+  }
+
+  const price = getItemPriceLabel(actor, item);
+  if (price) parts.push(`${game.i18n.localize("CYPHERSYSTEM.Price")}: ${price}`);
+
+  if (EQUIPMENT_QUANTITY_TYPES.has(item.type)) {
+    const rawQuantity = Number(basic.quantity ?? 0);
+    const quantity = Number.isFinite(rawQuantity) ? Math.max(0, Math.trunc(rawQuantity)) : 0;
+    parts.push(`${game.i18n.localize("CYPHERSYSTEM.Quantity")}: ${quantity}`);
+  }
+
+  return parts.join(" · ");
+}
+
+async function sendEquipmentItemCard(actor, item) {
+  const content = await buildItemCard(actor, item, {
+    meta: getEquipmentCardMeta(actor, item),
+    typeLabel: getEquipmentTypeLabel(item)
+  });
+
+  return ChatMessage.create({
+    speaker: ChatMessage.getSpeaker({actor}),
+    content,
+    flags: {
+      itemID: item.id,
+      cyphersystem: {
+        cardType: "item-description",
+        actorUuid: actor.uuid,
+        itemUuid: item.uuid,
+        itemId: item.id
+      }
+    }
+  });
+}
+
+async function sendArtifactDepletionRollCard(actor, item, roll, depletion, depleted) {
+  const actorName = escapeItemCardText(actor?.name ?? "Character");
+  const actorAvatar = escapeItemCardText(actor?.img ?? "icons/svg/mystery-man.svg");
+  const playerName = escapeItemCardText(game.user?.name ?? "Player");
+  const itemName = escapeItemCardText(item?.name ?? "Artifact");
+  const itemImage = escapeItemCardText(item?.img ?? "icons/svg/item-bag.svg");
+  const formula = escapeItemCardText(depletion.formula);
+  const result = Number(roll.total ?? 0);
+  const dieSides = Number(depletion.formula.match(/d(\d+)/i)?.[1] ?? 20);
+  const dieShapeClass = [6, 10, 20, 100].includes(dieSides)
+    ? `cypher-dice-d${dieSides}`
+    : "cypher-dice-d20";
+  const dieIconClass = {
+    6: "fa-dice-d6",
+    10: "fa-dice-d10",
+    20: "fa-dice-d20",
+    100: "fa-dice-d10"
+  }[dieSides] ?? "fa-dice-d20";
+  const dieFaceMarkup = [10, 100].includes(dieSides)
+    ? `<span class="cypher-roll-die-solid-icon" aria-hidden="true"></span>`
+    : `<i class="fa-solid ${dieIconClass} cypher-roll-die-icon" aria-hidden="true"></i>`;
+  const playerMarkup = playerName && playerName !== actorName
+    ? `<span class="cypher-roll-player-name">(${playerName})</span>`
+    : "";
+  const resultStateClass = depleted ? "cypher-roll-intrusion" : "cypher-roll-neutral";
+  const category = escapeItemCardText(game.i18n.localize("CYPHERSYSTEM.Depletion"));
+
+  const flavor = `
+    <div class="roll-flavor cypher-roll-card cypher-dice-card ${resultStateClass}">
+      <div class="cypher-roll-identity">
+        <div class="cypher-roll-identity-left">
+          <img class="cypher-roll-avatar" src="${actorAvatar}" alt="${actorName}">
+          <div class="cypher-roll-identity-text">
+            <span class="cypher-roll-character-name">${actorName}</span>
+            ${playerMarkup}
+          </div>
+        </div>
+        <div class="cypher-roll-source-icon-wrap">
+          <img class="cypher-roll-source-icon" src="${itemImage}" alt="${itemName}" title="${itemName}">
+        </div>
+      </div>
+
+      <div class="cypher-roll-hero cypher-dice-hero">
+        <div class="cypher-roll-die-column">
+          <div class="cypher-roll-die ${dieShapeClass}" title="${formula}">
+            ${dieFaceMarkup}
+            <span class="cypher-roll-natural${result === 4 ? " cypher-roll-natural-4" : ""}">${result}</span>
+          </div>
+        </div>
+
+        <div class="cypher-roll-summary">
+          <div class="cypher-roll-title">
+            <div class="cypher-roll-title-static">
+              <span class="cypher-roll-title-category">${category}</span>
+              <span class="cypher-roll-title-name">${itemName}</span>
+            </div>
+          </div>
+          <div class="cypher-roll-divider"></div>
+          <div class="cypher-roll-formula-inline">${formula}</div>
+        </div>
+      </div>
+    </div>
+  `;
+
+  return roll.toMessage({
+    speaker: ChatMessage.getSpeaker({actor}),
+    flavor,
+    flags: {
+      cyphersystem: {
+        cardType: "artifact-depletion",
+        actorUuid: actor.uuid,
+        itemUuid: item.uuid,
+        itemId: item.id
+      }
+    }
+  });
 }
 
 export class CypherActorSheetPCV2 extends HandlebarsApplicationMixin(ActorSheetV2) {
@@ -148,7 +378,17 @@ export class CypherActorSheetPCV2 extends HandlebarsApplicationMixin(ActorSheetV
       editAbilityItem: this._editAbilityItem,
       toggleAbilityFavorite: this._toggleAbilityFavorite,
       deleteAbilityItem: this._deleteAbilityItem,
-      abilityItemDescription: this._abilityItemDescription
+      abilityItemDescription: this._abilityItemDescription,
+      createEquipmentItem: this._createEquipmentItem,
+      editEquipmentItem: this._editEquipmentItem,
+      toggleEquipmentFavorite: this._toggleEquipmentFavorite,
+      deleteEquipmentItem: this._deleteEquipmentItem,
+      equipmentItemDescription: this._equipmentItemDescription,
+      adjustEquipmentQuantity: this._adjustEquipmentQuantity,
+      identifyEquipmentItem: this._identifyEquipmentItem,
+      rollEquipmentLevel: this._rollEquipmentLevel,
+      useCypher: this._useCypher,
+      activateArtifact: this._activateArtifact
     },
     position: {width: 820, height: 760},
     window: {resizable: true},
@@ -165,7 +405,8 @@ export class CypherActorSheetPCV2 extends HandlebarsApplicationMixin(ActorSheetV
     overview: {template: "systems/cyphersystem/templates/actor-sheets/v2/parts/overview.hbs"},
     combat: {template: "systems/cyphersystem/templates/actor-sheets/v2/parts/combat.hbs"},
     abilities: {template: "systems/cyphersystem/templates/actor-sheets/v2/parts/abilities.hbs"},
-    skills: {template: "systems/cyphersystem/templates/actor-sheets/v2/parts/skills.hbs"}
+    skills: {template: "systems/cyphersystem/templates/actor-sheets/v2/parts/skills.hbs"},
+    equipment: {template: "systems/cyphersystem/templates/actor-sheets/v2/parts/equipment.hbs"}
   };
 
   get title() {
@@ -212,7 +453,7 @@ export class CypherActorSheetPCV2 extends HandlebarsApplicationMixin(ActorSheetV
     event.preventDefault();
 
     const tab = target.dataset.tab;
-    if (!["overview", "combat", "abilities", "skills"].includes(tab)) return;
+    if (!["overview", "combat", "abilities", "skills", "equipment"].includes(tab)) return;
 
     this._activeTab = tab;
     this._syncTabs();
@@ -1247,6 +1488,236 @@ export class CypherActorSheetPCV2 extends HandlebarsApplicationMixin(ActorSheetV
     await item.update({"system.archived": !Boolean(item.system.archived)});
   }
 
+  static async _createEquipmentItem(event, target) {
+    event.preventDefault();
+    if (!this.isEditable) return;
+
+    const type = target.dataset.itemType;
+    if (!EQUIPMENT_ITEM_TYPES.has(type)) return;
+
+    const nameKeys = {
+      equipment: "CYPHERSYSTEM.EquipmentV2NewEquipment",
+      cypher: "CYPHERSYSTEM.EquipmentV2NewCypher",
+      artifact: "CYPHERSYSTEM.EquipmentV2NewArtifact",
+      oddity: "CYPHERSYSTEM.EquipmentV2NewOddity",
+      material: "CYPHERSYSTEM.EquipmentV2NewMaterial"
+    };
+    const itemData = {
+      name: game.i18n.localize(nameKeys[type]),
+      type
+    };
+
+    if (type === "equipment") {
+      const category = target.dataset.equipmentCategory;
+      const validCategories = ["Equipment", "EquipmentTwo", "EquipmentThree", "EquipmentFour"];
+      itemData.system = {
+        settings: {
+          general: {
+            sorting: validCategories.includes(category) ? category : "Equipment"
+          }
+        }
+      };
+    }
+
+    const created = await this.actor.createEmbeddedDocuments("Item", [itemData]);
+    await this._enableEquipmentSection(type);
+    created[0]?.sheet?.render(true);
+  }
+
+  static _editEquipmentItem(event, target) {
+    event.preventDefault();
+    if (!this.isEditable) return;
+
+    const item = this.actor.items.get(target.dataset.itemId);
+    if (!item || !EQUIPMENT_ITEM_TYPES.has(item.type)) return;
+    if (["cypher", "artifact"].includes(item.type) &&
+        item.system.basic?.identified === false && !game.user.isGM) return;
+
+    item.sheet?.render(true);
+  }
+
+  static async _toggleEquipmentFavorite(event, target) {
+    event.preventDefault();
+    if (!this.isEditable) return;
+
+    const item = this.actor.items.get(target.dataset.itemId);
+    if (!item || !EQUIPMENT_ITEM_TYPES.has(item.type)) return;
+
+    await item.update({"system.favorite": !Boolean(item.system.favorite)});
+  }
+
+  static async _deleteEquipmentItem(event, target) {
+    event.preventDefault();
+    if (!this.isEditable) return;
+
+    const item = this.actor.items.get(target.dataset.itemId);
+    if (!item || !EQUIPMENT_ITEM_TYPES.has(item.type)) return;
+
+    const altPressed =
+      Boolean(event.altKey) ||
+      Boolean(game.keyboard?.isModifierActive?.("Alt"));
+
+    if (altPressed) {
+      await item.delete();
+      return;
+    }
+
+    await item.update({"system.archived": !Boolean(item.system.archived)});
+  }
+
+  static async _equipmentItemDescription(event, target) {
+    event.preventDefault();
+
+    const item = this.actor.items.get(target.dataset.itemId);
+    if (!item || !EQUIPMENT_ITEM_TYPES.has(item.type)) return;
+
+    if (["cypher", "artifact"].includes(item.type) && item.system.basic?.identified === false) {
+      ui.notifications.warn(game.i18n.localize("CYPHERSYSTEM.WarnSentUnidentifiedToChat"));
+      return;
+    }
+
+    await sendEquipmentItemCard(this.actor, item);
+  }
+
+  static async _adjustEquipmentQuantity(event, target) {
+    event.preventDefault();
+    if (!this.isEditable) return;
+
+    const item = this.actor.items.get(target.dataset.itemId);
+    if (!item || !EQUIPMENT_QUANTITY_TYPES.has(item.type)) return;
+
+    const direction = target.dataset.direction === "decrease" ? -1 : 1;
+    const currentValue = Number(item.system.basic?.quantity ?? 0);
+    const current = Number.isFinite(currentValue) ? Math.max(0, Math.trunc(currentValue)) : 0;
+    const altPressed =
+      Boolean(event.altKey) ||
+      Boolean(game.keyboard?.isModifierActive?.("Alt"));
+    const amount = altPressed ? 10 : 1;
+    const next = Math.max(0, current + direction * amount);
+
+    if (next === current) return;
+    await item.update({"system.basic.quantity": next});
+  }
+
+  static async _identifyEquipmentItem(event, target) {
+    event.preventDefault();
+    if (!this.isEditable) return;
+
+    const item = this.actor.items.get(target.dataset.itemId);
+    if (!item || !["cypher", "artifact"].includes(item.type)) return;
+    if (item.system.basic?.identified !== false) return;
+
+    if (game.user.isGM) {
+      await item.update({"system.basic.identified": true});
+      return;
+    }
+
+    await ChatMessage.create({
+      content: chatCardMarkItemIdentified(this.actor, item),
+      whisper: ChatMessage.getWhisperRecipients("GM"),
+      blind: true
+    });
+    ui.notifications.info(
+      game.i18n.localize("CYPHERSYSTEM.EquipmentV2IdentificationRequested")
+    );
+  }
+
+  static async _rollEquipmentLevel(event, target) {
+    event.preventDefault();
+    if (!this.isEditable) return;
+
+    const item = this.actor.items.get(target.dataset.itemId);
+    if (!item || !["cypher", "artifact"].includes(item.type)) return;
+    if (item.system.basic?.identified === false) return;
+
+    const formula = String(item.system.basic?.level ?? "").trim();
+    if (!formula || !Roll.validate(formula)) return;
+
+    const roll = await new Roll(formula).evaluate();
+    await roll.toMessage({
+      speaker: ChatMessage.getSpeaker({actor: this.actor}),
+      flavor: game.i18n.format("CYPHERSYSTEM.RollForLevel", {item: item.name})
+    });
+    await item.update({"system.basic.level": roll.total});
+  }
+
+  static async _useCypher(event, target) {
+    event.preventDefault();
+    if (!this.isEditable) return;
+
+    const item = this.actor.items.get(target.dataset.itemId);
+    if (!item || item.type !== "cypher" || item.system.archived) return;
+    if (item.system.basic?.identified === false) {
+      ui.notifications.warn(game.i18n.localize("CYPHERSYSTEM.WarnSentUnidentifiedToChat"));
+      return;
+    }
+
+    await sendEquipmentItemCard(this.actor, item);
+    await item.update({"system.archived": true});
+    ui.notifications.info(
+      game.i18n.format("CYPHERSYSTEM.EquipmentV2CypherUsed", {name: item.name})
+    );
+  }
+
+  static async _activateArtifact(event, target) {
+    event.preventDefault();
+    if (!this.isEditable) return;
+
+    const item = this.actor.items.get(target.dataset.itemId);
+    if (!item || item.type !== "artifact" || item.system.archived) return;
+    if (item.system.basic?.identified === false) {
+      ui.notifications.warn(game.i18n.localize("CYPHERSYSTEM.WarnSentUnidentifiedToChat"));
+      return;
+    }
+
+    await sendEquipmentItemCard(this.actor, item);
+
+    const depletion = parseArtifactDepletion(item.system.basic?.depletion);
+    if (depletion.never) {
+      ui.notifications.info(
+        game.i18n.format("CYPHERSYSTEM.EquipmentV2ArtifactActivated", {name: item.name})
+      );
+      return;
+    }
+
+    if (depletion.unknown || !Roll.validate(depletion.formula)) {
+      ui.notifications.warn(
+        game.i18n.format("CYPHERSYSTEM.EquipmentV2DepletionUnknown", {
+          depletion: depletion.raw || game.i18n.localize("CYPHERSYSTEM.None")
+        })
+      );
+      return;
+    }
+
+    const roll = await new Roll(depletion.formula).evaluate();
+    const result = Number(roll.total ?? 0);
+    const depleted = result >= depletion.minimum && result <= depletion.maximum;
+    await sendArtifactDepletionRollCard(this.actor, item, roll, depletion, depleted);
+
+    if (depleted) {
+      await item.update({"system.archived": true});
+      ui.notifications.warn(
+        game.i18n.format("CYPHERSYSTEM.EquipmentV2ArtifactDepleted", {name: item.name})
+      );
+    } else {
+      ui.notifications.info(
+        game.i18n.format("CYPHERSYSTEM.EquipmentV2ArtifactActivated", {name: item.name})
+      );
+    }
+  }
+
+  async _enableEquipmentSection(type) {
+    const paths = {
+      cypher: "system.settings.equipment.cyphers.active",
+      artifact: "system.settings.equipment.artifacts.active",
+      oddity: "system.settings.equipment.oddities.active",
+      material: "system.settings.equipment.materials.active"
+    };
+    const path = paths[type];
+    if (!path || foundry.utils.getProperty(this.actor, path)) return;
+    await this.actor.update({[path]: true});
+  }
+
   async _prepareContext(options) {
     const context = await super._prepareContext(options);
     const actor = this.actor;
@@ -1477,6 +1948,237 @@ export class CypherActorSheetPCV2 extends HandlebarsApplicationMixin(ActorSheetV
 
     const sortedItems = [...actor.items]
       .sort((a, b) => (a.sort ?? 0) - (b.sort ?? 0) || a.name.localeCompare(b.name));
+
+    const equipmentSettings = system.settings?.equipment ?? {};
+    const generalSettings = system.settings?.general ?? {};
+    const hideArchivedEquipment = Boolean(generalSettings.hideArchive);
+    const hideEmptyEquipmentCategories = Boolean(generalSettings.hideEmptyCategories);
+    const equipmentShowFavorites = !Boolean(generalSettings.hideFavoriteButton);
+    const equipmentDocumentSort = (a, b) => {
+      const archiveOrder = Number(Boolean(a.system.archived)) - Number(Boolean(b.system.archived));
+      if (archiveOrder) return archiveOrder;
+
+      const favoriteOrder = Number(Boolean(b.system.favorite)) - Number(Boolean(a.system.favorite));
+      if (favoriteOrder) return favoriteOrder;
+
+      return (a.sort ?? 0) - (b.sort ?? 0) || a.name.localeCompare(b.name);
+    };
+    const visibleEquipmentItems = type => sortedItems
+      .filter(item => item.type === type)
+      .filter(item => !hideArchivedEquipment || !item.system.archived);
+
+    const prepareEquipmentItem = async item => {
+      const basic = item.system.basic ?? {};
+      const identifiable = ["cypher", "artifact"].includes(item.type);
+      const identified = !identifiable || basic.identified !== false;
+      const rawLevel = String(basic.level ?? "").trim();
+      const cypher = item.type === "cypher" ? getCypherDisplayData(item) : null;
+      const depletion = item.type === "artifact"
+        ? parseArtifactDepletion(basic.depletion)
+        : null;
+      let rollableLevel = false;
+      if (identified && rawLevel && Number.isNaN(Number(rawLevel))) {
+        try {
+          rollableLevel = Roll.validate(rawLevel);
+        } catch {
+          rollableLevel = false;
+        }
+      }
+
+      let materialValue = "";
+      if (item.type === "material") {
+        materialValue = equipmentSettings.materials?.displayMode === "level"
+          ? rawLevel || "—"
+          : getPriceCategoryLabel(item.system.price?.category ?? "none");
+      }
+
+      return {
+        id: item.id,
+        type: item.type,
+        archived: Boolean(item.system.archived),
+        favorite: Boolean(item.system.favorite),
+        identifiable,
+        identified,
+        canOpen: identified || game.user.isGM,
+        name: identified ? item.name : getUnidentifiedName(item),
+        img: identified ? item.img : "icons/svg/mystery-man.svg",
+        quantity: EQUIPMENT_QUANTITY_TYPES.has(item.type)
+          ? Math.max(0, Math.trunc(Number(basic.quantity ?? 0) || 0))
+          : null,
+        level: identified ? (cypher?.level ?? rawLevel) : "?",
+        levelFallback: identified && Boolean(cypher?.levelFallback),
+        rollableLevel,
+        priceLabel: getItemPriceLabel(actor, item),
+        materialValue,
+        materialIsLevel: equipmentSettings.materials?.displayMode === "level",
+        cypherTypeLabel: identified ? cypher?.typeLabel ?? "" : "",
+        cypherManifest: identified && Boolean(cypher?.manifest),
+        cypherFantastic: identified && Boolean(cypher?.fantastic),
+        depletionLabel: identified
+          ? depletion?.never
+            ? game.i18n.localize("CYPHERSYSTEM.EquipmentV2NeverDepletes")
+            : String(basic.depletion ?? "").trim() || "?"
+          : "?",
+        depletionUnknown: identified && Boolean(depletion?.unknown),
+        previewHtml: identified
+          ? await buildItemCard(actor, item, {
+            meta: getEquipmentCardMeta(actor, item),
+            typeLabel: getEquipmentTypeLabel(item)
+          })
+          : ""
+      };
+    };
+
+    const equipmentByCategory = {
+      Equipment: [],
+      EquipmentTwo: [],
+      EquipmentThree: [],
+      EquipmentFour: []
+    };
+    const preparedCommonEquipment = await Promise.all(
+      visibleEquipmentItems("equipment")
+        .sort(equipmentDocumentSort)
+        .map(prepareEquipmentItem)
+    );
+    for (const item of preparedCommonEquipment) {
+      const source = actor.items.get(item.id);
+      const storedCategory = source?.system.settings?.general?.sorting;
+      const category = Object.hasOwn(equipmentByCategory, storedCategory)
+        ? storedCategory
+        : "Equipment";
+      equipmentByCategory[category].push(item);
+    }
+
+    const equipmentCategoryDefinitions = [
+      {
+        id: "Equipment",
+        label: equipmentSettings.labelCategory1 || game.i18n.localize("CYPHERSYSTEM.Items"),
+        configured: true
+      },
+      {
+        id: "EquipmentTwo",
+        label: equipmentSettings.labelCategory2 || game.i18n.localize("CYPHERSYSTEM.EquipmentCategoryTwo"),
+        configured: Boolean(equipmentSettings.labelCategory2)
+      },
+      {
+        id: "EquipmentThree",
+        label: equipmentSettings.labelCategory3 || game.i18n.localize("CYPHERSYSTEM.EquipmentCategoryThree"),
+        configured: Boolean(equipmentSettings.labelCategory3)
+      },
+      {
+        id: "EquipmentFour",
+        label: equipmentSettings.labelCategory4 || game.i18n.localize("CYPHERSYSTEM.EquipmentCategoryFour"),
+        configured: Boolean(equipmentSettings.labelCategory4)
+      }
+    ];
+    const equipmentGroups = equipmentCategoryDefinitions
+      .filter(category =>
+        category.id === "Equipment" ||
+        equipmentByCategory[category.id].length > 0 ||
+        (category.configured && !hideEmptyEquipmentCategories)
+      )
+      .map(category => ({
+        ...category,
+        count: equipmentByCategory[category.id].length,
+        items: equipmentByCategory[category.id]
+      }));
+
+    const cypherDocuments = visibleEquipmentItems("cypher").sort((a, b) => {
+      const baseOrder = equipmentDocumentSort(a, b);
+      if (Boolean(a.system.archived) !== Boolean(b.system.archived) ||
+          Boolean(a.system.favorite) !== Boolean(b.system.favorite)) return baseOrder;
+
+      const identifiedOrder =
+        Number(b.system.basic?.identified !== false) -
+        Number(a.system.basic?.identified !== false);
+      if (identifiedOrder) return identifiedOrder;
+
+      if (equipmentSettings.cyphers?.sortByType) {
+        const typeOrder =
+          Number(getCypherDisplayData(a).manifest) -
+          Number(getCypherDisplayData(b).manifest);
+        if (typeOrder) return typeOrder;
+      }
+      return baseOrder;
+    });
+    const equipmentCyphers = await Promise.all(cypherDocuments.map(prepareEquipmentItem));
+
+    const artifactDocuments = visibleEquipmentItems("artifact").sort(equipmentDocumentSort);
+    const equipmentArtifacts = await Promise.all(artifactDocuments.map(prepareEquipmentItem));
+    const oddityDocuments = visibleEquipmentItems("oddity").sort(equipmentDocumentSort);
+    const equipmentOddities = await Promise.all(oddityDocuments.map(prepareEquipmentItem));
+
+    const materialSettings = equipmentSettings.materials ?? {};
+    const sortMaterialsByValue = materialSettings.sortByLevel !== undefined
+      ? Boolean(materialSettings.sortByLevel)
+      : Boolean(materialSettings.sortyByLevel);
+    const priceOrder = ["none", "inexpensive", "moderate", "expensive", "very expensive", "exorbitant"];
+    const materialDocuments = visibleEquipmentItems("material").sort((a, b) => {
+      const baseOrder = equipmentDocumentSort(a, b);
+      if (Boolean(a.system.archived) !== Boolean(b.system.archived) ||
+          Boolean(a.system.favorite) !== Boolean(b.system.favorite) ||
+          !sortMaterialsByValue) return baseOrder;
+
+      if (materialSettings.displayMode === "level") {
+        const levelOrder = Number(a.system.basic?.level ?? 0) - Number(b.system.basic?.level ?? 0);
+        if (Number.isFinite(levelOrder) && levelOrder) return levelOrder;
+      } else {
+        const priceCategoryOrder =
+          priceOrder.indexOf(a.system.price?.category ?? "none") -
+          priceOrder.indexOf(b.system.price?.category ?? "none");
+        if (priceCategoryOrder) return priceCategoryOrder;
+      }
+      return baseOrder;
+    });
+    const equipmentMaterials = await Promise.all(materialDocuments.map(prepareEquipmentItem));
+
+    const currencySettings = equipmentSettings.currency ?? {};
+    const rawCurrencyCount = Number(currencySettings.numberCategories ?? 1);
+    const currencyCount = Math.min(
+      6,
+      Math.max(1, Number.isFinite(rawCurrencyCount) ? Math.trunc(rawCurrencyCount) : 1)
+    );
+    const equipmentCurrency = {
+      active: Boolean(currencySettings.active),
+      hideLabels: Boolean(currencySettings.hideLabels),
+      categories: Array.from({length: currencyCount}, (_, index) => {
+        const number = index + 1;
+        const fallbackLabel = game.i18n.format("CYPHERSYSTEM.EquipmentV2CurrencyCategory", {
+          number
+        });
+        return {
+          number,
+          label: currencySettings[`label${number}`] || fallbackLabel,
+          value: currencySettings[`quantity${number}`] ?? 0,
+          field: `system.settings.equipment.currency.quantity${number}`
+        };
+      })
+    };
+
+    const rawCypherLimit = Number(system.equipment?.cypherLimit ?? 2);
+    const cypherLimit = Math.max(
+      0,
+      Number.isFinite(rawCypherLimit) ? Math.trunc(rawCypherLimit) : 2
+    );
+    const cypherCount = sortedItems.filter(
+      item => item.type === "cypher" && !item.system.archived
+    ).length;
+    const cypherCapacity = {
+      count: cypherCount,
+      limit: cypherLimit,
+      overLimit: cypherCount > cypherLimit,
+      atLimit: cypherCount === cypherLimit,
+      warning: cypherCount >= cypherLimit
+    };
+    const showArtifacts = Boolean(
+      equipmentSettings.artifacts?.active || sortedItems.some(item => item.type === "artifact")
+    );
+    const showOddities = Boolean(
+      equipmentSettings.oddities?.active || sortedItems.some(item => item.type === "oddity")
+    );
+    const showMaterials = Boolean(
+      equipmentSettings.materials?.active || sortedItems.some(item => item.type === "material")
+    );
 
     const currentAbilityForm = isTeen ? "Teen" : "Mask";
     const hideArchivedAbilities = Boolean(system.settings?.general?.hideArchive);
@@ -1862,6 +2564,26 @@ export class CypherActorSheetPCV2 extends HandlebarsApplicationMixin(ActorSheetV
       preparedSpells,
       skillRanks,
       skillCategories,
+      equipmentGroups,
+      equipmentCyphers,
+      equipmentArtifacts,
+      equipmentOddities,
+      equipmentMaterials,
+      equipmentCurrency,
+      equipmentShowFavorites,
+      cypherCapacity,
+      showCyphers: Boolean(
+        equipmentSettings.cyphers?.active || sortedItems.some(item => item.type === "cypher")
+      ),
+      showArtifacts,
+      showOddities,
+      showMaterials,
+      equipmentLabels: {
+        cyphers: equipmentSettings.cyphers?.label || game.i18n.localize("CYPHERSYSTEM.Cyphers"),
+        artifacts: equipmentSettings.artifacts?.label || game.i18n.localize("CYPHERSYSTEM.Artifacts"),
+        oddities: equipmentSettings.oddities?.label || game.i18n.localize("CYPHERSYSTEM.Oddities"),
+        materials: equipmentSettings.materials?.label || game.i18n.localize("CYPHERSYSTEM.CraftingMaterial")
+      },
       combatAttacks,
       combatArmor,
       armorEnabled,
@@ -1922,6 +2644,171 @@ export class CypherActorSheetPCV2 extends HandlebarsApplicationMixin(ActorSheetV
     });
 
     return context;
+  }
+
+  async _onDropItem(event, item) {
+    if (!item || !EQUIPMENT_ITEM_TYPES.has(item.type)) {
+      return super._onDropItem(event, item);
+    }
+    event.preventDefault();
+    if (!this.isEditable) return false;
+
+    const targetElement = event.target instanceof Element ? event.target : null;
+    const categoryElement = targetElement?.closest?.("[data-equipment-category]");
+    const validCategories = ["Equipment", "EquipmentTwo", "EquipmentThree", "EquipmentFour"];
+    const requestedCategory = categoryElement?.dataset.equipmentCategory;
+    const targetCategory = validCategories.includes(requestedCategory)
+      ? requestedCategory
+      : item.system.settings?.general?.sorting ?? "Equipment";
+    const originActor = item.actor ?? null;
+
+    if (originActor?.uuid === this.actor.uuid) {
+      const sortResult = await super._onSortItem(event, item);
+      if (item.type === "equipment" &&
+          item.system.settings?.general?.sorting !== targetCategory) {
+        await item.update({"system.settings.general.sorting": targetCategory});
+      }
+      return sortResult ?? item;
+    }
+
+    if (originActor && !originActor.isOwner) {
+      ui.notifications.warn(game.i18n.localize("CYPHERSYSTEM.CannotMoveNotOwnedItem"));
+      return false;
+    }
+
+    const itemData = foundry.utils.deepClone(item.toObject());
+    delete itemData._id;
+    itemData.system ??= {};
+    if (item.type === "equipment") {
+      itemData.system.settings ??= {};
+      itemData.system.settings.general ??= {};
+      itemData.system.settings.general.sorting = targetCategory;
+    }
+
+    if (["cypher", "artifact"].includes(item.type) && !originActor) {
+      const identificationMode = Number(
+        game.settings.get("cyphersystem", "cypherIdentification")
+      );
+      if (identificationMode === 1) itemData.system.basic.identified = true;
+      if (identificationMode === 2) itemData.system.basic.identified = false;
+    }
+
+    if (EQUIPMENT_QUANTITY_TYPES.has(item.type)) {
+      const availableValue = Number(item.system.basic?.quantity ?? 1);
+      const storedAvailable = Math.max(
+        0,
+        Number.isFinite(availableValue) ? Math.trunc(availableValue) : 1
+      );
+      const available = originActor ? storedAvailable : Math.max(1, storedAvailable);
+      if (originActor && available <= 0) {
+        ui.notifications.warn(game.i18n.localize("CYPHERSYSTEM.CannotMoveNotOwnedItem"));
+        return false;
+      }
+
+      const response = await foundry.applications.api.DialogV2.input({
+        window: {
+          title: game.i18n.format("CYPHERSYSTEM.MoveItem", {name: item.name})
+        },
+        content: `
+          <div class="form-group">
+            <label>${game.i18n.localize("CYPHERSYSTEM.Quantity")}</label>
+            <div class="form-fields">
+              <input name="quantity" type="number" min="1" max="${available}" step="1" value="${Math.min(1, available)}" autofocus>
+            </div>
+            <p class="hint">${game.i18n.format("CYPHERSYSTEM.EquipmentV2MoveQuantityHint", {max: available})}</p>
+          </div>`,
+        ok: {
+          label: game.i18n.localize("CYPHERSYSTEM.Move"),
+          icon: "fa-solid fa-share"
+        },
+        rejectClose: false,
+        modal: true
+      });
+      if (!response) return false;
+
+      const quantity = Math.trunc(Number(response.quantity));
+      if (!Number.isInteger(quantity) || quantity < 1 || quantity > available) {
+        ui.notifications.warn(
+          game.i18n.format("CYPHERSYSTEM.CanOnlyMoveCertainAmountOfItems", {max: available})
+        );
+        return false;
+      }
+
+      const targetItem = [...this.actor.items].find(candidate =>
+        candidate.type === item.type && candidate.name === item.name
+      );
+      let createdItem = null;
+      const previousTargetQuantity = targetItem
+        ? Math.max(0, Math.trunc(Number(targetItem.system.basic?.quantity ?? 0) || 0))
+        : 0;
+
+      if (targetItem) {
+        await targetItem.update({"system.basic.quantity": previousTargetQuantity + quantity});
+      } else {
+        itemData.system.basic ??= {};
+        itemData.system.basic.quantity = quantity;
+        [createdItem] = await this.actor.createEmbeddedDocuments("Item", [itemData]);
+      }
+
+      try {
+        if (originActor) {
+          await item.update({"system.basic.quantity": available - quantity});
+        }
+      } catch (error) {
+        if (createdItem) await createdItem.delete();
+        if (targetItem) {
+          await targetItem.update({"system.basic.quantity": previousTargetQuantity});
+        }
+        ui.notifications.error(error.message);
+        return false;
+      }
+
+      await this._enableEquipmentSection(item.type);
+      return createdItem ?? targetItem;
+    }
+
+    if (EQUIPMENT_UNIQUE_TYPES.has(item.type) && originActor) {
+      const response = await foundry.applications.api.DialogV2.input({
+        window: {
+          title: game.i18n.localize("CYPHERSYSTEM.ItemShouldBeArchivedOrDeleted")
+        },
+        content: `
+          <div class="form-group">
+            <label>${game.i18n.localize("CYPHERSYSTEM.EquipmentV2OriginalItem")}</label>
+            <div class="form-fields">
+              <select name="transferMode" autofocus>
+                <option value="archive">${game.i18n.localize("CYPHERSYSTEM.EquipmentV2ArchiveOriginal")}</option>
+                <option value="delete">${game.i18n.localize("CYPHERSYSTEM.EquipmentV2DeleteOriginal")}</option>
+              </select>
+            </div>
+          </div>`,
+        ok: {
+          label: game.i18n.localize("CYPHERSYSTEM.Move"),
+          icon: "fa-solid fa-share"
+        },
+        rejectClose: false,
+        modal: true
+      });
+      if (!response) return false;
+
+      itemData.system.archived = false;
+      const [createdItem] = await this.actor.createEmbeddedDocuments("Item", [itemData]);
+      try {
+        if (response.transferMode === "delete") await item.delete();
+        else await item.update({"system.archived": true});
+      } catch (error) {
+        await createdItem.delete();
+        ui.notifications.error(error.message);
+        return false;
+      }
+
+      await this._enableEquipmentSection(item.type);
+      return createdItem;
+    }
+
+    const [createdItem] = await this.actor.createEmbeddedDocuments("Item", [itemData]);
+    await this._enableEquipmentSection(item.type);
+    return createdItem;
   }
 
   async _onRender(context, options) {

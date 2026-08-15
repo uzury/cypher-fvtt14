@@ -1,0 +1,314 @@
+<section class="cypher-v2-part cypher-v2-equipment" data-cypher-v2-tab-panel="equipment" hidden>
+  <div class="cypher-v2-equipment-topbar">
+    <header class="cypher-v2-equipment-heading">
+      <div>
+        <span class="cypher-v2-equipment-kicker">{{localize "CYPHERSYSTEM.EquipmentV2Loadout"}}</span>
+        <h2>{{localize "CYPHERSYSTEM.Equipment"}}</h2>
+        <p>{{localize "CYPHERSYSTEM.EquipmentV2Summary"}}</p>
+      </div>
+    </header>
+
+    <div class="cypher-v2-equipment-summary">
+      <article class="cypher-v2-equipment-overview-card cypher-v2-currency-card {{#unless equipmentCurrency.active}}is-inactive{{/unless}}">
+        <header>
+          <div>
+            <span class="cypher-v2-equipment-kicker">{{localize "CYPHERSYSTEM.EquipmentV2Resources"}}</span>
+            <h3>{{localize "CYPHERSYSTEM.Currency"}}</h3>
+          </div>
+          <i class="fa-solid fa-coins" aria-hidden="true"></i>
+        </header>
+
+        {{#if equipmentCurrency.active}}
+          <div class="cypher-v2-currency-grid">
+            {{#each equipmentCurrency.categories as |currency|}}
+              <label
+                class="cypher-v2-currency-entry {{#if ../equipmentCurrency.hideLabels}}labels-hidden{{/if}}"
+                title="{{currency.label}}"
+              >
+                {{#unless ../equipmentCurrency.hideLabels}}<span>{{currency.label}}</span>{{/unless}}
+                {{#if ../editable}}
+                  <input
+                    class="cypher-v2-edit"
+                    type="number"
+                    name="{{currency.field}}"
+                    value="{{currency.value}}"
+                    step="1"
+                    aria-label="{{currency.label}}"
+                  >
+                {{else}}
+                  <strong aria-label="{{currency.label}}">{{currency.value}}</strong>
+                {{/if}}
+              </label>
+            {{/each}}
+          </div>
+        {{else}}
+          <p class="cypher-v2-equipment-inactive-note">{{localize "CYPHERSYSTEM.EquipmentV2CurrencyInactive"}}</p>
+        {{/if}}
+      </article>
+
+      <article class="cypher-v2-equipment-overview-card cypher-v2-capacity-card {{#if cypherCapacity.warning}}has-warning{{/if}} {{#if cypherCapacity.overLimit}}is-over{{/if}}">
+        <header>
+          <div>
+            <span class="cypher-v2-equipment-kicker">{{localize "CYPHERSYSTEM.EquipmentV2Capacity"}}</span>
+            <h3>{{localize "CYPHERSYSTEM.CypherLimit"}}</h3>
+          </div>
+          <i class="fa-solid fa-circle-nodes" aria-hidden="true"></i>
+        </header>
+
+        <div class="cypher-v2-capacity-value">
+          <strong>{{cypherCapacity.count}}</strong>
+          <span>/</span>
+          {{#if canEditStatic}}
+            <input
+              class="cypher-v2-edit"
+              type="number"
+              name="system.equipment.cypherLimit"
+              value="{{cypherCapacity.limit}}"
+              min="0"
+              step="1"
+              aria-label="{{localize 'CYPHERSYSTEM.CypherLimit'}}"
+            >
+          {{else}}
+            <strong>{{cypherCapacity.limit}}</strong>
+          {{/if}}
+        </div>
+
+        <p>
+          {{#if cypherCapacity.overLimit}}
+            {{localize "CYPHERSYSTEM.EquipmentV2OverLimit"}}
+          {{else if cypherCapacity.atLimit}}
+            {{localize "CYPHERSYSTEM.EquipmentV2AtLimit"}}
+          {{else}}
+            {{localize "CYPHERSYSTEM.EquipmentV2CapacityHint"}}
+          {{/if}}
+        </p>
+      </article>
+    </div>
+  </div>
+
+  <div class="cypher-v2-equipment-layout">
+    <div class="cypher-v2-equipment-column cypher-v2-equipment-common">
+      {{#each equipmentGroups as |group|}}
+        <article
+          class="cypher-v2-equipment-panel"
+          data-equipment-category="{{group.id}}"
+        >
+          <header class="cypher-v2-equipment-panel-header">
+            <div>
+              <span class="cypher-v2-equipment-kicker">{{localize "CYPHERSYSTEM.EquipmentV2Inventory"}}</span>
+              <h3>{{group.label}}</h3>
+            </div>
+            <div class="cypher-v2-equipment-panel-tools">
+              <span class="cypher-v2-equipment-count">{{group.count}}</span>
+              {{#if ../editable}}
+                <button
+                  type="button"
+                  class="cypher-v2-equipment-add"
+                  data-action="createEquipmentItem"
+                  data-item-type="equipment"
+                  data-equipment-category="{{group.id}}"
+                  title="{{localize 'CYPHERSYSTEM.EquipmentV2Create'}}"
+                  aria-label="{{localize 'CYPHERSYSTEM.EquipmentV2Create'}}"
+                >
+                  <i class="fa-solid fa-plus"></i>
+                </button>
+              {{/if}}
+            </div>
+          </header>
+
+          <div class="cypher-v2-equipment-list">
+            {{#each group.items as |item|}}
+              <div class="item cypher-v2-equipment-item {{#if item.archived}}is-archived{{/if}}" data-item-id="{{item.id}}" draggable="true">
+                {{#if ../../equipmentShowFavorites}}
+                  {{#if ../../editable}}
+                    <button
+                      type="button"
+                      class="cypher-v2-equipment-favorite {{#if item.favorite}}is-favorite{{/if}}"
+                      data-action="toggleEquipmentFavorite"
+                      data-item-id="{{item.id}}"
+                      title="{{localize 'CYPHERSYSTEM.ItemFavorite'}}"
+                      aria-label="{{localize 'CYPHERSYSTEM.ItemFavorite'}}"
+                    >
+                      <i class="{{#if item.favorite}}fa-solid{{else}}fa-regular{{/if}} fa-star"></i>
+                    </button>
+                  {{else}}
+                    <span class="cypher-v2-equipment-favorite is-readonly {{#if item.favorite}}is-favorite{{/if}}">
+                      <i class="{{#if item.favorite}}fa-solid{{else}}fa-regular{{/if}} fa-star"></i>
+                    </span>
+                  {{/if}}
+                {{/if}}
+
+                <img class="cypher-v2-equipment-image" src="{{item.img}}" alt="{{item.name}}">
+
+                <div class="cypher-v2-equipment-main">
+                  <div class="cypher-v2-equipment-name-wrap">
+                    <button
+                      type="button"
+                      class="cypher-v2-equipment-name"
+                      data-action="equipmentItemDescription"
+                      data-item-id="{{item.id}}"
+                      data-cypher-v2-card-preview
+                      title="{{localize 'CYPHERSYSTEM.EquipmentV2SendToChat'}}"
+                    >{{item.name}}</button>
+                    <template class="cypher-v2-item-tooltip-template">{{{item.previewHtml}}}</template>
+                  </div>
+                  <div class="cypher-v2-equipment-meta">
+                    {{#if item.level}}<span><i class="fa-solid fa-signal"></i> {{localize "CYPHERSYSTEM.Level"}} {{item.level}}</span>{{/if}}
+                    {{#if item.priceLabel}}<span><i class="fa-solid fa-tag"></i> {{item.priceLabel}}</span>{{/if}}
+                  </div>
+                </div>
+
+                <div class="cypher-v2-equipment-stepper" title="{{localize 'CYPHERSYSTEM.EquipmentV2QuantityHint'}}">
+                  {{#if ../../editable}}
+                    <button type="button" data-action="adjustEquipmentQuantity" data-item-id="{{item.id}}" data-direction="decrease" aria-label="{{localize 'CYPHERSYSTEM.SubtractQuantity'}}"><i class="fa-solid fa-minus"></i></button>
+                  {{/if}}
+                  <strong>{{item.quantity}}</strong>
+                  {{#if ../../editable}}
+                    <button type="button" data-action="adjustEquipmentQuantity" data-item-id="{{item.id}}" data-direction="increase" aria-label="{{localize 'CYPHERSYSTEM.AddQuantity'}}"><i class="fa-solid fa-plus"></i></button>
+                  {{/if}}
+                </div>
+
+                {{#if ../../editable}}
+                  <div class="cypher-v2-equipment-actions">
+                    <button type="button" class="cypher-v2-equipment-icon-button" data-action="editEquipmentItem" data-item-id="{{item.id}}" title="{{localize 'CYPHERSYSTEM.EditItem'}}" aria-label="{{localize 'CYPHERSYSTEM.EditItem'}}"><i class="fa-solid fa-pen-to-square"></i></button>
+                    <button type="button" class="cypher-v2-equipment-icon-button cypher-v2-equipment-delete" data-action="deleteEquipmentItem" data-item-id="{{item.id}}" title="{{#if item.archived}}{{localize 'CYPHERSYSTEM.UnarchiveItem'}}{{else}}{{localize 'CYPHERSYSTEM.ArchiveItem'}}{{/if}}">
+                      {{#if item.archived}}<i class="fa-solid fa-arrow-rotate-left cypher-v2-archive-default-icon"></i>{{else}}<i class="fa-solid fa-box-archive cypher-v2-archive-default-icon"></i>{{/if}}
+                      <i class="fa-solid fa-trash-xmark cypher-v2-archive-alt-icon"></i>
+                    </button>
+                  </div>
+                {{/if}}
+              </div>
+            {{else}}
+              <div class="cypher-v2-equipment-empty">{{localize "CYPHERSYSTEM.EquipmentV2Empty"}}</div>
+            {{/each}}
+          </div>
+        </article>
+      {{/each}}
+    </div>
+
+    <div class="cypher-v2-equipment-column cypher-v2-equipment-special">
+      {{#if showCyphers}}
+        <article class="cypher-v2-equipment-panel cypher-v2-cypher-panel">
+          <header class="cypher-v2-equipment-panel-header">
+            <div><span class="cypher-v2-equipment-kicker">{{localize "CYPHERSYSTEM.EquipmentV2OneUse"}}</span><h3>{{equipmentLabels.cyphers}}</h3></div>
+            <div class="cypher-v2-equipment-panel-tools">
+              <span class="cypher-v2-equipment-count">{{equipmentCyphers.length}}</span>
+              {{#if editable}}<button type="button" class="cypher-v2-equipment-add" data-action="createEquipmentItem" data-item-type="cypher" title="{{localize 'CYPHERSYSTEM.EquipmentV2Create'}}" aria-label="{{localize 'CYPHERSYSTEM.EquipmentV2Create'}}"><i class="fa-solid fa-plus"></i></button>{{/if}}
+            </div>
+          </header>
+          <div class="cypher-v2-equipment-list">
+            {{#each equipmentCyphers as |item|}}
+              <div class="item cypher-v2-equipment-item cypher-v2-special-item {{#if item.archived}}is-archived{{/if}} {{#unless item.identified}}is-unidentified{{/unless}}" data-item-id="{{item.id}}" draggable="true">
+                {{#if ../equipmentShowFavorites}}
+                  {{#if ../editable}}
+                    <button type="button" class="cypher-v2-equipment-favorite {{#if item.favorite}}is-favorite{{/if}}" data-action="toggleEquipmentFavorite" data-item-id="{{item.id}}" title="{{localize 'CYPHERSYSTEM.ItemFavorite'}}" aria-label="{{localize 'CYPHERSYSTEM.ItemFavorite'}}"><i class="{{#if item.favorite}}fa-solid{{else}}fa-regular{{/if}} fa-star"></i></button>
+                  {{else}}
+                    <span class="cypher-v2-equipment-favorite is-readonly {{#if item.favorite}}is-favorite{{/if}}"><i class="{{#if item.favorite}}fa-solid{{else}}fa-regular{{/if}} fa-star"></i></span>
+                  {{/if}}
+                {{/if}}
+                <img class="cypher-v2-equipment-image" src="{{item.img}}" alt="{{item.name}}">
+                <div class="cypher-v2-equipment-main">
+                  <div class="cypher-v2-equipment-name-wrap">
+                    <button type="button" class="cypher-v2-equipment-name" data-action="equipmentItemDescription" data-item-id="{{item.id}}" data-cypher-v2-card-preview title="{{localize 'CYPHERSYSTEM.EquipmentV2SendToChat'}}">{{item.name}}</button>
+                    {{#if item.previewHtml}}<template class="cypher-v2-item-tooltip-template">{{{item.previewHtml}}}</template>{{/if}}
+                  </div>
+                  <div class="cypher-v2-equipment-meta">
+                    {{#if item.identified}}
+                      <span class="cypher-v2-cypher-kind {{#if item.cypherManifest}}is-manifest{{else}}is-nonphysical{{/if}}"><i class="fa-solid {{#if item.cypherManifest}}fa-cube{{else}}fa-wind{{/if}}"></i> {{item.cypherTypeLabel}}</span>
+                      {{#if item.cypherFantastic}}<span><i class="fa-solid fa-sparkles"></i> {{localize "CYPHERSYSTEM.EquipmentV2Fantastic"}}</span>{{/if}}
+                    {{else}}
+                      <span><i class="fa-solid fa-eye-slash"></i> {{localize "CYPHERSYSTEM.EquipmentV2Unidentified"}}</span>
+                    {{/if}}
+                  </div>
+                </div>
+                <div class="cypher-v2-equipment-level {{#if item.levelFallback}}is-fallback{{/if}}" title="{{#if item.levelFallback}}{{localize 'CYPHERSYSTEM.EquipmentV2LevelFallback'}}{{else}}{{localize 'CYPHERSYSTEM.Level'}}{{/if}}">
+                  {{#if item.rollableLevel}}<button type="button" data-action="rollEquipmentLevel" data-item-id="{{item.id}}"><i class="fa-solid fa-dice"></i> {{item.level}}</button>{{else}}<strong>{{item.level}}</strong>{{/if}}
+                  <span>{{localize "CYPHERSYSTEM.Level"}}</span>
+                </div>
+                <div class="cypher-v2-equipment-actions">
+                  {{#if ../editable}}
+                    {{#unless item.identified}}<button type="button" class="cypher-v2-equipment-icon-button is-identify" data-action="identifyEquipmentItem" data-item-id="{{item.id}}" title="{{localize 'CYPHERSYSTEM.MarkIdentified'}}"><i class="fa-solid fa-eye"></i></button>{{/unless}}
+                    {{#if item.identified}}{{#unless item.archived}}<button type="button" class="cypher-v2-equipment-icon-button is-use" data-action="useCypher" data-item-id="{{item.id}}" title="{{localize 'CYPHERSYSTEM.EquipmentV2UseCypher'}}"><i class="fa-solid fa-bolt"></i></button>{{/unless}}{{/if}}
+                    {{#if item.canOpen}}<button type="button" class="cypher-v2-equipment-icon-button" data-action="editEquipmentItem" data-item-id="{{item.id}}" title="{{localize 'CYPHERSYSTEM.EditItem'}}"><i class="fa-solid fa-pen-to-square"></i></button>{{/if}}
+                    <button type="button" class="cypher-v2-equipment-icon-button cypher-v2-equipment-delete" data-action="deleteEquipmentItem" data-item-id="{{item.id}}" title="{{#if item.archived}}{{localize 'CYPHERSYSTEM.UnarchiveItem'}}{{else}}{{localize 'CYPHERSYSTEM.ArchiveItem'}}{{/if}}">{{#if item.archived}}<i class="fa-solid fa-arrow-rotate-left cypher-v2-archive-default-icon"></i>{{else}}<i class="fa-solid fa-box-archive cypher-v2-archive-default-icon"></i>{{/if}}<i class="fa-solid fa-trash-xmark cypher-v2-archive-alt-icon"></i></button>
+                  {{/if}}
+                </div>
+              </div>
+            {{else}}<div class="cypher-v2-equipment-empty">{{localize "CYPHERSYSTEM.EquipmentV2Empty"}}</div>{{/each}}
+          </div>
+        </article>
+      {{/if}}
+
+      {{#if showArtifacts}}
+        <article class="cypher-v2-equipment-panel cypher-v2-artifact-panel">
+          <header class="cypher-v2-equipment-panel-header">
+            <div><span class="cypher-v2-equipment-kicker">{{localize "CYPHERSYSTEM.EquipmentV2Reusable"}}</span><h3>{{equipmentLabels.artifacts}}</h3></div>
+            <div class="cypher-v2-equipment-panel-tools"><span class="cypher-v2-equipment-count">{{equipmentArtifacts.length}}</span>{{#if editable}}<button type="button" class="cypher-v2-equipment-add" data-action="createEquipmentItem" data-item-type="artifact" title="{{localize 'CYPHERSYSTEM.EquipmentV2Create'}}"><i class="fa-solid fa-plus"></i></button>{{/if}}</div>
+          </header>
+          <div class="cypher-v2-equipment-list">
+            {{#each equipmentArtifacts as |item|}}
+              <div class="item cypher-v2-equipment-item cypher-v2-special-item {{#if item.archived}}is-archived{{/if}} {{#unless item.identified}}is-unidentified{{/unless}}" data-item-id="{{item.id}}" draggable="true">
+                {{#if ../equipmentShowFavorites}}{{#if ../editable}}<button type="button" class="cypher-v2-equipment-favorite {{#if item.favorite}}is-favorite{{/if}}" data-action="toggleEquipmentFavorite" data-item-id="{{item.id}}" title="{{localize 'CYPHERSYSTEM.ItemFavorite'}}" aria-label="{{localize 'CYPHERSYSTEM.ItemFavorite'}}"><i class="{{#if item.favorite}}fa-solid{{else}}fa-regular{{/if}} fa-star"></i></button>{{else}}<span class="cypher-v2-equipment-favorite is-readonly {{#if item.favorite}}is-favorite{{/if}}"><i class="{{#if item.favorite}}fa-solid{{else}}fa-regular{{/if}} fa-star"></i></span>{{/if}}{{/if}}
+                <img class="cypher-v2-equipment-image" src="{{item.img}}" alt="{{item.name}}">
+                <div class="cypher-v2-equipment-main">
+                  <div class="cypher-v2-equipment-name-wrap"><button type="button" class="cypher-v2-equipment-name" data-action="equipmentItemDescription" data-item-id="{{item.id}}" data-cypher-v2-card-preview title="{{localize 'CYPHERSYSTEM.EquipmentV2SendToChat'}}">{{item.name}}</button>{{#if item.previewHtml}}<template class="cypher-v2-item-tooltip-template">{{{item.previewHtml}}}</template>{{/if}}</div>
+                  <div class="cypher-v2-equipment-meta">
+                    {{#if item.identified}}<span class="{{#if item.depletionUnknown}}has-warning{{/if}}"><i class="fa-solid fa-battery-half"></i> {{localize "CYPHERSYSTEM.Depletion"}}: {{item.depletionLabel}}</span>{{else}}<span><i class="fa-solid fa-eye-slash"></i> {{localize "CYPHERSYSTEM.EquipmentV2Unidentified"}}</span>{{/if}}
+                  </div>
+                </div>
+                <div class="cypher-v2-equipment-level">{{#if item.rollableLevel}}<button type="button" data-action="rollEquipmentLevel" data-item-id="{{item.id}}"><i class="fa-solid fa-dice"></i> {{item.level}}</button>{{else}}<strong>{{item.level}}</strong>{{/if}}<span>{{localize "CYPHERSYSTEM.Level"}}</span></div>
+                <div class="cypher-v2-equipment-actions">
+                  {{#if ../editable}}
+                    {{#unless item.identified}}<button type="button" class="cypher-v2-equipment-icon-button is-identify" data-action="identifyEquipmentItem" data-item-id="{{item.id}}" title="{{localize 'CYPHERSYSTEM.MarkIdentified'}}"><i class="fa-solid fa-eye"></i></button>{{/unless}}
+                    {{#if item.identified}}{{#unless item.archived}}<button type="button" class="cypher-v2-equipment-icon-button is-use" data-action="activateArtifact" data-item-id="{{item.id}}" title="{{localize 'CYPHERSYSTEM.EquipmentV2ActivateArtifact'}}"><i class="fa-solid fa-power-off"></i></button>{{/unless}}{{/if}}
+                    {{#if item.canOpen}}<button type="button" class="cypher-v2-equipment-icon-button" data-action="editEquipmentItem" data-item-id="{{item.id}}" title="{{localize 'CYPHERSYSTEM.EditItem'}}"><i class="fa-solid fa-pen-to-square"></i></button>{{/if}}
+                    <button type="button" class="cypher-v2-equipment-icon-button cypher-v2-equipment-delete" data-action="deleteEquipmentItem" data-item-id="{{item.id}}" title="{{#if item.archived}}{{localize 'CYPHERSYSTEM.UnarchiveItem'}}{{else}}{{localize 'CYPHERSYSTEM.ArchiveItem'}}{{/if}}">{{#if item.archived}}<i class="fa-solid fa-arrow-rotate-left cypher-v2-archive-default-icon"></i>{{else}}<i class="fa-solid fa-box-archive cypher-v2-archive-default-icon"></i>{{/if}}<i class="fa-solid fa-trash-xmark cypher-v2-archive-alt-icon"></i></button>
+                  {{/if}}
+                </div>
+              </div>
+            {{else}}<div class="cypher-v2-equipment-empty">{{localize "CYPHERSYSTEM.EquipmentV2Empty"}}</div>{{/each}}
+          </div>
+        </article>
+      {{/if}}
+
+      {{#if showOddities}}
+        <article class="cypher-v2-equipment-panel">
+          <header class="cypher-v2-equipment-panel-header">
+            <div><span class="cypher-v2-equipment-kicker">{{localize "CYPHERSYSTEM.EquipmentV2LegacyCollection"}}</span><h3>{{equipmentLabels.oddities}}</h3></div>
+            <div class="cypher-v2-equipment-panel-tools"><span class="cypher-v2-equipment-count">{{equipmentOddities.length}}</span>{{#if editable}}<button type="button" class="cypher-v2-equipment-add" data-action="createEquipmentItem" data-item-type="oddity" title="{{localize 'CYPHERSYSTEM.EquipmentV2Create'}}"><i class="fa-solid fa-plus"></i></button>{{/if}}</div>
+          </header>
+          <div class="cypher-v2-equipment-list">
+            {{#each equipmentOddities as |item|}}
+              <div class="item cypher-v2-equipment-item cypher-v2-oddity-item {{#if item.archived}}is-archived{{/if}}" data-item-id="{{item.id}}" draggable="true">
+                {{#if ../equipmentShowFavorites}}{{#if ../editable}}<button type="button" class="cypher-v2-equipment-favorite {{#if item.favorite}}is-favorite{{/if}}" data-action="toggleEquipmentFavorite" data-item-id="{{item.id}}" title="{{localize 'CYPHERSYSTEM.ItemFavorite'}}" aria-label="{{localize 'CYPHERSYSTEM.ItemFavorite'}}"><i class="{{#if item.favorite}}fa-solid{{else}}fa-regular{{/if}} fa-star"></i></button>{{else}}<span class="cypher-v2-equipment-favorite is-readonly {{#if item.favorite}}is-favorite{{/if}}"><i class="{{#if item.favorite}}fa-solid{{else}}fa-regular{{/if}} fa-star"></i></span>{{/if}}{{/if}}
+                <img class="cypher-v2-equipment-image" src="{{item.img}}" alt="{{item.name}}">
+                <div class="cypher-v2-equipment-main"><div class="cypher-v2-equipment-name-wrap"><button type="button" class="cypher-v2-equipment-name" data-action="equipmentItemDescription" data-item-id="{{item.id}}" data-cypher-v2-card-preview>{{item.name}}</button><template class="cypher-v2-item-tooltip-template">{{{item.previewHtml}}}</template></div>{{#if item.priceLabel}}<div class="cypher-v2-equipment-meta"><span><i class="fa-solid fa-tag"></i> {{item.priceLabel}}</span></div>{{/if}}</div>
+                {{#if ../editable}}<div class="cypher-v2-equipment-actions"><button type="button" class="cypher-v2-equipment-icon-button" data-action="editEquipmentItem" data-item-id="{{item.id}}" title="{{localize 'CYPHERSYSTEM.EditItem'}}"><i class="fa-solid fa-pen-to-square"></i></button><button type="button" class="cypher-v2-equipment-icon-button cypher-v2-equipment-delete" data-action="deleteEquipmentItem" data-item-id="{{item.id}}" title="{{#if item.archived}}{{localize 'CYPHERSYSTEM.UnarchiveItem'}}{{else}}{{localize 'CYPHERSYSTEM.ArchiveItem'}}{{/if}}">{{#if item.archived}}<i class="fa-solid fa-arrow-rotate-left cypher-v2-archive-default-icon"></i>{{else}}<i class="fa-solid fa-box-archive cypher-v2-archive-default-icon"></i>{{/if}}<i class="fa-solid fa-trash-xmark cypher-v2-archive-alt-icon"></i></button></div>{{/if}}
+              </div>
+            {{else}}<div class="cypher-v2-equipment-empty">{{localize "CYPHERSYSTEM.EquipmentV2Empty"}}</div>{{/each}}
+          </div>
+        </article>
+      {{/if}}
+
+      {{#if showMaterials}}
+        <article class="cypher-v2-equipment-panel">
+          <header class="cypher-v2-equipment-panel-header">
+            <div><span class="cypher-v2-equipment-kicker">{{localize "CYPHERSYSTEM.EquipmentV2LegacyCollection"}}</span><h3>{{equipmentLabels.materials}}</h3></div>
+            <div class="cypher-v2-equipment-panel-tools"><span class="cypher-v2-equipment-count">{{equipmentMaterials.length}}</span>{{#if editable}}<button type="button" class="cypher-v2-equipment-add" data-action="createEquipmentItem" data-item-type="material" title="{{localize 'CYPHERSYSTEM.EquipmentV2Create'}}"><i class="fa-solid fa-plus"></i></button>{{/if}}</div>
+          </header>
+          <div class="cypher-v2-equipment-list">
+            {{#each equipmentMaterials as |item|}}
+              <div class="item cypher-v2-equipment-item cypher-v2-material-item {{#if item.archived}}is-archived{{/if}}" data-item-id="{{item.id}}" draggable="true">
+                {{#if ../equipmentShowFavorites}}{{#if ../editable}}<button type="button" class="cypher-v2-equipment-favorite {{#if item.favorite}}is-favorite{{/if}}" data-action="toggleEquipmentFavorite" data-item-id="{{item.id}}" title="{{localize 'CYPHERSYSTEM.ItemFavorite'}}" aria-label="{{localize 'CYPHERSYSTEM.ItemFavorite'}}"><i class="{{#if item.favorite}}fa-solid{{else}}fa-regular{{/if}} fa-star"></i></button>{{else}}<span class="cypher-v2-equipment-favorite is-readonly {{#if item.favorite}}is-favorite{{/if}}"><i class="{{#if item.favorite}}fa-solid{{else}}fa-regular{{/if}} fa-star"></i></span>{{/if}}{{/if}}
+                <img class="cypher-v2-equipment-image" src="{{item.img}}" alt="{{item.name}}">
+                <div class="cypher-v2-equipment-main"><div class="cypher-v2-equipment-name-wrap"><button type="button" class="cypher-v2-equipment-name" data-action="equipmentItemDescription" data-item-id="{{item.id}}" data-cypher-v2-card-preview>{{item.name}}</button><template class="cypher-v2-item-tooltip-template">{{{item.previewHtml}}}</template></div><div class="cypher-v2-equipment-meta"><span><i class="fa-solid {{#if item.materialIsLevel}}fa-layer-group{{else}}fa-tag{{/if}}"></i> {{item.materialValue}}</span></div></div>
+                <div class="cypher-v2-equipment-stepper" title="{{localize 'CYPHERSYSTEM.EquipmentV2QuantityHint'}}">{{#if ../editable}}<button type="button" data-action="adjustEquipmentQuantity" data-item-id="{{item.id}}" data-direction="decrease" aria-label="{{localize 'CYPHERSYSTEM.SubtractQuantity'}}"><i class="fa-solid fa-minus"></i></button>{{/if}}<strong>{{item.quantity}}</strong>{{#if ../editable}}<button type="button" data-action="adjustEquipmentQuantity" data-item-id="{{item.id}}" data-direction="increase" aria-label="{{localize 'CYPHERSYSTEM.AddQuantity'}}"><i class="fa-solid fa-plus"></i></button>{{/if}}</div>
+                {{#if ../editable}}<div class="cypher-v2-equipment-actions"><button type="button" class="cypher-v2-equipment-icon-button" data-action="editEquipmentItem" data-item-id="{{item.id}}" title="{{localize 'CYPHERSYSTEM.EditItem'}}"><i class="fa-solid fa-pen-to-square"></i></button><button type="button" class="cypher-v2-equipment-icon-button cypher-v2-equipment-delete" data-action="deleteEquipmentItem" data-item-id="{{item.id}}" title="{{#if item.archived}}{{localize 'CYPHERSYSTEM.UnarchiveItem'}}{{else}}{{localize 'CYPHERSYSTEM.ArchiveItem'}}{{/if}}">{{#if item.archived}}<i class="fa-solid fa-arrow-rotate-left cypher-v2-archive-default-icon"></i>{{else}}<i class="fa-solid fa-box-archive cypher-v2-archive-default-icon"></i>{{/if}}<i class="fa-solid fa-trash-xmark cypher-v2-archive-alt-icon"></i></button></div>{{/if}}
+              </div>
+            {{else}}<div class="cypher-v2-equipment-empty">{{localize "CYPHERSYSTEM.EquipmentV2Empty"}}</div>{{/each}}
+          </div>
+        </article>
+      {{/if}}
+    </div>
+  </div>
+</section>
