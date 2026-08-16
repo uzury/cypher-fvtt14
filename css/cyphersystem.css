@@ -1,0 +1,3871 @@
+@import url("./pc-sheet-v2.css");
+/* Definitions */
+
+:root {
+  --cypher-font: "Signika", sans-serif;
+  --cypher-background: url(../ui/parchment.jpg) repeat;
+  --input-box-shadow: inset 0 0 6px var(--input-background-color);
+  --input-background-color: rgba(0, 0, 0, 0.1);
+}
+
+/* Global */
+
+#logo {
+  margin: 12px 0 0 12px;
+}
+
+#controls {
+  padding: 12px 15px 0 15px;
+}
+
+#chat-controls {
+  align-items: center;
+}
+
+.chat-log .message-content {
+  line-height: 1.4;
+}
+
+.chat-log .message .message-content ul,
+ol,
+.flavor-text ul,
+ol {
+  margin: 0 0 0.2em 0;
+}
+
+.chat-log .message .message-content .pdfoundry-link {
+  font-size: smaller;
+  margin: 0 1px 0 1px;
+}
+
+.chat-log .message .message-content ul,
+.flavor-text ul {
+  list-style-type: disc;
+}
+
+.chat-log .message .flavor-text p:first-of-type,
+.flavor-text p > p {
+  margin: 0 0 0.5em 0;
+}
+
+.chat-log .message .flavor-text p:last-of-type {
+  margin: 0 0 0 0;
+}
+
+.chat-log .message .message-content blockquote,
+.flavor-text blockquote {
+  margin: 0 0 0 10px;
+  padding: 0 0 0 10px;
+}
+
+.chat-log .table-result a.entity-link,
+.chat-log .table-result a.content-link,
+.chat-log .table-result a.pdfoundry-link {
+  display: inline-block;
+  max-width: 225px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  vertical-align: middle;
+}
+
+.chat-log .hr-chat {
+  margin-top: 1px;
+  margin-bottom: 2px;
+  border-bottom: none;
+  border-top: 1px solid #7a7971;
+  background-image: none;
+}
+
+.chat-log .roll-result-hr {
+  margin: 0 3px;
+  border-bottom: none;
+  border-top: 3px double #7a7971;
+  width: 95%;
+  background-image: none;
+}
+
+.chat-log .intrusion {
+  color: red;
+}
+
+.chat-log .effect1718 {
+  color: blue;
+}
+
+.chat-log .effect1920 {
+  color: green;
+}
+
+.chat-log .roll-result {
+  font-size: 1em;
+  font-weight: bold;
+}
+
+.chat-log .roll-difficulty {
+  font-size: 1em;
+  font-weight: bold;
+  color: var(--color-text-dark-primary);
+}
+
+.chat-log .roll-effect {
+  font-size: 1em;
+  font-weight: bold;
+}
+
+.chat-log .roll-initiative {
+  font-size: 1em;
+  font-weight: bold;
+}
+
+.chat-log .multi-roll-active {
+  color: blue;
+}
+
+ol.chat-log .note-roll-dialog {
+  display: block;
+  color: blue;
+  text-align: left;
+}
+
+.chat-log .difficulty-result {
+  font-weight: bold;
+}
+
+.chat-message .message-header .message-metadata {
+  white-space: nowrap;
+}
+
+.dialog-select {
+  height: 26px;
+  margin-bottom: 2px;
+  margin-top: 2px;
+  font-family: "Signika", sans-serif;
+  font-size: 14px;
+  text-align-last: center;
+  padding: 1px 3px;
+  width: 98px;
+}
+
+.dialog-calcAttDiff {
+  height: 26px;
+  margin-bottom: 2px;
+  margin-top: 2px;
+  font-family: "Signika", sans-serif;
+  font-size: 14px;
+  padding: 1px 3px;
+  width: 100%;
+}
+
+.input-calcAttDiff {
+  padding-left: 0px;
+  text-indent: 0px;
+  display: flex;
+}
+
+input[type="checkbox"].dialog-checkbox {
+  flex: 0 0 15px;
+  margin: auto 0px;
+  height: 13px;
+  width: 13px;
+}
+
+input[type="text"].dialog-input {
+  width: 100%;
+}
+
+form.cyphersystem {
+  height: 100%;
+}
+
+.grid,
+.grid-2col {
+  display: grid;
+  grid-column: span 2 / span 2;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 5px;
+  margin: 5px 0 0 0;
+  padding: 0;
+}
+
+.grid-1col {
+  display: grid;
+  grid-column: span 1 / span 1;
+  grid-template-columns: repeat(1, minmax(0, 1fr));
+}
+
+.grid-3col {
+  display: grid;
+  grid-column: span 3 / span 3;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.grid-4col {
+  display: grid;
+  grid-column: span 4 / span 4;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.grid-5col {
+  display: grid;
+  grid-column: span 5 / span 5;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+}
+
+.grid-6col {
+  display: grid;
+  grid-column: span 6 / span 6;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+}
+
+.grid-7col {
+  display: grid;
+  grid-column: span 7 / span 7;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+}
+
+.grid-8col {
+  display: grid;
+  grid-column: span 8 / span 8;
+  grid-template-columns: repeat(8, minmax(0, 1fr));
+}
+
+.grid-9col {
+  display: grid;
+  grid-column: span 9 / span 9;
+  grid-template-columns: repeat(9, minmax(0, 1fr));
+}
+
+.grid-10col {
+  display: grid;
+  grid-column: span 10 / span 10;
+  grid-template-columns: repeat(10, minmax(0, 1fr));
+}
+
+.grid-11col {
+  display: grid;
+  grid-column: span 11 / span 11;
+  grid-template-columns: repeat(11, minmax(0, 1fr));
+}
+
+.grid-12col {
+  display: grid;
+  grid-column: span 12 / span 12;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+}
+
+.flex-group-center,
+.flex-group-left,
+.flex-group-right {
+  -webkit-box-pack: center;
+  -ms-flex-pack: center;
+  justify-content: center;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+  text-align: center;
+  padding: 5px;
+  border: 1px solid #999;
+  border-radius: 3px;
+}
+
+.flex-group-left {
+  -webkit-box-pack: start;
+  -ms-flex-pack: start;
+  justify-content: flex-start;
+  text-align: left;
+}
+
+.flex-group-right {
+  -webkit-box-pack: end;
+  -ms-flex-pack: end;
+  justify-content: flex-end;
+  text-align: right;
+}
+
+.flex-center {
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+  -webkit-box-pack: center;
+  -ms-flex-pack: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.flex-between {
+  -webkit-box-pack: justify;
+  -ms-flex-pack: justify;
+  justify-content: space-between;
+}
+
+.editor-edit {
+  top: 10px;
+  right: 10px;
+}
+
+.chat-log .roll-flavor {
+  line-height: 1.3;
+  margin-bottom: 3px;
+  font-size: var(--font-size-12);
+  color: var(--color-text-dark-secondary);
+  width: 100%;
+}
+
+::-webkit-scrollbar-track {
+  box-shadow: none;
+}
+
+a.entity-link,
+a.content-link,
+a.inline-roll,
+a.pdfoundry-link,
+a.rollForLevel,
+a.tag-items {
+  font-size: smaller;
+}
+
+.sheet.journal-entry {
+  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
+}
+
+/* :is(a.entity-link:has(+ :is(a.entity-link, a.content-link, a.inline-roll, a.pdfoundry-link, a.rollForLevel, a.tag-items)), a.content-link:has(+ :is(a.entity-link, a.content-link, a.inline-roll, a.pdfoundry-link, a.rollForLevel, a.tag-items)), a.inline-roll:has(+ :is(a.entity-link, a.content-link, a.inline-roll, a.pdfoundry-link, a.rollForLevel, a.tag-items)), a.rollForLevel:has(+ :is(a.entity-link, a.content-link, a.inline-roll, a.pdfoundry-link, a.rollForLevel, a.tag-items)), a.tag-items:has(+ :is(a.entity-link, a.content-link, a.inline-roll, a.pdfoundry-link, a.rollForLevel, a.tag-items))) {
+  margin: 0 2px 0 0;
+} */
+
+select.bar-attribute {
+  width: 0;
+}
+
+.sheet.actor .editor.tinymce div[role="application"] {
+  height: 100%;
+}
+
+.sheet.item .editor.tinymce div[role="application"] {
+  height: 100%;
+}
+
+.minimized .window-header {
+  border-bottom: unset !important;
+}
+
+.window-header {
+  border-bottom: 1px solid black;
+}
+
+.cyphersystem.sheet.pc,
+.cyphersystem.sheet.npc,
+.cyphersystem.sheet.companion,
+.cyphersystem.sheet.community,
+.cyphersystem.sheet.token,
+.cyphersystem.sheet.vehicle {
+  min-width: 650px;
+  min-height: 550px;
+}
+
+.cyphersystem.sheet.item {
+  min-width: 575px;
+  min-height: 550px;
+}
+
+.cyphersystem .editor-content {
+  padding: 0.3em !important;
+  line-height: 1.4;
+  word-break: normal;
+}
+
+.cyphersystem .editor-content ul p,
+.cyphersystem .editor-content ol p {
+  margin: 0px;
+}
+
+.cyphersystem .ProseMirror {
+  --color-control-bg: rgb(0, 0, 0, 0.1);
+  --color-hover-bg: rgb(0, 0, 0, 0.15);
+}
+
+.cyphersystem .prosemirror .editor-container {
+  margin: 0;
+}
+
+.cyphersystem .ProseMirror menu .pm-dropdown ul {
+  background: #ddd;
+}
+
+.cyphersystem .ProseMirror menu {
+  border-radius: 0px;
+}
+
+.cyphersystem .ProseMirror .editor-container {
+  margin: 0px;
+}
+
+.editor-content hr {
+  margin: 0;
+  border-bottom: 0;
+  border-top: 1px solid #999;
+  background-image: none;
+}
+
+.editor-content h4 {
+  font-size: 1em;
+  font-weight: bold;
+  border-bottom: 1px solid var(--color-underline-header);
+}
+
+.chat-hidden {
+  display: none;
+}
+
+.chat-card-buttons {
+  text-align: right;
+}
+
+.chat-card-item-description {
+  padding-bottom: 2px;
+}
+
+.roll-result-box {
+  background: rgba(0, 0, 0, 0.05);
+  border: 1px solid #7a7971;
+  border-radius: 3px;
+  padding: 3px;
+  margin-top: 2px;
+  margin-bottom: 2px;
+}
+
+.roll-result-box.box1718 {
+  background: rgba(0, 0, 255, 0.05);
+  border: 1px solid blue;
+}
+
+.roll-result-box.box1920 {
+  background: rgba(0, 128, 0, 0.05);
+  border: 1px solid green;
+}
+
+.roll-result-box.box1 {
+  background: rgba(255, 0, 0, 0.05);
+  border: 1px solid red;
+}
+
+/* Styles limited to cyphersystem sheets */
+
+.cyphersystem .window-content {
+  overflow: hidden;
+  font-family: var(--cypher-font);
+}
+
+.cyphersystem .background-image {
+  margin: -8px;
+  padding: 8px;
+  height: 100%;
+}
+
+.cyphersystem .background-image.paper {
+  background-image: url(/systems/cyphersystem/icons/background/background-paper.webp) !important;
+  background-size: cover;
+}
+
+.cyphersystem .background-image.metal {
+  background-image: url(/systems/cyphersystem/icons/background/background-metal.webp) !important;
+  background-size: cover;
+}
+
+.cyphersystem .background-image.pride {
+  background-image: url(/systems/cyphersystem/icons/background/background-pride.webp) !important;
+  background-size: cover;
+}
+
+.cyphersystem .background-image.plain.red {
+  background: rgb(153, 0, 0);
+}
+
+.cyphersystem .background-image.plain.blue {
+  background: rgb(0, 77, 129);
+}
+
+.cyphersystem .background-image.plain.green {
+  background: rgb(20, 104, 66);
+}
+
+.cyphersystem .background-image.plain.purple {
+  background: rgb(154, 24, 96);
+}
+
+.cyphersystem .background-image.plain.yellow {
+  background: rgb(247, 186, 0);
+}
+
+.cyphersystem .background-image.plain.grey {
+  background: rgb(128, 128, 128);
+}
+
+.cyphersystem .background-image.cypher-blue {
+  background-image: linear-gradient(rgb(203, 203, 218), white) !important;
+  background-size: cover;
+}
+
+.cyphersystem .background-image.custom {
+  background-size: cover;
+  background-position: center;
+}
+
+.cyphersystem .background-image-rectangle {
+  z-index: 0;
+  background-color: white;
+  opacity: 0;
+  position: absolute;
+  width: calc(100% - 10px);
+  height: calc(100% - 39px);
+  top: 34px;
+  left: 5px;
+  border-radius: 2px;
+  filter: blur(1px);
+  -webkit-filter: blur(1px);
+}
+
+.cyphersystem .background-image-rectangle.plain {
+  opacity: 0.75;
+}
+
+.cyphersystem div.background-image-icon {
+  position: absolute;
+  top: calc(100% - 265px);
+  left: calc(100% - 264px);
+  z-index: 0;
+  height: 256px;
+  width: 256px;
+  display: flex;
+  align-items: center;
+}
+
+.cyphersystem img.background-image-icon {
+  border: none;
+  filter: drop-shadow(0px 0px 3px rgb(0, 0, 0, 0.5));
+  opacity: 0.5;
+}
+
+.cyphersystem img.background-image-icon.custom {
+  border: none;
+  filter: none;
+}
+
+.cyphersystem div.background-image-icon-roll-form {
+  position: absolute;
+  top: 80px;
+  left: 550px;
+  opacity: 25%;
+  z-index: 0;
+}
+
+.cyphersystem img.background-image-icon-roll-form {
+  border: none;
+  filter: drop-shadow(0px 0px 3px rgb(0, 0, 0, 0.5));
+}
+
+.cyphersystem div.background-image-gmi-range-form {
+  position: absolute;
+  top: 40px;
+  left: 10px;
+  opacity: 25%;
+  z-index: 1;
+}
+
+.cyphersystem img.background-image-gmi-range-form {
+  border: none;
+  filter: drop-shadow(0px 0px 3px rgb(0, 0, 0, 0.5));
+}
+
+.cyphersystem .sheet-header {
+  -webkit-box-flex: 0;
+  -ms-flex: 0 0 210px;
+  flex: 0 0 auto;
+  overflow: hidden;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-orient: horizontal;
+  -webkit-box-direction: normal;
+  -ms-flex-direction: row;
+  flex-direction: row;
+  -ms-flex-wrap: wrap;
+  flex-wrap: wrap;
+  -webkit-box-pack: start;
+  -ms-flex-pack: start;
+  justify-content: flex-start;
+  margin-bottom: 0px;
+}
+
+.cyphersystem .sheet-header .profile-img {
+  -webkit-box-flex: 0;
+  -ms-flex: 0 0 100px;
+  flex: 0 0 100px;
+  height: 115px;
+  width: 115px;
+  min-width: 115px;
+  margin-right: 5px;
+  border: 1px solid rgb(0, 0, 0, 0);
+  border-radius: 3px;
+  object-fit: contain;
+}
+
+.cyphersystem .profile-img-gmi {
+  border: none;
+}
+
+.cyphersystem .sheet-header .header-fields {
+  -webkit-box-flex: 1;
+  -ms-flex: 1;
+  flex: 1;
+}
+
+.cyphersystem .sheet-header h1.charname {
+  height: 50px;
+  padding: 0px;
+  margin: 5px 0;
+  border-bottom: 0;
+}
+
+.cyphersystem .sheet-header h1.charname input {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+}
+
+.cyphersystem .hr-pool {
+  margin-top: 5px;
+  margin-bottom: 5px;
+  border-bottom: 0;
+  border-top: 1px solid #999;
+  background-image: none;
+}
+
+.cyphersystem .hr-roll-engine {
+  border: none;
+  border-top: 1px solid #bbb;
+  background-image: none;
+}
+
+.cyphersystem .stat-pool {
+  background: rgba(0, 0, 0, 0.05);
+  box-shadow: var(--input-box-shadow);
+  border: 1px solid #7a7971;
+  border-radius: 3px;
+  margin-top: 2px;
+}
+
+.cyphersystem .stat-pool.disabled {
+  border: none;
+}
+
+.cyphersystem .align-edge {
+  justify-content: flex-end;
+  white-space: nowrap;
+  text-align: right;
+}
+
+.cyphersystem nav.sheet-tabs {
+  -webkit-box-flex: 0 0 0;
+  -ms-flex: 0 0 0;
+  flex: 0 0 0;
+  border-top: none;
+  border-bottom: none;
+  margin: 5px 0 0 0;
+  padding: 0px;
+}
+
+.cyphersystem .sheet-body,
+.cyphersystem .sheet-header,
+.cyphersystem .sheet-tabs {
+  z-index: 0;
+}
+
+.cyphersystem .sheet-body {
+  height: 100%;
+  overflow-y: auto;
+}
+
+.cyphersystem.gmi-form {
+  border: 1px solid var(--color-border-dark-1);
+  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
+}
+
+.cyphersystem .gmi-img-container {
+  position: relative;
+  max-width: 48px;
+  height: 48px;
+  margin-right: 5px;
+}
+
+.gmi-form .window-content {
+  margin: -8px;
+  background: unset;
+}
+
+.cyphersystem .gmi-body {
+  text-shadow: 1px 1px 4px var(--color-shadow-dark);
+  color: var(--color-text-light-highlight);
+}
+
+.cyphersystem .gmi-actor-name {
+  flex: 1;
+  overflow: hidden;
+}
+
+.cyphersystem .gmi-controls {
+  flex: 0 0 20px;
+  font-size: var(--font-size-14);
+  line-height: 20px;
+  padding-left: 2px;
+}
+
+.cyphersystem .gmi-h4 {
+  flex: 0 0 14px;
+  line-height: 14px;
+  margin: 0 0 2px;
+  padding: 9px 0 0 2px;
+}
+
+.cyphersystem .gmi-range-value-container {
+  display: flex;
+  flex: 0 0 4em;
+  align-items: center;
+  justify-content: center;
+}
+
+.cyphersystem .gmi-range-value {
+  display: flex;
+  margin: 0;
+  font-size: large;
+}
+
+.cyphersystem .sheet-body .tab {
+  border: 1px solid #999;
+  border-top: none;
+  height: 100%;
+  overflow-y: auto;
+}
+
+.cyphersystem .sheet-body .editor {
+  height: 100%;
+  margin-top: 0px;
+}
+
+.cyphersystem .sheet-body.limited .tab,
+.cyphersystem .sheet-body.limited .editor {
+  height: 100%;
+}
+
+.cyphersystem .resource-label {
+  font-weight: bold;
+  text-overflow: ellipsis;
+  padding-left: 15px;
+  /* vertical-align: middle; */
+}
+
+.cyphersystem .resource-label-additional {
+  font-weight: bold;
+  text-overflow: ellipsis;
+  /* vertical-align: middle; */
+}
+
+.cyphersystem .resource-label-normal {
+  vertical-align: middle;
+}
+
+.cyphersystem nav.sheet-tabs .item {
+  background: rgba(0, 0, 0, 0.05);
+  border: 1px solid #999;
+  border-radius: 3px 3px 0 0;
+  line-height: 25px;
+  padding: 0 6px;
+  white-space: nowrap;
+  width: -webkit-fill-available;
+  width: -moz-available;
+  padding: 0px 6px;
+  height: 27px;
+}
+
+.cyphersystem .tabs .item.active {
+  text-decoration: none;
+  text-shadow: none;
+  font-weight: bold;
+  background: none;
+  border: 1px solid #999;
+  border-bottom: none;
+  border-radius: 3px 3px 0 0;
+  padding: 0px 6px;
+  height: 27px;
+}
+
+.cyphersystem .items-list {
+  list-style: none;
+  margin: 7px 0;
+  padding: 0 5px;
+}
+
+.cyphersystem .items-list.gmi-list {
+  padding: 0 0px;
+}
+
+.cyphersystem .items-list .item-header {
+  font-weight: bold;
+}
+
+.cyphersystem .items-list .item-header.gmi-header {
+  padding-left: 0;
+}
+
+.cyphersystem .items-list hr {
+  margin: 0;
+  border-bottom: 0;
+  border-top: 1px solid rgba(187, 187, 187);
+  background-image: none;
+}
+
+.cyphersystem .items-list .item {
+  padding: 3px 5px;
+}
+
+.cyphersystem .items-list .item.gmi-item {
+  padding-left: 0;
+}
+
+.cyphersystem .tabs .item ~ .item {
+  border-left: none;
+  padding: 0px 6px;
+}
+
+.cyphersystem .items-list .item ~ .item {
+  border-top: 1px solid #bbb;
+}
+
+.cyphersystem .items-list .item:last-child {
+  border-bottom: 1px solid #bbb;
+}
+
+.cyphersystem .settings .items-list .item-settings:last-child {
+  border-bottom: 1px solid #bbb;
+  height: 36px;
+}
+
+.cyphersystem .item-desc:last-child {
+  border-bottom: 1px solid #bbb;
+}
+
+.cyphersystem .items-list .item .item-image {
+  -webkit-box-flex: 0;
+  -ms-flex: 0 0 24px;
+  flex: 0 0 24px;
+  margin-right: 5px;
+}
+
+.cyphersystem .items-list .item img {
+  display: block;
+}
+
+.cyphersystem .items-list .item-name {
+  margin: 0;
+  line-height: 1.4;
+  padding-left: 12px;
+  text-indent: -12px;
+}
+
+.cyphersystem .item-name a.inline-roll,
+.cyphersystem .item-name a.entity-link {
+  text-indent: 0px;
+}
+
+.cyphersystem .items-list .item-name p {
+  margin: 3px 0px;
+  line-height: 1.4;
+  font-size: 13px;
+}
+
+.cyphersystem .items-list .item-damage {
+  flex: 0;
+  margin-right: 10px;
+  margin-top: auto;
+  margin-bottom: auto;
+}
+
+.cyphersystem .items-list .item-controls {
+  -webkit-box-flex: 0 0 5em;
+  -ms-flex: 0 0 5em;
+  flex: 0 0 5em;
+  text-align: right;
+  line-height: 1.4;
+}
+
+.cyphersystem li.item .item-controls.show-on-hover,
+.cyphersystem li.item .item-favorite.show-on-hover,
+.cyphersystem li.item .item-controls-spells.show-on-hover,
+.cyphersystem div.stat-block .stat-roll-button.show-on-hover,
+.cyphersystem div.stat-block .stat-controls.show-on-hover {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity 150ms ease, visibility 150ms ease;
+}
+
+.cyphersystem li.item:hover .item-controls.show-on-hover,
+.cyphersystem li.item:focus-within .item-controls.show-on-hover,
+.cyphersystem li.item:hover .item-favorite.show-on-hover,
+.cyphersystem li.item:focus-within .item-favorite.show-on-hover,
+.cyphersystem li.item:hover .item-controls-spells.show-on-hover,
+.cyphersystem li.item:focus-within .item-controls-spells.show-on-hover,
+.cyphersystem div.stat-block:hover .stat-roll-button.show-on-hover,
+.cyphersystem div.stat-block:focus-within .stat-roll-button.show-on-hover,
+.cyphersystem div.stat-block:hover .stat-controls.show-on-hover,
+.cyphersystem div.stat-block:focus-within .stat-controls.show-on-hover {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+}
+
+.cyphersystem .item-control.item-delete,
+.cyphersystem .item-control.toggle-cypher-type,
+.cyphersystem .item-control.item-roll,
+.cyphersystem .item-control.item-pay,
+.cyphersystem .item-control.might-roll,
+.cyphersystem .item-control.speed-roll,
+.cyphersystem .item-control.intellect-roll {
+  text-align: center;
+}
+
+.cyphersystem .fa-item.archived,
+.cyphersystem .fa-item.unarchived,
+.cyphersystem .fa-item.cypher,
+.cyphersystem .fa-item.initiative,
+.cyphersystem .fa-item.aio-initiative,
+.cyphersystem .fa-item.aio-stat-roll,
+.cyphersystem .fa-item.stat-roll,
+.cyphersystem .fa-item.aio-pay-pool-points {
+  width: 14px;
+}
+
+.cyphersystem .item-favorite,
+.cyphersystem .item-favorite.alt {
+  text-indent: 0px;
+  font-size: smaller;
+}
+
+.cyphersystem .item-favorite.alt {
+  visibility: hidden;
+}
+
+/* .cyphersystem .item:hover .item-favorite .fa-regular.fa-star {
+  visibility: visible;
+  opacity: 1;
+} */
+
+.cyphersystem .items-list .item-quantity {
+  -webkit-box-flex: 0 0 6.8em;
+  -ms-flex: 0 0 6.8em;
+  flex: 0 0 6.8em;
+  text-align: center;
+  white-space: nowrap;
+  line-height: 1.4;
+}
+
+.cyphersystem .items-list .item-cypher-limit {
+  -webkit-box-flex: 0;
+  -ms-flex: 0 0 auto;
+  flex: 0 0 auto;
+  text-align: center;
+  margin-right: 20px;
+}
+
+.cyphersystem .items-list .item-cypher-limit-label,
+.cyphersystem .items-list .prepared-spell-quantity,
+.cyphersystem .items-list .prepared-spell-label {
+  -webkit-box-flex: 0;
+  -ms-flex: 0 0 auto;
+  flex: 0 0 auto;
+  text-align: center;
+}
+
+.cyphersystem .items-list .item-right {
+  -webkit-box-flex: 0;
+  -ms-flex: 0 0 80px;
+  flex: 0 0 80px;
+  text-align: right;
+  margin-top: auto;
+  margin-bottom: auto;
+}
+
+.cyphersystem .items-list .description {
+  text-align: left;
+  line-height: 1.4;
+  border-top-style: dashed;
+  border-color: rgba(187, 187, 187);
+  border-top-width: 1px;
+  padding-left: 17px;
+  padding-top: 5px;
+  padding-bottom: 5px;
+  font-size: small;
+}
+
+.cyphersystem .items-list .description .secret {
+  display: none;
+}
+
+.cyphersystem .items-list .description .secret.revealed {
+  display: block;
+  margin-right: 60px;
+}
+
+.cyphersystem .items-list .description ul {
+  list-style-type: disc;
+}
+
+.cyphersystem .items-list .description p:last-of-type {
+  margin: 0 0 0 0;
+}
+
+.cyphersystem .items-list .description p:first-of-type {
+  margin: 0 0 0.5em 0;
+}
+
+.cyphersystem .items-list .description p:only-of-type {
+  margin: 0;
+}
+
+.cyphersystem .items-list .item-skillLevel {
+  -webkit-box-flex: 0;
+  -ms-flex: 0 0 80px;
+  flex: 0 0 80px;
+  text-align: center;
+}
+
+.cyphersystem .tox .tox-editor-container {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+.cyphersystem .tox-tinymce {
+  border-radius: 0px;
+}
+
+.cyphersystem .centered-content {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+}
+
+.cyphersystem .item-settings {
+  height: 35px;
+  align-items: center;
+}
+
+.cyphersystem .item-subheading {
+  height: 35px;
+  align-items: end;
+}
+
+.cyphersystem input[type="text"].setting-input,
+.cyphersystem input[type="number"].setting-input {
+  width: 135px;
+}
+
+.cyphersystem input[type="text"],
+.cyphersystem input[type="number"],
+.cyphersystem input[type="password"],
+.cyphersystem input[type="datetime-local"],
+.cyphersystem input[type="range"] {
+  margin-bottom: 2px;
+  margin-top: 2px;
+  width: 100%;
+  text-align: center;
+}
+
+.cyphersystem input[type="text"].input-cypher-limit,
+.cyphersystem input[type="number"].input-cypher-limit {
+  width: 40px;
+  margin: -2px 0;
+  height: 19px;
+  padding: 0;
+}
+
+.cyphersystem input[type="text"].stat-input,
+.cyphersystem input[type="number"].stat-input {
+  border: none;
+  background: none;
+  margin: -1px;
+  padding: 0;
+  box-shadow: none;
+}
+
+.cyphersystem input[name="name"] {
+  font-weight: bold;
+}
+
+.cyphersystem input[type="checkbox"] {
+  flex: 0 0 15px;
+  margin: auto 0px;
+  height: 13px;
+  width: 13px;
+}
+
+.cyphersystem input:disabled {
+  border: 1px solid rgb(0, 0, 0, 0);
+  outline: none;
+}
+
+.cyphersystem select {
+  height: 26px;
+  margin-bottom: 2px;
+  margin-top: 2px;
+  font-family: var(--cypher-font);
+  font-size: 14px;
+  text-align-last: center;
+  padding: 1px 3px;
+  box-shadow: var(--input-box-shadow);
+}
+
+.cyphersystem .damage-track-select {
+  min-width: 95px;
+  max-width: 95px;
+}
+
+.cyphersystem .item-angle {
+  width: 12px;
+  text-align: center;
+  margin-left: 3px;
+  margin-right: -4px;
+}
+
+.cyphersystem .number {
+  display: inline-block;
+  margin: auto;
+  min-width: 30px;
+}
+
+.cyphersystem .settings-list {
+  padding-left: 0px;
+  text-indent: 0px;
+  display: flex;
+}
+
+.cyphersystem .centered-fields {
+  margin-top: auto;
+  margin-bottom: auto;
+}
+
+.cyphersystem .auto-margin {
+  margin: auto !important;
+}
+
+.cyphersystem .description-image {
+  float: right;
+  margin: 0 3px 0 5px;
+  background: rgba(0, 0, 0, 0.05);
+}
+
+.description-image-chat {
+  float: right;
+  margin: 0 0 0 5px;
+}
+
+.cyphersystem .label-basic-info {
+  flex: 0 0 45px;
+  text-align: right;
+  padding: 0 3px 0 6px;
+}
+
+.cyphersystem .rollForLevel {
+  background: #ddd;
+  padding: 1px 4px;
+  border: 1px solid #4b4a44;
+  border-radius: 2px;
+  white-space: nowrap;
+  word-break: break-all;
+}
+
+.cyphersystem .rollForLevel i {
+  color: #7a7971;
+}
+
+.cyphersystem .tag-list {
+  border-top: 1px solid #bbb;
+  border-bottom: 1px solid #bbb;
+  padding: 2px 3px 3px 3px;
+  line-height: 1.4;
+}
+
+.cyphersystem .tag-items {
+  background: #ddd;
+  padding: 1px 4px;
+  border: 1px solid #4b4a44;
+  border-radius: 2px;
+  white-space: nowrap;
+  word-break: break-all;
+}
+
+.cyphersystem .tag-items i {
+  color: #7a7971;
+}
+
+.cyphersystem .disabled {
+  pointer-events: none;
+  color: #4b4a44;
+}
+
+.cyphersystem .item-angle {
+  transform: rotate(0deg);
+  transform-origin: 0%;
+  transition: transform 0.4s;
+}
+
+.cyphersystem .arrow-active {
+  transform: rotate(90deg);
+  transform-origin: 0;
+  transition: transform 0.4s;
+}
+
+.cyphersystem .fa-minus-square.stat,
+.fa-plus-square.stat {
+  /* font-size: 12px; */
+  vertical-align: -1px;
+}
+
+.cyphersystem .stat-roll-button {
+  flex: 0 0 15px;
+  text-align: right;
+  padding-right: 3px;
+}
+
+.cyphersystem .vl {
+  border-left: 1px solid #999;
+  margin-right: 2px;
+}
+
+.cyphersystem .edge-label {
+  flex: 0 0 0;
+  padding-left: 5px;
+}
+
+.cyphersystem .stat-controls {
+  white-space: nowrap;
+  height: 19px;
+}
+
+.cyphersystem .all-stats {
+  margin-top: 5px;
+}
+
+.cyphersystem .stat-block + .stat-block {
+  margin-left: 5px;
+}
+
+.cyphersystem .additional-block {
+  max-width: 120px;
+}
+
+.cyphersystem input[type="number"].edge-input {
+  height: 19px;
+  max-width: 40px;
+  width: auto;
+  margin: 0;
+  text-align: center;
+}
+
+.cyphersystem .fa-sync-alt.stat {
+  font-size: 11px;
+  vertical-align: -1px;
+  margin-left: 0px;
+}
+
+.cyphersystem .gmi-controls .fa-sync-alt.stat {
+  font-size: 11px;
+  vertical-align: 1px;
+  margin-left: 0px;
+}
+
+.cyphersystem .fa-plus-square.stat,
+.cyphersystem .fa-minus-square.stat {
+  vertical-align: -2px;
+}
+
+.cyphersystem .fa-ballot {
+  width: 14px;
+}
+
+.cyphersystem .nonPC-stat-buttons {
+  flex: 0 0 50px;
+  text-align: right;
+  padding-right: 3px;
+}
+
+.cyphersystem .nonPC-stat-label {
+  margin-right: -32px;
+}
+
+.cyphersystem .damage-track-apply {
+  flex: 0;
+}
+
+.cyphersystem .reset-stat {
+  margin-left: 5px;
+}
+
+.cyphersystem .archived {
+  color: dimgrey;
+}
+
+.cyphersystem .black {
+  color: black;
+}
+
+.cyphersystem .archived-image {
+  opacity: 60%;
+}
+
+.cyphersystem .tag-inactive {
+  color: dimgrey;
+  border: 1px dashed;
+}
+
+.cyphersystem .Inability {
+  color: red;
+}
+
+.cyphersystem .Trained {
+  color: green;
+}
+
+.cyphersystem .Specialized {
+  color: blue;
+}
+
+.cyphersystem .Expert {
+  color: #27825a;
+}
+
+.cyphersystem .item-controls-spells {
+  -webkit-box-flex: 0 0 5em;
+  -ms-flex: 0 0 5em;
+  flex: 0 0 5em;
+  text-align: right;
+}
+
+.cyphersystem input.settings-input,
+select.settings-input {
+  width: 147.75px;
+}
+
+.cyphersystem .recovery-rolls {
+  padding-left: 30px;
+  display: flex;
+  justify-content: center;
+  white-space: nowrap;
+}
+
+.cyphersystem .tab-icon {
+  border: none;
+  height: 20px;
+  margin: 3px 0px -5px 0px;
+}
+
+.cyphersystem .profile-img-container {
+  position: relative;
+  max-width: 115px;
+  height: 115px;
+  margin-right: 5px;
+}
+
+.cyphersystem .profile-img-overlay {
+  position: absolute;
+  top: 94px;
+  left: 92px;
+  text-shadow: 0px 0px 2px #000;
+  font-size: medium;
+  color: white;
+}
+
+.cyphersystem .profile-img-overlay-exclusive-tag:hover {
+  text-shadow: 0px 0px 2px #000;
+}
+
+.cyphersystem .profile-img-overlay-lock {
+  position: absolute;
+  top: 102px;
+  left: 4px;
+  opacity: 85%;
+  text-shadow: 0px 0px 5px #000;
+  font-size: xx-small;
+  color: white;
+}
+
+.cyphersystem .profile-img-overlay-multi-roll {
+  position: absolute;
+  top: 33.5px;
+  left: 27.5px;
+  opacity: 85%;
+  text-shadow: 0px 0px 5px #000000;
+  font-size: xxx-large;
+  color: white;
+}
+
+.cyphersystem .dice-tray {
+  position: absolute;
+  width: 32px;
+  height: 115px;
+  border: 0;
+  top: 38px;
+  background: url(/ui/denim075.png) repeat;
+  box-shadow: 0 0 20px var(--color-shadow-dark);
+  z-index: -1;
+  padding: 6px 4px 6px 4px;
+  text-align: center;
+  color: var(--color-text-light-highlight);
+  font-size: 22px;
+  font-family: "Signika", sans-serif;
+  /* backdrop-filter: blur(5px); */
+}
+
+.cyphersystem .dice-tray.right {
+  border-top-right-radius: 6px;
+  border-bottom-right-radius: 6px;
+  left: 100%;
+}
+
+.cyphersystem .dice-tray.left {
+  border-top-left-radius: 6px;
+  border-bottom-left-radius: 6px;
+  left: -32px;
+}
+
+.cyphersystem .dice-tray-hidden {
+  display: none;
+}
+
+/* Roll Engine */
+
+.cyphersystem .roll-engine-left-column {
+  border-right: 1px solid #bbb;
+  padding-right: 4px;
+}
+
+.cyphersystem .roll-engine-heading {
+  display: inline-block;
+  width: 100%;
+  text-align: center;
+  margin-bottom: 5px;
+}
+
+.cyphersystem .roll-engine-label {
+  display: inline-block;
+  width: 170px;
+  text-align: right;
+  margin-right: 5px;
+}
+
+.cyphersystem .roll-engine-label-summary {
+  display: inline-block;
+  width: 95%;
+  text-align: left;
+  margin-bottom: 5px;
+}
+
+.cyphersystem .roll-engine-summary-bottom {
+  position: absolute;
+  bottom: 10px;
+  width: 361px;
+  text-align: center;
+}
+
+.cyphersystem .multi-roll-active {
+  color: blue;
+}
+
+.cyphersystem .roll-engine-label-summary.red {
+  color: red;
+}
+
+.cyphersystem .roll-engine-label-summary.blue {
+  color: blue;
+}
+
+.cyphersystem .exceeded {
+  color: red;
+}
+
+.cyphersystem .roll-engine-select {
+  height: 26px;
+  width: 170px;
+  margin-bottom: 5px;
+  text-align-last: center;
+}
+
+.cyphersystem .roll-engine-select-eased-hindered,
+.cyphersystem .roll-engine-select-pool-point-cost {
+  height: 26px;
+  width: 132px;
+  margin-bottom: 5px;
+  text-align-last: center;
+}
+
+.cyphersystem input.roll-engine-input {
+  width: 170px;
+  margin-bottom: 5px;
+  text-align: center;
+}
+
+.cyphersystem input.roll-engine-input-eased-hindered,
+.cyphersystem input.roll-engine-input-pool-point-cost {
+  width: 35px;
+  margin-bottom: 5px;
+  text-align: center;
+}
+
+.cyphersystem .roll-engine-button {
+  width: 32%;
+}
+
+.cyphersystem .dialog-button {
+  font-family: var(--cypher-font);
+  border: 1px solid var(--color-border-light-tertiary);
+}
+
+.cyphersystem div.cypher-logo {
+  border: none;
+  display: flex;
+  padding: 0;
+  min-width: 154.75px;
+}
+
+.cyphersystem img.cypher-logo {
+  border: none !important;
+  vertical-align: middle;
+  margin-right: 0px !important;
+  opacity: 1;
+  object-fit: contain;
+}
+
+.cyphersystem .sheet-header img.pc-logo {
+  height: auto;
+  max-height: 85px;
+}
+
+.cyphersystem .sheet-header img.npc-logo {
+  max-height: 59px;
+}
+
+.cyphersystem img.cypher-logo.white {
+  filter: drop-shadow(0px 0px 3px rgb(0, 0, 0, 0.5));
+}
+
+.cyphersystem .items-list button.file-picker {
+  height: 26px;
+  margin: 0px 0px 0px 5px;
+  font-family: var(--cypher-font);
+  font-size: 14px;
+  text-align-last: center;
+  border: 1px solid var(--color-border-light-tertiary);
+  width: 147.75px;
+  background: rgba(0, 0, 0, 0.05);
+}
+
+.cyphersystem .range-picker {
+  display: flex;
+}
+
+.cyphersystem .label {
+  width: 75px;
+}
+
+.cyphersystem input[type="range"] + .range-value {
+  min-width: 147.75px;
+  max-width: 147.75px;
+  border-color: var(--color-border-light-tertiary);
+  border-radius: 3px;
+  background: rgba(0, 0, 0, 0.05);
+  height: 26px;
+}
+
+/* Sidebar style */
+
+:root {
+  --cs-label-note: "Note";
+  --cs-box-border-color: #333;
+}
+
+:root:lang(en) {
+  --cs-label-note: "Note";
+}
+
+.cypher-note {
+  border: 1px solid var(--cs-box-border-color);
+  border-radius: 4px;
+  box-shadow: 5px 5px 5px #000;
+  padding: 3px 6px;
+  width: calc(100% - 1em);
+  box-sizing: border-box;
+  display: flow-root;
+  margin: 1rem 0rem;
+}
+
+section.cypher-note > p {
+  margin-top: 0px;
+}
+
+.cypher-note::before {
+  border: var(--cs-box-border-color) 1px solid;
+  position: relative;
+  top: -0.7em;
+  margin-left: 0.3em;
+  padding: 0em 0.5em 0em 0.5em;
+  display: inline;
+}
+
+.cypher-note::before {
+  content: var(--cs-label-note);
+  background-color: #ceceb0;
+}
+
+.cypher-note {
+  font-style: italic;
+  background-color: #d7d7c0;
+  background-image: linear-gradient(#d7d7c0, #fff);
+}
+
+.cyphersystem .copy-ability-button {
+  margin: 0px;
+  line-height: 22px;
+  border: 1px solid var(--color-border-light-tertiary);
+  background: rgba(0, 0, 0, 0.05);
+  font-family: var(--cypher-font);
+}
+
+/* Wound Track ------------------------------------------------------------- */
+
+.cyphersystem .wound-track-container {
+  padding: 6px 0;
+}
+
+.cyphersystem .wound-track {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  width: 100%;
+}
+
+.cyphersystem .wound-row {
+  display: grid;
+  grid-template-columns: 110px 265px minmax(0, 1fr);
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+}
+
+.cyphersystem .wound-label {
+  font-weight: 600;
+}
+
+.cyphersystem .wound-controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.cyphersystem .wound-max-select {
+  flex: 0 0 52px;
+  width: 52px;
+  height: 28px;
+}
+
+.cyphersystem .wound-boxes {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  min-width: 0;
+}
+
+.cyphersystem .wound-box {
+  width: 16px;
+  height: 16px;
+  margin: 0;
+  cursor: pointer;
+}
+
+.cyphersystem .wound-effect {
+  min-height: 1.2em;
+  line-height: 1.2;
+  font-size: 0.9em;
+}
+
+.cyphersystem .wound-effect-minor {
+  color: #8a6d00;
+  font-weight: 600;
+}
+
+.cyphersystem .wound-effect-moderate {
+  color: #8b0000;
+  font-weight: 600;
+}
+
+.cyphersystem .wound-effect-major {
+  color: #8b0000;
+  font-weight: 600;
+}
+
+.cyphersystem .wound-effect-dead {
+  color: #000000;
+  font-weight: 700;
+}
+
+
+/* Cypher Roll Card ---------------------------------------------------------- */
+
+.cypher-roll-card {
+  --cypher-core-red: #b01932;
+  --cypher-core-red-dark: #7f1021;
+  --cypher-core-navy: #101b2b;
+  --cypher-core-ink: #17191d;
+  --cypher-core-paper: #f6f6f3;
+  --cypher-core-paper-soft: #eceeec;
+  --cypher-core-muted: #62676d;
+  --cypher-core-line: #b7babd;
+
+  --cypher-roll-failure-color: #b01932;
+  --cypher-roll-success-color: #168a50;
+  --cypher-roll-critical-color: #8b9636;
+  --cypher-roll-critical20-color: #b88620;
+  --cypher-roll-intrusion-color: #7f1021;
+  --cypher-roll-die-color: var(--cypher-roll-success-color);
+
+  overflow: hidden;
+  margin: 0;
+  padding: 0;
+  border: 1px solid #8d9195;
+  border-radius: 5px;
+  background: var(--cypher-core-paper);
+  color: var(--cypher-core-ink);
+  box-shadow:
+    inset 0 3px 0 var(--cypher-core-navy),
+    0 3px 8px rgba(0, 0, 0, 0.22);
+}
+
+/* Identity --------------------------------------------------------------- */
+
+.cypher-roll-card .cypher-roll-identity {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  min-height: 40px;
+  padding: 6px 10px;
+  border-bottom: 1px solid var(--cypher-core-line);
+  background:
+    linear-gradient(90deg, var(--cypher-core-navy), #1a2940 72%, var(--cypher-core-red));
+  color: #fff;
+}
+
+.cypher-roll-card .cypher-roll-identity-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  flex: 1 1 auto;
+}
+
+.cypher-roll-card .cypher-roll-avatar {
+  flex: 0 0 28px;
+  width: 28px;
+  height: 28px;
+  border: 1px solid rgba(255, 255, 255, 0.72);
+  border-radius: 50%;
+  object-fit: cover;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.42);
+}
+
+.cypher-roll-card .cypher-roll-identity-text {
+  display: flex;
+  align-items: baseline;
+  gap: 5px;
+  min-width: 0;
+}
+
+.cypher-roll-card .cypher-roll-character-name {
+  overflow: hidden;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.035em;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.cypher-roll-card .cypher-roll-player-name {
+  overflow: hidden;
+  color: rgba(255, 255, 255, 0.72);
+  font-size: 10px;
+  font-weight: 500;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.cypher-roll-card .cypher-roll-source-icon-wrap {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+}
+
+.cypher-roll-card .cypher-roll-source-icon {
+  width: 26px;
+  height: 26px;
+  border: 1px solid rgba(255, 255, 255, 0.68);
+  border-radius: 4px;
+  object-fit: cover;
+  background: rgba(255, 255, 255, 0.08);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.38);
+}
+
+/* Hero ------------------------------------------------------------------- */
+
+.cypher-roll-card .cypher-roll-hero {
+  display: grid;
+  grid-template-columns: 116px minmax(0, 1fr);
+  gap: 10px;
+  align-items: center;
+  min-height: 132px;
+  padding: 11px 10px 10px;
+  border-bottom: 1px solid var(--cypher-core-line);
+  background:
+    linear-gradient(135deg, rgba(176, 25, 50, 0.035) 0 22%, transparent 22% 100%),
+    #f9f9f7;
+}
+
+.cypher-roll-card .cypher-roll-die-column {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-width: 0;
+}
+
+.cypher-roll-card .cypher-roll-die {
+  position: relative;
+  width: 106px;
+  height: 106px;
+  --cypher-roll-die-color: var(--cypher-roll-success-color);
+  filter: drop-shadow(0 3px 3px rgba(0, 0, 0, 0.22));
+}
+
+.cypher-roll-card .cypher-roll-die-svg {
+  display: block;
+  width: 106px;
+  height: 106px;
+  overflow: visible;
+}
+
+.cypher-roll-card .cypher-roll-die-body {
+  fill: var(--cypher-roll-die-color);
+  stroke: rgba(0, 0, 0, 0.18);
+  stroke-width: 2;
+  stroke-linejoin: round;
+}
+
+.cypher-roll-card .cypher-roll-die-lines {
+  fill: none;
+  stroke: rgba(255, 255, 255, 0.96);
+  stroke-width: 3.4;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.cypher-roll-card .cypher-roll-natural {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 66px;
+  height: 54px;
+  transform: translate(-50%, -50%);
+  color: #fff;
+  font-size: 40px;
+  font-weight: 900;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  text-align: center;
+  text-shadow:
+    0 2px 0 rgba(0, 0, 0, 0.22),
+    0 0 4px rgba(0, 0, 0, 0.22);
+}
+
+/* Optical correction for Impact's digit 4. */
+.cypher-roll-card .cypher-roll-natural.cypher-roll-natural-4 {
+  transform: translate(calc(-50% - 3px), -50%);
+}
+
+.cypher-roll-card .cypher-roll-critical-badge {
+  min-height: 14px;
+  margin-top: 2px;
+  color: var(--cypher-roll-critical20-color);
+  font-size: 12px;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+.cypher-roll-card .cypher-roll-status {
+  width: 112px;
+  min-height: 20px;
+  margin-top: 1px;
+  color: var(--cypher-roll-success-color);
+  font-size: 13px;
+  font-weight: 900;
+  line-height: 1.08;
+  letter-spacing: 0.045em;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+/* Result color coding ---------------------------------------------------- */
+
+.cypher-roll-card.cypher-roll-failure .cypher-roll-die {
+  --cypher-roll-die-color: var(--cypher-roll-failure-color);
+}
+
+.cypher-roll-card.cypher-roll-failure .cypher-roll-status {
+  color: var(--cypher-roll-failure-color);
+}
+
+.cypher-roll-card.cypher-roll-success .cypher-roll-die {
+  --cypher-roll-die-color: var(--cypher-roll-success-color);
+}
+
+.cypher-roll-card.cypher-roll-success .cypher-roll-status {
+  color: var(--cypher-roll-success-color);
+}
+
+.cypher-roll-card.cypher-roll-critical .cypher-roll-die {
+  --cypher-roll-die-color: var(--cypher-roll-critical-color);
+}
+
+.cypher-roll-card.cypher-roll-critical .cypher-roll-status {
+  color: var(--cypher-roll-critical-color);
+}
+
+.cypher-roll-card.cypher-roll-critical20 .cypher-roll-die {
+  --cypher-roll-die-color: var(--cypher-roll-critical20-color);
+}
+
+.cypher-roll-card.cypher-roll-critical20 .cypher-roll-status,
+.cypher-roll-card.cypher-roll-critical20 .cypher-roll-critical-badge {
+  color: var(--cypher-roll-critical20-color);
+}
+
+.cypher-roll-card.cypher-roll-intrusion .cypher-roll-die {
+  --cypher-roll-die-color: var(--cypher-roll-intrusion-color);
+}
+
+.cypher-roll-card.cypher-roll-intrusion .cypher-roll-status {
+  width: auto;
+  min-width: 112px;
+  margin-top: 3px;
+  padding: 4px 7px;
+  border-radius: 2px;
+  background: var(--cypher-roll-intrusion-color);
+  color: #fff;
+  font-size: 13px;
+  letter-spacing: 0.055em;
+  box-shadow: 0 2px 4px rgba(127, 16, 33, 0.25);
+}
+
+/* Title and difficulty --------------------------------------------------- */
+
+.cypher-roll-card .cypher-roll-summary {
+  min-width: 0;
+  padding-right: 2px;
+}
+
+.cypher-roll-card .cypher-roll-title {
+  min-height: 44px;
+  text-align: right;
+  text-transform: uppercase;
+}
+
+.cypher-roll-card .cypher-roll-title-link,
+.cypher-roll-card .cypher-roll-title-static {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+}
+
+.cypher-roll-card .cypher-roll-title a,
+.cypher-roll-card .cypher-roll-title a:hover {
+  color: inherit;
+  text-decoration: none;
+}
+
+.cypher-roll-card .cypher-roll-title-category {
+  position: relative;
+  display: inline-block;
+  max-width: 100%;
+  padding-left: 31px;
+  color: var(--cypher-core-red);
+  font-size: 11px;
+  font-weight: 900;
+  line-height: 1.1;
+  letter-spacing: 0.11em;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+.cypher-roll-card .cypher-roll-title-category::before {
+  content: "///";
+  position: absolute;
+  left: 0;
+  top: -1px;
+  color: var(--cypher-core-red);
+  font-size: 14px;
+  font-weight: 900;
+  letter-spacing: -0.08em;
+}
+
+.cypher-roll-card .cypher-roll-title-name {
+  max-width: 100%;
+  color: var(--cypher-core-ink);
+  font-size: 18px;
+  font-weight: 900;
+  line-height: 1.02;
+  letter-spacing: 0.025em;
+  overflow-wrap: anywhere;
+}
+
+.cypher-roll-card .cypher-roll-divider {
+  width: 100%;
+  height: 2px;
+  margin: 6px 0 7px;
+  background:
+    linear-gradient(
+      90deg,
+      var(--cypher-core-red) 0 69%,
+      var(--cypher-core-ink) 69% 100%
+    );
+}
+
+.cypher-roll-card .cypher-roll-difficulty {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  column-gap: 8px;
+  min-height: 30px;
+}
+
+.cypher-roll-card .cypher-roll-difficulty-label {
+  color: var(--cypher-core-muted);
+  font-size: 10.5px;
+  font-weight: 800;
+  line-height: 1.05;
+  letter-spacing: 0.05em;
+  text-align: right;
+  text-transform: uppercase;
+}
+
+.cypher-roll-card .cypher-roll-difficulty-value {
+  min-width: 27px;
+  color: var(--cypher-core-ink);
+  font-size: 29px;
+  font-weight: 900;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}
+
+.cypher-roll-card .cypher-roll-formula-inline {
+  margin-top: 1px;
+  color: var(--cypher-core-muted);
+  font-family: monospace;
+  font-size: 10px;
+  line-height: 1.1;
+  text-align: right;
+}
+
+.cypher-roll-card .cypher-roll-outcome {
+  min-height: 16px;
+  margin-top: 5px;
+  color: var(--cypher-core-ink);
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 1.2;
+  text-align: right;
+}
+
+.cypher-roll-card .cypher-roll-outcome .roll-initiative,
+.cypher-roll-card .cypher-roll-outcome .roll-effect {
+  display: block;
+}
+
+/* Information boxes ----------------------------------------------------- */
+
+.cypher-roll-card .cypher-roll-info {
+  padding: 7px 8px 1px;
+}
+
+.cypher-roll-card .cypher-roll-info .roll-result-box {
+  margin: 0 0 6px;
+  padding: 7px 8px;
+  border: 1px solid #b9bbbd;
+  border-left: 3px solid var(--cypher-core-red);
+  border-radius: 2px;
+  background: #fff;
+  box-shadow: none;
+}
+
+.cypher-roll-card .cypher-roll-info .roll-result-difficulty,
+.cypher-roll-card .cypher-roll-info .roll-result-damage,
+.cypher-roll-card .cypher-roll-info .roll-result-cost {
+  color: var(--cypher-core-red);
+  font-size: 13px;
+  font-weight: 900;
+  line-height: 1.15;
+}
+
+.cypher-roll-card .chat-card-item-description {
+  margin: 7px 8px 0;
+  padding: 7px;
+  border: 1px solid #b9bbbd;
+  border-left: 3px solid var(--cypher-core-navy);
+  border-radius: 2px;
+  background: #fff;
+}
+
+.cypher-roll-card .chat-card-buttons {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  min-height: 24px;
+  padding: 4px 9px 2px;
+}
+
+.cypher-roll-card .chat-card-buttons a {
+  color: var(--cypher-core-red);
+}
+
+/* Remove Foundry's parchment-like shell around custom Cypher roll cards. */
+
+.chat-message:has(.cypher-roll-card),
+.message:has(.cypher-roll-card) {
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+}
+
+.chat-message:has(.cypher-roll-card) .message-content,
+.message:has(.cypher-roll-card) .message-content {
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+/*
+ * Keep the actual Roll attached to the message, but hide Foundry's stock
+ * visual dice block whenever this custom Cypher card is present.
+ */
+.chat-message:has(.cypher-roll-card) .dice-roll,
+.message:has(.cypher-roll-card) .dice-roll,
+.chat-message:has(.cypher-roll-card) .dice-tooltip,
+.message:has(.cypher-roll-card) .dice-tooltip {
+  display: none !important;
+}
+
+
+
+/* Cypher Chat Card Expansion 2026 ------------------------------------------ */
+
+/* Visible, opaque d20 ---------------------------------------------------- */
+
+.cypher-roll-card {
+  --cypher-roll-critical-color: #c3a83f;
+  --cypher-roll-critical20-color: #d3a421;
+}
+
+.cypher-roll-card .cypher-roll-die-icon {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 106px;
+  height: 106px;
+  transform: translate(-50%, -50%);
+  color: var(--cypher-roll-die-color);
+  font-size: 103px;
+  line-height: 106px;
+  text-align: center;
+}
+
+.cypher-roll-card .cypher-roll-natural {
+  font-size: 42px;
+}
+
+.cypher-roll-card.cypher-roll-critical .cypher-roll-die,
+.cypher-roll-card.cypher-roll-critical .cypher-roll-status {
+  color: var(--cypher-roll-critical-color);
+}
+
+.cypher-roll-card.cypher-roll-critical20 .cypher-roll-die {
+  filter:
+    drop-shadow(0 0 4px rgba(211, 164, 33, 0.82))
+    drop-shadow(0 0 9px rgba(211, 164, 33, 0.50));
+}
+
+.cypher-roll-card.cypher-roll-critical20 .cypher-roll-natural {
+  text-shadow:
+    0 2px 0 rgba(0, 0, 0, 0.22),
+    0 0 5px rgba(255, 232, 145, 0.90),
+    0 0 10px rgba(211, 164, 33, 0.78);
+}
+
+/* Recovery Roll --------------------------------------------------------- */
+
+.cypher-recovery-card {
+  --cypher-recovery-green: #168a50;
+  --cypher-recovery-green-dark: #0c6037;
+  --cypher-recovery-navy: #101b2b;
+  --cypher-recovery-ink: #17191d;
+  --cypher-recovery-muted: #62676d;
+  --cypher-recovery-line: #b7babd;
+
+  overflow: hidden;
+  border: 1px solid #8d9195;
+  border-radius: 5px;
+  background: #f6f6f3;
+  color: var(--cypher-recovery-ink);
+  box-shadow:
+    inset 0 3px 0 var(--cypher-recovery-navy),
+    0 3px 8px rgba(0, 0, 0, 0.22);
+}
+
+.cypher-recovery-card .cypher-recovery-identity {
+  display: flex;
+  align-items: center;
+  min-height: 40px;
+  padding: 6px 10px;
+  border-bottom: 1px solid var(--cypher-recovery-line);
+  background:
+    linear-gradient(
+      90deg,
+      var(--cypher-recovery-navy),
+      #1a2940 72%,
+      var(--cypher-recovery-green)
+    );
+  color: #fff;
+}
+
+.cypher-recovery-card .cypher-recovery-identity-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.cypher-recovery-card .cypher-recovery-avatar {
+  width: 28px;
+  height: 28px;
+  flex: 0 0 28px;
+  border: 1px solid rgba(255, 255, 255, 0.72);
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.cypher-recovery-card .cypher-recovery-identity-text {
+  display: flex;
+  align-items: baseline;
+  gap: 5px;
+  min-width: 0;
+}
+
+.cypher-recovery-card .cypher-recovery-character-name {
+  overflow: hidden;
+  font-size: 12px;
+  font-weight: 800;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.cypher-recovery-card .cypher-recovery-player-name {
+  overflow: hidden;
+  color: rgba(255, 255, 255, 0.72);
+  font-size: 10px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.cypher-recovery-card .cypher-recovery-hero {
+  display: grid;
+  grid-template-columns: 105px minmax(0, 1fr);
+  gap: 12px;
+  align-items: center;
+  padding: 12px 10px 10px;
+  background: #f9f9f7;
+}
+
+.cypher-recovery-card .cypher-recovery-die {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 96px;
+  height: 96px;
+  margin: 0 auto;
+  color: var(--cypher-recovery-green);
+}
+
+.cypher-recovery-card .cypher-recovery-die > i {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  font-size: 90px;
+  line-height: 96px;
+}
+
+.cypher-recovery-card .cypher-recovery-result {
+  position: relative;
+  z-index: 1;
+  color: #fff;
+  font-size: 36px;
+  font-weight: 900;
+  line-height: 1;
+  text-shadow: 0 2px 3px rgba(0, 0, 0, 0.35);
+}
+
+.cypher-recovery-card .cypher-recovery-summary {
+  min-width: 0;
+  text-align: right;
+}
+
+.cypher-recovery-card .cypher-recovery-category {
+  color: var(--cypher-recovery-green);
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 0.12em;
+}
+
+.cypher-recovery-card .cypher-recovery-title {
+  color: var(--cypher-recovery-ink);
+  font-size: 18px;
+  font-weight: 900;
+  line-height: 1.05;
+  letter-spacing: 0.025em;
+}
+
+.cypher-recovery-card .cypher-recovery-divider {
+  width: 100%;
+  height: 2px;
+  margin: 7px 0 6px;
+  background:
+    linear-gradient(
+      90deg,
+      var(--cypher-recovery-green) 0 72%,
+      var(--cypher-recovery-ink) 72% 100%
+    );
+}
+
+.cypher-recovery-card .cypher-recovery-formula {
+  color: var(--cypher-recovery-muted);
+  font-family: monospace;
+  font-size: 11px;
+}
+
+.cypher-recovery-card .cypher-recovery-description {
+  margin: 0 8px 7px;
+  padding: 7px 8px;
+  border: 1px solid #b9bbbd;
+  border-left: 3px solid var(--cypher-recovery-green);
+  background: #fff;
+  font-size: 11px;
+}
+
+.cypher-recovery-card .cypher-recovery-buttons {
+  display: flex;
+  justify-content: flex-end;
+  padding: 0 9px 8px;
+}
+
+.cypher-recovery-card .cypher-recovery-buttons a {
+  color: var(--cypher-recovery-green);
+}
+
+/* Item cards ------------------------------------------------------------ */
+
+.cypher-item-card {
+  --cypher-item-accent: #b01932;
+  --cypher-item-navy: #101b2b;
+  --cypher-item-ink: #17191d;
+  --cypher-item-muted: #62676d;
+  --cypher-item-line: #b7babd;
+
+  overflow: hidden;
+  border: 1px solid #8d9195;
+  border-radius: 5px;
+  background: #f6f6f3;
+  color: var(--cypher-item-ink);
+  box-shadow:
+    inset 0 3px 0 var(--cypher-item-navy),
+    0 3px 8px rgba(0, 0, 0, 0.22);
+}
+
+.cypher-item-card.cypher-item-accent-gray {
+  --cypher-item-accent: #73787d;
+}
+
+.cypher-item-card .cypher-item-identity {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  min-height: 40px;
+  padding: 6px 10px;
+  border-bottom: 1px solid var(--cypher-item-line);
+  background:
+    linear-gradient(
+      90deg,
+      var(--cypher-item-navy),
+      #1a2940 72%,
+      var(--cypher-item-accent)
+    );
+  color: #fff;
+}
+
+.cypher-item-card .cypher-item-identity-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.cypher-item-card .cypher-item-avatar {
+  width: 28px;
+  height: 28px;
+  flex: 0 0 28px;
+  border: 1px solid rgba(255, 255, 255, 0.72);
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.cypher-item-card .cypher-item-identity-text {
+  display: flex;
+  align-items: baseline;
+  gap: 5px;
+  min-width: 0;
+}
+
+.cypher-item-card .cypher-item-character-name {
+  overflow: hidden;
+  font-size: 12px;
+  font-weight: 800;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.cypher-item-card .cypher-item-player-name {
+  overflow: hidden;
+  color: rgba(255, 255, 255, 0.72);
+  font-size: 10px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.cypher-item-card .cypher-item-source-icon {
+  width: 28px;
+  height: 28px;
+  flex: 0 0 28px;
+  border: 1px solid rgba(255, 255, 255, 0.70);
+  border-radius: 4px;
+  object-fit: cover;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.cypher-item-card .cypher-item-heading {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  min-height: 72px;
+  padding: 11px 12px 7px;
+  background:
+    linear-gradient(
+      135deg,
+      color-mix(in srgb, var(--cypher-item-accent) 5%, transparent) 0 24%,
+      transparent 24% 100%
+    ),
+    #f9f9f7;
+}
+
+.cypher-item-card .cypher-item-heading-text {
+  min-width: 0;
+  text-align: right;
+}
+
+.cypher-item-card .cypher-item-type {
+  color: var(--cypher-item-accent);
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 0.12em;
+}
+
+.cypher-item-card .cypher-item-name {
+  color: var(--cypher-item-ink);
+  font-size: 18px;
+  font-weight: 900;
+  line-height: 1.05;
+  letter-spacing: 0.025em;
+  overflow-wrap: anywhere;
+}
+
+.cypher-item-card .cypher-item-name .content-link {
+  display: inline;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  color: inherit;
+  font: inherit;
+  letter-spacing: inherit;
+  line-height: inherit;
+  text-shadow: none;
+}
+
+.cypher-item-card .cypher-item-name .content-link > i {
+  display: none;
+}
+
+.cypher-item-card .cypher-item-name .content-link:hover,
+.cypher-item-card .cypher-item-name .content-link:focus-visible {
+  color: var(--cypher-item-accent);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.cypher-item-card .cypher-item-meta {
+  margin-top: 3px;
+  color: var(--cypher-item-muted);
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.cypher-item-card .cypher-item-divider {
+  height: 2px;
+  margin: 0 10px;
+  background:
+    linear-gradient(
+      90deg,
+      var(--cypher-item-accent) 0 72%,
+      var(--cypher-item-ink) 72% 100%
+    );
+}
+
+.cypher-item-card .cypher-item-body {
+  margin: 8px;
+  padding: 8px 9px;
+  border: 1px solid #b9bbbd;
+  border-left: 3px solid var(--cypher-item-accent);
+  background: #fff;
+  font-size: 11px;
+  line-height: 1.3;
+}
+
+.cypher-item-card .cypher-item-body > :first-child {
+  margin-top: 0;
+}
+
+.cypher-item-card .cypher-item-body > :last-child {
+  margin-bottom: 0;
+}
+
+/* Remove the parchment-like Foundry shell around all redesigned cards. */
+
+.chat-message:has(.cypher-recovery-card),
+.message:has(.cypher-recovery-card),
+.chat-message:has(.cypher-item-card),
+.message:has(.cypher-item-card) {
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+}
+
+.chat-message:has(.cypher-recovery-card) .message-content,
+.message:has(.cypher-recovery-card) .message-content,
+.chat-message:has(.cypher-item-card) .message-content,
+.message:has(.cypher-item-card) .message-content {
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+/* Keep the real recovery Roll, but hide Foundry's stock dice visualization. */
+
+.chat-message:has(.cypher-recovery-card) .dice-roll,
+.message:has(.cypher-recovery-card) .dice-roll,
+.chat-message:has(.cypher-recovery-card) .dice-tooltip,
+.message:has(.cypher-recovery-card) .dice-tooltip {
+  display: none !important;
+}
+
+
+/* Cypher Chat Card Status Polish 2026 ------------------------------------- */
+
+/* Roll card status badges ------------------------------------------------ */
+
+.cypher-roll-card .cypher-roll-natural {
+  top: 49%;
+  width: 58px;
+  height: 46px;
+  font-family: Arial, "Helvetica Neue", Helvetica, sans-serif;
+  font-size: 46px;
+  font-weight: 900;
+  letter-spacing: -0.04em;
+  text-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.28),
+    0 0 2px rgba(0, 0, 0, 0.18);
+}
+
+.cypher-roll-card .cypher-roll-die-icon {
+  font-size: 104px;
+  line-height: 106px;
+}
+
+.cypher-roll-card .cypher-roll-critical-badge {
+  display: none !important;
+}
+
+.cypher-roll-card .cypher-roll-status {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: auto;
+  min-width: 112px;
+  min-height: 24px;
+  margin-top: 4px;
+  padding: 4px 9px;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  border-radius: 3px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.18);
+  font-size: 12px;
+  font-weight: 900;
+  letter-spacing: 0.04em;
+  line-height: 1.05;
+  text-align: center;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.cypher-roll-card.cypher-roll-success .cypher-roll-status {
+  background: #168a50;
+  color: #ffffff;
+}
+
+.cypher-roll-card.cypher-roll-failure .cypher-roll-status {
+  background: #b01932;
+  color: #ffffff;
+}
+
+.cypher-roll-card.cypher-roll-critical .cypher-roll-status {
+  background: #ccb042;
+  color: #1b1b1b;
+}
+
+.cypher-roll-card.cypher-roll-critical20 .cypher-roll-status {
+  background: #e0b83a;
+  color: #1b1b1b;
+  box-shadow:
+    0 0 0 1px rgba(183, 142, 32, 0.15),
+    0 0 10px rgba(224, 184, 58, 0.40);
+}
+
+.cypher-roll-card.cypher-roll-intrusion .cypher-roll-status {
+  background: #7f1021;
+  color: #ffffff;
+}
+
+.cypher-roll-card.cypher-roll-critical .cypher-roll-die {
+  filter:
+    drop-shadow(0 0 3px rgba(204, 176, 66, 0.35))
+    drop-shadow(0 3px 3px rgba(0, 0, 0, 0.22));
+}
+
+.cypher-roll-card.cypher-roll-critical20 .cypher-roll-die {
+  filter:
+    drop-shadow(0 0 5px rgba(224, 184, 58, 0.82))
+    drop-shadow(0 0 10px rgba(224, 184, 58, 0.44))
+    drop-shadow(0 3px 3px rgba(0, 0, 0, 0.22));
+}
+
+.cypher-roll-card.cypher-roll-critical20 .cypher-roll-natural {
+  text-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.28),
+    0 0 6px rgba(255, 236, 157, 0.90),
+    0 0 11px rgba(224, 184, 58, 0.74);
+}
+
+/* Recovery roll refinements --------------------------------------------- */
+
+.cypher-recovery-card .cypher-recovery-identity {
+  justify-content: space-between;
+}
+
+.cypher-recovery-card .cypher-recovery-source-icon-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border: 1px solid rgba(255, 255, 255, 0.72);
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.08);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.38);
+}
+
+.cypher-recovery-card .cypher-recovery-source-icon-wrap > i {
+  color: #ffffff;
+  font-size: 16px;
+  line-height: 1;
+}
+
+.cypher-recovery-card .cypher-recovery-description {
+  padding: 8px 9px;
+  border-left-width: 4px;
+  background: #ffffff;
+  color: #0d6439;
+  font-size: 12px;
+  font-weight: 800;
+  line-height: 1.32;
+}
+
+
+/* Cypher Chat Card Neutral + Legacy Item Fix 2026 ------------------------- */
+
+/* Better die legibility -------------------------------------------------- */
+
+.cypher-roll-card .cypher-roll-natural {
+  top: 50%;
+  min-width: 52px;
+  width: auto;
+  height: auto;
+  padding: 4px 8px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.86);
+  color: #12161d;
+  font-family: Arial, "Helvetica Neue", Helvetica, sans-serif;
+  font-size: 42px;
+  font-weight: 900;
+  letter-spacing: -0.045em;
+  line-height: 1;
+  text-shadow: none;
+  box-shadow:
+    0 1px 3px rgba(0, 0, 0, 0.18),
+    inset 0 1px 0 rgba(255, 255, 255, 0.66);
+}
+
+.cypher-roll-card .cypher-roll-die-icon {
+  font-size: 106px;
+  line-height: 106px;
+}
+
+/* Neutral state for rolls without a target difficulty -------------------- */
+
+.cypher-roll-card {
+  --cypher-roll-neutral-color: #4e545d;
+}
+
+.cypher-roll-card.cypher-roll-neutral .cypher-roll-die {
+  --cypher-roll-die-color: var(--cypher-roll-neutral-color);
+  filter:
+    drop-shadow(0 2px 3px rgba(0, 0, 0, 0.20))
+    drop-shadow(0 0 1px rgba(0, 0, 0, 0.16));
+}
+
+.cypher-roll-card.cypher-roll-neutral .cypher-roll-status {
+  display: none !important;
+}
+
+/* Slightly warmer critical colors --------------------------------------- */
+
+.cypher-roll-card {
+  --cypher-roll-critical-color: #c9ad45;
+  --cypher-roll-critical20-color: #e1b53a;
+}
+
+/* Legacy item cards body cleanup ---------------------------------------- */
+
+.cypher-item-card .cypher-item-body img.description-image-chat {
+  display: none !important;
+}
+
+.cypher-item-card .cypher-item-body hr:first-of-type {
+  display: none;
+}
+
+/* Cypher Dice Visual Refresh 2026 --------------------------------------- */
+
+.cypher-roll-card .cypher-roll-die {
+  position: relative;
+  width: 118px;
+  height: 180px;
+  margin: 0 auto;
+  filter: drop-shadow(0 3px 4px rgba(0, 0, 0, 0.18));
+}
+
+.cypher-roll-card .cypher-roll-die-icon {
+  display: none !important;
+}
+
+.cypher-roll-card .cypher-roll-die::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: contain;
+}
+
+.cypher-roll-card.cypher-roll-failure .cypher-roll-die::before {
+  background-image: url("data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20viewBox%3D%270%200%20120%20120%27%3E%0A%3Cpolygon%20points%3D%2760%2C4%20103%2C28%20103%2C92%2060%2C116%2017%2C92%2017%2C28%27%20fill%3D%27%23b01932%27%2F%3E%0A%3Cpath%20d%3D%27M60%204%20L28%2037%20L60%2068%20L92%2037%20Z%0A%20%20%20%20%20%20%20%20%20M28%2037%20L17%2092%20L60%2068%20L103%2092%20L92%2037%0A%20%20%20%20%20%20%20%20%20M60%204%20L60%20116%0A%20%20%20%20%20%20%20%20%20M17%2092%20L60%2068%20L103%2092%27%0A%20%20%20%20%20%20fill%3D%27none%27%20stroke%3D%27%2523ffffff%27%20stroke-width%3D%274.2%27%20stroke-linecap%3D%27round%27%20stroke-linejoin%3D%27round%27%2F%3E%0A%3C%2Fsvg%3E");
+}
+
+.cypher-roll-card.cypher-roll-success .cypher-roll-die::before {
+  background-image: url("data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20viewBox%3D%270%200%20120%20120%27%3E%0A%3Cpolygon%20points%3D%2760%2C4%20103%2C28%20103%2C92%2060%2C116%2017%2C92%2017%2C28%27%20fill%3D%27%23168a50%27%2F%3E%0A%3Cpath%20d%3D%27M60%204%20L28%2037%20L60%2068%20L92%2037%20Z%0A%20%20%20%20%20%20%20%20%20M28%2037%20L17%2092%20L60%2068%20L103%2092%20L92%2037%0A%20%20%20%20%20%20%20%20%20M60%204%20L60%20116%0A%20%20%20%20%20%20%20%20%20M17%2092%20L60%2068%20L103%2092%27%0A%20%20%20%20%20%20fill%3D%27none%27%20stroke%3D%27%2523ffffff%27%20stroke-width%3D%274.2%27%20stroke-linecap%3D%27round%27%20stroke-linejoin%3D%27round%27%2F%3E%0A%3C%2Fsvg%3E");
+}
+
+.cypher-roll-card.cypher-roll-critical .cypher-roll-die::before {
+  background-image: url("data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20viewBox%3D%270%200%20120%20120%27%3E%0A%3Cpolygon%20points%3D%2760%2C4%20103%2C28%20103%2C92%2060%2C116%2017%2C92%2017%2C28%27%20fill%3D%27%23d0b14c%27%2F%3E%0A%3Cpath%20d%3D%27M60%204%20L28%2037%20L60%2068%20L92%2037%20Z%0A%20%20%20%20%20%20%20%20%20M28%2037%20L17%2092%20L60%2068%20L103%2092%20L92%2037%0A%20%20%20%20%20%20%20%20%20M60%204%20L60%20116%0A%20%20%20%20%20%20%20%20%20M17%2092%20L60%2068%20L103%2092%27%0A%20%20%20%20%20%20fill%3D%27none%27%20stroke%3D%27%2523ffffff%27%20stroke-width%3D%274.2%27%20stroke-linecap%3D%27round%27%20stroke-linejoin%3D%27round%27%2F%3E%0A%3C%2Fsvg%3E");
+}
+
+.cypher-roll-card.cypher-roll-critical20 .cypher-roll-die::before {
+  background-image: url("data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20viewBox%3D%270%200%20120%20120%27%3E%0A%3Cpolygon%20points%3D%2760%2C4%20103%2C28%20103%2C92%2060%2C116%2017%2C92%2017%2C28%27%20fill%3D%27%23e2b63f%27%2F%3E%0A%3Cpath%20d%3D%27M60%204%20L28%2037%20L60%2068%20L92%2037%20Z%0A%20%20%20%20%20%20%20%20%20M28%2037%20L17%2092%20L60%2068%20L103%2092%20L92%2037%0A%20%20%20%20%20%20%20%20%20M60%204%20L60%20116%0A%20%20%20%20%20%20%20%20%20M17%2092%20L60%2068%20L103%2092%27%0A%20%20%20%20%20%20fill%3D%27none%27%20stroke%3D%27%2523ffffff%27%20stroke-width%3D%274.2%27%20stroke-linecap%3D%27round%27%20stroke-linejoin%3D%27round%27%2F%3E%0A%3C%2Fsvg%3E");
+}
+
+.cypher-roll-card.cypher-roll-intrusion .cypher-roll-die::before {
+  background-image: url("data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20viewBox%3D%270%200%20120%20120%27%3E%0A%3Cpolygon%20points%3D%2760%2C4%20103%2C28%20103%2C92%2060%2C116%2017%2C92%2017%2C28%27%20fill%3D%27%237f1021%27%2F%3E%0A%3Cpath%20d%3D%27M60%204%20L28%2037%20L60%2068%20L92%2037%20Z%0A%20%20%20%20%20%20%20%20%20M28%2037%20L17%2092%20L60%2068%20L103%2092%20L92%2037%0A%20%20%20%20%20%20%20%20%20M60%204%20L60%20116%0A%20%20%20%20%20%20%20%20%20M17%2092%20L60%2068%20L103%2092%27%0A%20%20%20%20%20%20fill%3D%27none%27%20stroke%3D%27%2523ffffff%27%20stroke-width%3D%274.2%27%20stroke-linecap%3D%27round%27%20stroke-linejoin%3D%27round%27%2F%3E%0A%3C%2Fsvg%3E");
+}
+
+.cypher-roll-card.cypher-roll-neutral .cypher-roll-die::before {
+  background-image: url("data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20viewBox%3D%270%200%20120%20120%27%3E%0A%3Cpolygon%20points%3D%2760%2C4%20103%2C28%20103%2C92%2060%2C116%2017%2C92%2017%2C28%27%20fill%3D%27%234e545d%27%2F%3E%0A%3Cpath%20d%3D%27M60%204%20L28%2037%20L60%2068%20L92%2037%20Z%0A%20%20%20%20%20%20%20%20%20M28%2037%20L17%2092%20L60%2068%20L103%2092%20L92%2037%0A%20%20%20%20%20%20%20%20%20M60%204%20L60%20116%0A%20%20%20%20%20%20%20%20%20M17%2092%20L60%2068%20L103%2092%27%0A%20%20%20%20%20%20fill%3D%27none%27%20stroke%3D%27%2523ffffff%27%20stroke-width%3D%274.2%27%20stroke-linecap%3D%27round%27%20stroke-linejoin%3D%27round%27%2F%3E%0A%3C%2Fsvg%3E");
+}
+
+.cypher-roll-card .cypher-roll-natural {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  z-index: 2;
+  display: block;
+  width: auto;
+  height: auto;
+  min-width: 0;
+  padding: 0;
+  transform: translate(-50%, -52%);
+  background: none;
+  color: #ffffff;
+  font-family: Impact, Haettenschweiler, "Arial Narrow Bold", Arial, sans-serif;
+  font-size: 58px;
+  font-weight: 900;
+  letter-spacing: -0.04em;
+  line-height: 1;
+  text-align: center;
+  text-shadow:
+    0 2px 3px rgba(0, 0, 0, 0.24),
+    0 0 1px rgba(0, 0, 0, 0.20);
+  -webkit-text-stroke: 1.6px rgba(0, 0, 0, 0.10);
+  box-shadow: none;
+}
+
+/* Optical correction for the Impact font's digit 4. */
+.cypher-roll-card .cypher-roll-natural[data-natural="4"] {
+  left: calc(50% - 3px);
+}
+
+.cypher-roll-card.cypher-roll-critical20 .cypher-roll-die {
+  filter:
+    drop-shadow(0 0 5px rgba(226, 182, 63, 0.78))
+    drop-shadow(0 0 10px rgba(226, 182, 63, 0.42))
+    drop-shadow(0 3px 4px rgba(0, 0, 0, 0.18));
+}
+
+/* Optical correction for the Impact font's digit 4. */
+.cypher-roll-card .cypher-roll-natural[data-natural="4"] {
+  left: calc(50% - 3px);
+}
+
+.cypher-recovery-card .cypher-recovery-die {
+  position: relative;
+  width: 104px;
+  height: 104px;
+  margin: 0 auto;
+  color: transparent;
+}
+
+.cypher-recovery-card .cypher-recovery-die > i {
+  display: none !important;
+}
+
+.cypher-recovery-card .cypher-recovery-die::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: center / contain no-repeat url("data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20viewBox%3D%270%200%20120%20120%27%3E%0A%3Cpolygon%20points%3D%2760%2C6%2098%2C24%2098%2C96%2060%2C114%2022%2C96%2022%2C24%27%20fill%3D%27%23168a50%27%2F%3E%0A%3Cpath%20d%3D%27M60%2020%20L60%20100%0A%20%20%20%20%20%20%20%20%20M60%2020%20L33%2043%0A%20%20%20%20%20%20%20%20%20M60%2020%20L87%2043%27%0A%20%20%20%20%20%20fill%3D%27none%27%20stroke%3D%27%2523ffffff%27%20stroke-width%3D%278%27%20stroke-linecap%3D%27round%27%20stroke-linejoin%3D%27round%27%2F%3E%0A%3C%2Fsvg%3E");
+  filter: drop-shadow(0 3px 4px rgba(0, 0, 0, 0.18));
+}
+
+.cypher-recovery-card .cypher-recovery-result {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  z-index: 1;
+  transform: translate(-50%, -52%);
+  color: #ffffff;
+  font-family: Impact, Haettenschweiler, "Arial Narrow Bold", Arial, sans-serif;
+  font-size: 52px;
+  font-weight: 900;
+  line-height: 1;
+  letter-spacing: -0.04em;
+  text-shadow:
+    0 2px 3px rgba(0, 0, 0, 0.24),
+    0 0 1px rgba(0, 0, 0, 0.20);
+  -webkit-text-stroke: 1.5px rgba(0, 0, 0, 0.10);
+}
+
+/* Cypher Final Dice + Badge Tuning 2026 --------------------------------- */
+
+/* Symmetric flat d20 badge */
+
+.cypher-roll-card .cypher-roll-die {
+  position: relative;
+  width: 122px;
+  height: 122px;
+  margin: 0 auto;
+  filter: drop-shadow(0 3px 4px rgba(0, 0, 0, 0.18));
+}
+
+.cypher-roll-card .cypher-roll-die-icon {
+  display: none !important;
+}
+
+.cypher-roll-card .cypher-roll-die::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: contain;
+}
+
+.cypher-roll-card.cypher-roll-failure .cypher-roll-die::before {
+  background-image: url("data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20viewBox%3D%270%200%20120%20120%27%3E%0A%20%20%3Cpolygon%20points%3D%2760%2C8%20103%2C39%2086%2C108%2034%2C108%2017%2C39%27%20fill%3D%27%23b01932%27%2F%3E%0A%20%20%3Cpath%20d%3D%27M60%208%20L17%2039%20L34%20108%20L86%20108%20L103%2039%20Z%0A%20%20%20%20%20%20%20%20%20%20%20M60%208%20L60%2072%0A%20%20%20%20%20%20%20%20%20%20%20M17%2039%20L60%2072%20L103%2039%0A%20%20%20%20%20%20%20%20%20%20%20M34%20108%20L60%2072%20L86%20108%0A%20%20%20%20%20%20%20%20%20%20%20M17%2039%20L34%20108%0A%20%20%20%20%20%20%20%20%20%20%20M103%2039%20L86%20108%27%0A%20%20%20%20%20%20%20%20fill%3D%27none%27%20stroke%3D%27%2523ffffff%27%20stroke-width%3D%274.3%27%20stroke-linecap%3D%27round%27%20stroke-linejoin%3D%27round%27%2F%3E%0A%3C%2Fsvg%3E");
+}
+
+.cypher-roll-card.cypher-roll-success .cypher-roll-die::before {
+  background-image: url("data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20viewBox%3D%270%200%20120%20120%27%3E%0A%20%20%3Cpolygon%20points%3D%2760%2C8%20103%2C39%2086%2C108%2034%2C108%2017%2C39%27%20fill%3D%27%23168a50%27%2F%3E%0A%20%20%3Cpath%20d%3D%27M60%208%20L17%2039%20L34%20108%20L86%20108%20L103%2039%20Z%0A%20%20%20%20%20%20%20%20%20%20%20M60%208%20L60%2072%0A%20%20%20%20%20%20%20%20%20%20%20M17%2039%20L60%2072%20L103%2039%0A%20%20%20%20%20%20%20%20%20%20%20M34%20108%20L60%2072%20L86%20108%0A%20%20%20%20%20%20%20%20%20%20%20M17%2039%20L34%20108%0A%20%20%20%20%20%20%20%20%20%20%20M103%2039%20L86%20108%27%0A%20%20%20%20%20%20%20%20fill%3D%27none%27%20stroke%3D%27%2523ffffff%27%20stroke-width%3D%274.3%27%20stroke-linecap%3D%27round%27%20stroke-linejoin%3D%27round%27%2F%3E%0A%3C%2Fsvg%3E");
+}
+
+.cypher-roll-card.cypher-roll-critical .cypher-roll-die::before {
+  background-image: url("data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20viewBox%3D%270%200%20120%20120%27%3E%0A%20%20%3Cpolygon%20points%3D%2760%2C8%20103%2C39%2086%2C108%2034%2C108%2017%2C39%27%20fill%3D%27%23d0b14c%27%2F%3E%0A%20%20%3Cpath%20d%3D%27M60%208%20L17%2039%20L34%20108%20L86%20108%20L103%2039%20Z%0A%20%20%20%20%20%20%20%20%20%20%20M60%208%20L60%2072%0A%20%20%20%20%20%20%20%20%20%20%20M17%2039%20L60%2072%20L103%2039%0A%20%20%20%20%20%20%20%20%20%20%20M34%20108%20L60%2072%20L86%20108%0A%20%20%20%20%20%20%20%20%20%20%20M17%2039%20L34%20108%0A%20%20%20%20%20%20%20%20%20%20%20M103%2039%20L86%20108%27%0A%20%20%20%20%20%20%20%20fill%3D%27none%27%20stroke%3D%27%2523ffffff%27%20stroke-width%3D%274.3%27%20stroke-linecap%3D%27round%27%20stroke-linejoin%3D%27round%27%2F%3E%0A%3C%2Fsvg%3E");
+}
+
+.cypher-roll-card.cypher-roll-critical20 .cypher-roll-die::before {
+  background-image: url("data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20viewBox%3D%270%200%20120%20120%27%3E%0A%20%20%3Cpolygon%20points%3D%2760%2C8%20103%2C39%2086%2C108%2034%2C108%2017%2C39%27%20fill%3D%27%23e2b63f%27%2F%3E%0A%20%20%3Cpath%20d%3D%27M60%208%20L17%2039%20L34%20108%20L86%20108%20L103%2039%20Z%0A%20%20%20%20%20%20%20%20%20%20%20M60%208%20L60%2072%0A%20%20%20%20%20%20%20%20%20%20%20M17%2039%20L60%2072%20L103%2039%0A%20%20%20%20%20%20%20%20%20%20%20M34%20108%20L60%2072%20L86%20108%0A%20%20%20%20%20%20%20%20%20%20%20M17%2039%20L34%20108%0A%20%20%20%20%20%20%20%20%20%20%20M103%2039%20L86%20108%27%0A%20%20%20%20%20%20%20%20fill%3D%27none%27%20stroke%3D%27%2523ffffff%27%20stroke-width%3D%274.3%27%20stroke-linecap%3D%27round%27%20stroke-linejoin%3D%27round%27%2F%3E%0A%3C%2Fsvg%3E");
+}
+
+.cypher-roll-card.cypher-roll-intrusion .cypher-roll-die::before {
+  background-image: url("data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20viewBox%3D%270%200%20120%20120%27%3E%0A%20%20%3Cpolygon%20points%3D%2760%2C8%20103%2C39%2086%2C108%2034%2C108%2017%2C39%27%20fill%3D%27%237f1021%27%2F%3E%0A%20%20%3Cpath%20d%3D%27M60%208%20L17%2039%20L34%20108%20L86%20108%20L103%2039%20Z%0A%20%20%20%20%20%20%20%20%20%20%20M60%208%20L60%2072%0A%20%20%20%20%20%20%20%20%20%20%20M17%2039%20L60%2072%20L103%2039%0A%20%20%20%20%20%20%20%20%20%20%20M34%20108%20L60%2072%20L86%20108%0A%20%20%20%20%20%20%20%20%20%20%20M17%2039%20L34%20108%0A%20%20%20%20%20%20%20%20%20%20%20M103%2039%20L86%20108%27%0A%20%20%20%20%20%20%20%20fill%3D%27none%27%20stroke%3D%27%2523ffffff%27%20stroke-width%3D%274.3%27%20stroke-linecap%3D%27round%27%20stroke-linejoin%3D%27round%27%2F%3E%0A%3C%2Fsvg%3E");
+}
+
+.cypher-roll-card.cypher-roll-neutral .cypher-roll-die::before {
+  background-image: url("data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20viewBox%3D%270%200%20120%20120%27%3E%0A%20%20%3Cpolygon%20points%3D%2760%2C8%20103%2C39%2086%2C108%2034%2C108%2017%2C39%27%20fill%3D%27%234e545d%27%2F%3E%0A%20%20%3Cpath%20d%3D%27M60%208%20L17%2039%20L34%20108%20L86%20108%20L103%2039%20Z%0A%20%20%20%20%20%20%20%20%20%20%20M60%208%20L60%2072%0A%20%20%20%20%20%20%20%20%20%20%20M17%2039%20L60%2072%20L103%2039%0A%20%20%20%20%20%20%20%20%20%20%20M34%20108%20L60%2072%20L86%20108%0A%20%20%20%20%20%20%20%20%20%20%20M17%2039%20L34%20108%0A%20%20%20%20%20%20%20%20%20%20%20M103%2039%20L86%20108%27%0A%20%20%20%20%20%20%20%20fill%3D%27none%27%20stroke%3D%27%2523ffffff%27%20stroke-width%3D%274.3%27%20stroke-linecap%3D%27round%27%20stroke-linejoin%3D%27round%27%2F%3E%0A%3C%2Fsvg%3E");
+}
+
+.cypher-roll-card .cypher-roll-natural {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  z-index: 2;
+  display: block;
+  width: auto;
+  min-width: 0;
+  height: auto;
+  padding: 0;
+  transform: translate(-50%, -52%);
+  background: none;
+  color: #ffffff;
+  font-family: Impact, Haettenschweiler, "Arial Narrow Bold", Arial, sans-serif;
+  font-size: 60px;
+  font-weight: 900;
+  letter-spacing: -0.04em;
+  line-height: 1;
+  text-align: center;
+  text-shadow:
+    0 2px 3px rgba(0, 0, 0, 0.24),
+    0 0 1px rgba(0, 0, 0, 0.18);
+  -webkit-text-stroke: 1.4px rgba(0, 0, 0, 0.12);
+  box-shadow: none;
+}
+
+.cypher-roll-card.cypher-roll-critical20 .cypher-roll-die {
+  filter:
+    drop-shadow(0 0 5px rgba(226, 182, 63, 0.78))
+    drop-shadow(0 0 10px rgba(226, 182, 63, 0.42))
+    drop-shadow(0 3px 4px rgba(0, 0, 0, 0.18));
+}
+
+/* Recovery should use a square d6-style badge */
+
+.cypher-recovery-card .cypher-recovery-die {
+  position: relative;
+  width: 102px;
+  height: 102px;
+  margin: 0 auto;
+  color: transparent;
+}
+
+.cypher-recovery-card .cypher-recovery-die > i {
+  display: none !important;
+}
+
+.cypher-recovery-card .cypher-recovery-die::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: center / contain no-repeat url("data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20viewBox%3D%270%200%20120%20120%27%3E%0A%20%20%3Crect%20x%3D%2714%27%20y%3D%2714%27%20width%3D%2792%27%20height%3D%2792%27%20rx%3D%278%27%20ry%3D%278%27%20fill%3D%27%23168a50%27%2F%3E%0A%20%20%3Cpath%20d%3D%27M60%2026%20L60%2094%0A%20%20%20%20%20%20%20%20%20%20%20M60%2026%20L34%2048%0A%20%20%20%20%20%20%20%20%20%20%20M60%2026%20L86%2048%27%0A%20%20%20%20%20%20%20%20fill%3D%27none%27%20stroke%3D%27%2523ffffff%27%20stroke-width%3D%278%27%20stroke-linecap%3D%27round%27%20stroke-linejoin%3D%27round%27%2F%3E%0A%3C%2Fsvg%3E");
+  filter: drop-shadow(0 3px 4px rgba(0, 0, 0, 0.18));
+}
+
+.cypher-recovery-card .cypher-recovery-result {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  z-index: 1;
+  transform: translate(-50%, -52%);
+  color: #ffffff;
+  font-family: Impact, Haettenschweiler, "Arial Narrow Bold", Arial, sans-serif;
+  font-size: 52px;
+  font-weight: 900;
+  line-height: 1;
+  letter-spacing: -0.04em;
+  text-shadow:
+    0 2px 3px rgba(0, 0, 0, 0.24),
+    0 0 1px rgba(0, 0, 0, 0.18);
+  -webkit-text-stroke: 1.3px rgba(0, 0, 0, 0.10);
+}
+
+/* Status badges: same box model as GM Intrusion, tuned critical palette */
+
+.cypher-roll-card .cypher-roll-status {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: auto;
+  min-width: 116px;
+  min-height: 28px;
+  margin-top: 4px;
+  padding: 5px 10px;
+  border: 1px solid rgba(0, 0, 0, 0.14);
+  border-radius: 3px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.18);
+  font-size: 12px;
+  font-weight: 900;
+  letter-spacing: 0.04em;
+  line-height: 1;
+  text-align: center;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.cypher-roll-card.cypher-roll-success .cypher-roll-status {
+  background: #168a50;
+  color: #ffffff;
+}
+
+.cypher-roll-card.cypher-roll-failure .cypher-roll-status {
+  background: #b01932;
+  color: #ffffff;
+}
+
+.cypher-roll-card.cypher-roll-critical .cypher-roll-status,
+.cypher-roll-card.cypher-roll-critical20 .cypher-roll-status {
+  background: #e0b83a;
+  color: #5a3900;
+}
+
+.cypher-roll-card.cypher-roll-critical20 .cypher-roll-status {
+  box-shadow:
+    0 0 0 1px rgba(183, 142, 32, 0.15),
+    0 0 10px rgba(224, 184, 58, 0.40);
+}
+
+.cypher-roll-card.cypher-roll-intrusion .cypher-roll-status {
+  background: #7f1021;
+  color: #ffffff;
+}
+
+/* Cypher d20 geometry fix 2026 ------------------------------------------ */
+/*
+ * Opaque, balanced flat d20.
+ * Symmetric silhouette and properly centered numeric display.
+ */
+
+/* Recovery card: use a flat square d6 badge. */
+
+.cypher-recovery-card .cypher-recovery-die {
+  position: relative;
+  width: 98px;
+  height: 98px;
+  margin: 0 auto;
+  aspect-ratio: 1 / 1;
+  color: transparent;
+}
+
+.cypher-recovery-card .cypher-recovery-die > i {
+  display: none !important;
+}
+
+.cypher-recovery-card .cypher-recovery-die::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: center / contain no-repeat url("data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20viewBox%3D%270%200%20120%20120%27%3E%0A%20%20%3Crect%20x%3D%2714%27%20y%3D%2714%27%20width%3D%2792%27%20height%3D%2792%27%20rx%3D%276%27%20ry%3D%276%27%20fill%3D%27%23168a50%27%2F%3E%0A%20%20%3Cpath%20d%3D%27M60%2028%20L60%2092%0A%20%20%20%20%20%20%20%20%20%20%20M60%2028%20L34%2050%0A%20%20%20%20%20%20%20%20%20%20%20M60%2028%20L86%2050%27%0A%20%20%20%20%20%20%20%20fill%3D%27none%27%20stroke%3D%27%2523ffffff%27%20stroke-width%3D%278%27%20stroke-linecap%3D%27round%27%20stroke-linejoin%3D%27round%27%2F%3E%0A%3C%2Fsvg%3E");
+  filter: drop-shadow(0 3px 4px rgba(0, 0, 0, 0.18));
+}
+
+.cypher-recovery-card .cypher-recovery-result {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  z-index: 1;
+  transform: translate(-50%, -52%);
+  color: #ffffff;
+  font-family: Impact, Haettenschweiler, "Arial Narrow Bold", Arial, sans-serif;
+  font-size: 50px;
+  font-weight: 900;
+  line-height: 1;
+  letter-spacing: -0.04em;
+  text-shadow:
+    0 2px 3px rgba(0, 0, 0, 0.24),
+    0 0 1px rgba(0, 0, 0, 0.18);
+  -webkit-text-stroke: 1.3px rgba(0, 0, 0, 0.10);
+}
+
+/* Status badges: align all of them with the GM Intrusion box model. */
+
+.cypher-roll-card .cypher-roll-status {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: auto;
+  min-width: 118px;
+  min-height: 28px;
+  margin: 4px 0 0;
+  padding: 5px 10px;
+  border: 1px solid rgba(0, 0, 0, 0.14);
+  border-radius: 3px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.18);
+  font-size: 12px;
+  font-weight: 900;
+  letter-spacing: 0.04em;
+  line-height: 1;
+  text-align: center;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.cypher-roll-card.cypher-roll-success .cypher-roll-status {
+  background: #168a50;
+  color: #ffffff;
+}
+
+.cypher-roll-card.cypher-roll-failure .cypher-roll-status {
+  background: #b01932;
+  color: #ffffff;
+}
+
+.cypher-roll-card.cypher-roll-critical .cypher-roll-status,
+.cypher-roll-card.cypher-roll-critical20 .cypher-roll-status {
+  background: #e0b83a;
+  color: #5a3900;
+}
+
+.cypher-roll-card.cypher-roll-critical20 .cypher-roll-status {
+  box-shadow:
+    0 0 0 1px rgba(183, 142, 32, 0.15),
+    0 0 10px rgba(224, 184, 58, 0.40);
+}
+
+.cypher-roll-card.cypher-roll-intrusion .cypher-roll-status {
+  background: #7f1021;
+  color: #ffffff;
+}
+
+/* Cypher d20 geometry fix 2026 ------------------------------------------ */
+/*
+ * Opaque, balanced flat d20.
+ * Symmetric silhouette.
+ */
+
+.cypher-roll-card .cypher-roll-die {
+  position: relative;
+  width: 118px;
+  height: 120px;
+  margin: 0 auto;
+  aspect-ratio: auto;
+  filter: drop-shadow(0 3px 4px rgba(0, 0, 0, 0.18));
+}
+
+.cypher-roll-card .cypher-roll-die-icon {
+  display: none !important;
+}
+
+.cypher-roll-card .cypher-roll-die::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+
+  background-color: var(--cypher-roll-die-color);
+  background-image: none !important;
+
+  -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 120'%3E%3Cpath fill='white' d='M60 8 L110 34 L110 86 L60 112 L10 86 L10 34 Z'/%3E%3C/svg%3E");
+  -webkit-mask-position: center;
+  -webkit-mask-repeat: no-repeat;
+  -webkit-mask-size: contain;
+
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 120'%3E%3Cpath fill='white' d='M60 8 L110 34 L110 86 L60 112 L10 86 L10 34 Z'/%3E%3C/svg%3E");
+  mask-position: center;
+  mask-repeat: no-repeat;
+  mask-size: contain;
+}
+
+.cypher-roll-card .cypher-roll-die::after {
+  content: none !important;
+  display: none !important;
+}
+
+.cypher-roll-card .cypher-roll-natural {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  z-index: 2;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 76px;
+  height: 64px;
+  min-width: 76px;
+  padding: 0;
+  margin: 0;
+
+  transform: translate(-50%, -50%);
+
+  background: none;
+  box-shadow: none;
+
+  color: #ffffff;
+  font-family: Impact, Haettenschweiler, "Arial Narrow Bold", Arial, sans-serif;
+  font-size: 57px;
+  font-weight: 900;
+  line-height: 1;
+  letter-spacing: 0;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+
+  text-shadow:
+    0 2px 3px rgba(0, 0, 0, 0.24),
+    0 0 1px rgba(0, 0, 0, 0.18);
+
+  -webkit-text-stroke: 1.4px rgba(0, 0, 0, 0.12);
+}
+
+.cypher-roll-card.cypher-roll-critical20 .cypher-roll-status {
+  margin-left: 6px;
+}
+
+.cypher-roll-card.cypher-roll-critical20 .cypher-roll-die {
+  filter:
+    drop-shadow(0 0 5px rgba(226, 182, 63, 0.78))
+    drop-shadow(0 0 10px rgba(226, 182, 63, 0.42))
+    drop-shadow(0 3px 4px rgba(0, 0, 0, 0.18));
+}
+
+/* Cypher Final Chat Card Coverage 2026 ---------------------------------- */
+
+.cypher-spell-recovery-card {
+  --cypher-spell-green: #168a50;
+  --cypher-spell-green-dark: #0c6037;
+  --cypher-spell-navy: #101b2b;
+  --cypher-spell-ink: #17191d;
+  --cypher-spell-muted: #62676d;
+  --cypher-spell-line: #b7babd;
+
+  overflow: hidden;
+  border: 1px solid #8d9195;
+  border-radius: 5px;
+  background: #f6f6f3;
+  color: var(--cypher-spell-ink);
+  box-shadow:
+    inset 0 3px 0 var(--cypher-spell-navy),
+    0 3px 8px rgba(0, 0, 0, 0.22);
+}
+
+.cypher-spell-recovery-card .cypher-spell-recovery-identity {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  min-height: 40px;
+  padding: 6px 10px;
+  border-bottom: 1px solid var(--cypher-spell-line);
+  background:
+    linear-gradient(
+      90deg,
+      var(--cypher-spell-navy),
+      #1a2940 72%,
+      var(--cypher-spell-green)
+    );
+  color: #fff;
+}
+
+.cypher-spell-recovery-card .cypher-spell-recovery-identity-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.cypher-spell-recovery-card .cypher-spell-recovery-avatar {
+  width: 28px;
+  height: 28px;
+  flex: 0 0 28px;
+  border: 1px solid rgba(255, 255, 255, 0.72);
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.cypher-spell-recovery-card .cypher-spell-recovery-identity-text {
+  display: flex;
+  align-items: baseline;
+  gap: 5px;
+  min-width: 0;
+}
+
+.cypher-spell-recovery-card .cypher-spell-recovery-character-name {
+  overflow: hidden;
+  font-size: 12px;
+  font-weight: 800;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.cypher-spell-recovery-card .cypher-spell-recovery-player-name {
+  overflow: hidden;
+  color: rgba(255, 255, 255, 0.72);
+  font-size: 10px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.cypher-spell-recovery-card .cypher-spell-recovery-source-icon {
+  width: 28px;
+  height: 28px;
+  flex: 0 0 28px;
+  border: 1px solid rgba(255, 255, 255, 0.70);
+  border-radius: 4px;
+  object-fit: cover;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.cypher-spell-recovery-card .cypher-spell-recovery-heading {
+  padding: 11px 12px 8px;
+  background: #f9f9f7;
+  text-align: right;
+}
+
+.cypher-spell-recovery-card .cypher-spell-recovery-category {
+  color: var(--cypher-spell-green);
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.cypher-spell-recovery-card .cypher-spell-recovery-title {
+  color: var(--cypher-spell-ink);
+  font-size: 18px;
+  font-weight: 900;
+  line-height: 1.05;
+}
+
+.cypher-spell-recovery-card .cypher-spell-recovery-divider {
+  height: 2px;
+  margin: 7px 0 5px;
+  background:
+    linear-gradient(
+      90deg,
+      var(--cypher-spell-green) 0 72%,
+      var(--cypher-spell-ink) 72% 100%
+    );
+}
+
+.cypher-spell-recovery-card .cypher-spell-recovery-subtitle {
+  color: var(--cypher-spell-muted);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.cypher-spell-recovery-card .cypher-spell-recovery-description {
+  margin: 0 8px 8px;
+  padding: 8px 9px;
+  border: 1px solid #b9bbbd;
+  border-left: 4px solid var(--cypher-spell-green);
+  background: #fff;
+  color: var(--cypher-spell-green-dark);
+  font-size: 12px;
+  font-weight: 800;
+  line-height: 1.32;
+}
+
+.chat-message:has(.cypher-spell-recovery-card),
+.message:has(.cypher-spell-recovery-card) {
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+}
+
+.chat-message:has(.cypher-spell-recovery-card) .message-content,
+.message:has(.cypher-spell-recovery-card) .message-content {
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+/* Cypher Chat Cards - Foundry Interface Dark Mode 2026 ------------------ */
+/*
+ * Chat messages live in the Foundry interface, so they follow the Core
+ * interface theme through body.theme-dark. Light mode remains unchanged.
+ */
+
+body.theme-dark .cypher-roll-card {
+  --cypher-core-paper: #171b22;
+  --cypher-core-ink: #eef1f5;
+  --cypher-core-muted: #a8afb8;
+  --cypher-core-line: #454c56;
+  --cypher-roll-neutral-color: #68717d;
+
+  background: #171b22;
+  border-color: #4b535f;
+  color: var(--cypher-core-ink);
+}
+
+body.theme-dark .cypher-roll-card .cypher-roll-hero {
+  background:
+    linear-gradient(
+      135deg,
+      rgba(176, 25, 50, 0.08) 0 22%,
+      transparent 22% 100%
+    ),
+    #1d222b;
+  border-color: var(--cypher-core-line);
+}
+
+body.theme-dark .cypher-roll-card .cypher-roll-info,
+body.theme-dark .cypher-roll-card .cypher-roll-outcome {
+  background: #20262f;
+  border-color: #4a515b;
+  color: var(--cypher-core-ink);
+}
+
+body.theme-dark .cypher-roll-card .cypher-roll-formula-inline {
+  background: #2a3039;
+  border-color: #4a515b;
+  color: #eef1f5;
+}
+
+body.theme-dark .cypher-roll-card .cypher-roll-difficulty,
+body.theme-dark .cypher-roll-card .cypher-roll-difficulty-value,
+body.theme-dark .cypher-roll-card .cypher-roll-title-name {
+  color: #eef1f5;
+}
+
+/* Item description cards ------------------------------------------------ */
+
+body.theme-dark .cypher-item-card {
+  --cypher-item-ink: #eef1f5;
+  --cypher-item-muted: #a8afb8;
+  --cypher-item-line: #454c56;
+
+  background: #171b22;
+  border-color: #4b535f;
+  color: var(--cypher-item-ink);
+}
+
+body.theme-dark .cypher-item-card .cypher-item-heading {
+  background:
+    linear-gradient(
+      135deg,
+      rgba(255, 255, 255, 0.025) 0 24%,
+      transparent 24% 100%
+    ),
+    #1d222b;
+}
+
+body.theme-dark .cypher-item-card .cypher-item-body {
+  background: #20262f;
+  border-color: #4a515b;
+  color: var(--cypher-item-ink);
+}
+
+body.theme-dark .cypher-item-card .cypher-item-meta {
+  color: var(--cypher-item-muted);
+}
+
+/* Recovery Roll cards --------------------------------------------------- */
+
+body.theme-dark .cypher-recovery-card {
+  --cypher-recovery-ink: #eef1f5;
+  --cypher-recovery-muted: #a8afb8;
+  --cypher-recovery-line: #454c56;
+
+  background: #171b22;
+  border-color: #4b535f;
+  color: var(--cypher-recovery-ink);
+}
+
+body.theme-dark .cypher-recovery-card .cypher-recovery-hero {
+  background:
+    linear-gradient(
+      135deg,
+      rgba(22, 138, 80, 0.09) 0 24%,
+      transparent 24% 100%
+    ),
+    #1d222b;
+  border-color: var(--cypher-recovery-line);
+}
+
+body.theme-dark .cypher-recovery-card .cypher-recovery-formula {
+  background: #2a3039;
+  border-color: #4a515b;
+  color: #eef1f5;
+}
+
+body.theme-dark .cypher-recovery-card .cypher-recovery-description {
+  background: #20262f;
+  border-color: #4a515b;
+  color: #8ee0b5;
+}
+
+/* Spell Recovery cards -------------------------------------------------- */
+
+body.theme-dark .cypher-spell-recovery-card {
+  --cypher-spell-ink: #eef1f5;
+  --cypher-spell-muted: #a8afb8;
+  --cypher-spell-line: #454c56;
+
+  background: #171b22;
+  border-color: #4b535f;
+  color: var(--cypher-spell-ink);
+}
+
+body.theme-dark .cypher-spell-recovery-card .cypher-spell-recovery-heading {
+  background:
+    linear-gradient(
+      135deg,
+      rgba(22, 138, 80, 0.09) 0 24%,
+      transparent 24% 100%
+    ),
+    #1d222b;
+}
+
+body.theme-dark .cypher-spell-recovery-card .cypher-spell-recovery-description {
+  background: #20262f;
+  border-color: #4a515b;
+  color: #8ee0b5;
+}
+
+/* Shared dark-mode refinements ----------------------------------------- */
+
+body.theme-dark .cypher-roll-card .cypher-roll-divider,
+body.theme-dark .cypher-item-card .cypher-item-divider,
+body.theme-dark .cypher-recovery-card .cypher-recovery-divider,
+body.theme-dark .cypher-spell-recovery-card .cypher-spell-recovery-divider {
+  opacity: 0.94;
+}
+
+body.theme-dark .cypher-roll-card,
+body.theme-dark .cypher-item-card,
+body.theme-dark .cypher-recovery-card,
+body.theme-dark .cypher-spell-recovery-card {
+  box-shadow:
+    inset 0 3px 0 #101b2b,
+    0 3px 9px rgba(0, 0, 0, 0.42);
+}
+
+/* Roll detail boxes - Dark Mode ----------------------------------------- */
+
+body.theme-dark .cypher-roll-card .cypher-roll-info {
+  color: #d9dde3;
+}
+
+body.theme-dark .cypher-roll-card .cypher-roll-info .roll-result-box {
+  border-color: #4a515b;
+  border-left-color: var(--cypher-core-red);
+  background: #20262f;
+  color: #d9dde3;
+}
+
+/* Keep the important headings in Cypher red. */
+body.theme-dark .cypher-roll-card .cypher-roll-info .roll-result-difficulty,
+body.theme-dark .cypher-roll-card .cypher-roll-info .roll-result-damage,
+body.theme-dark .cypher-roll-card .cypher-roll-info .roll-result-cost {
+  color: #e14a62;
+}
+
+/* Expanded item description inside a roll. */
+body.theme-dark .cypher-roll-card .chat-card-item-description {
+  border-color: #4a515b;
+  border-left-color: #71819a;
+  background: #20262f;
+  color: #d9dde3;
+}
+
+/* Outcome/effect text shown beside the die. */
+body.theme-dark .cypher-roll-card .cypher-roll-outcome {
+  color: #c9cfd7;
+}
+
+body.theme-dark .cypher-roll-card .cypher-roll-outcome .roll-effect.effect1920 {
+  color: #61d995;
+}
+
+body.theme-dark .cypher-roll-card .cypher-roll-outcome .roll-effect.intrusion {
+  color: #ff7188;
+}
+
+body.theme-dark .cypher-roll-card .cypher-roll-outcome .roll-initiative {
+  color: #d9dde3;
+}
+
+/* Cypher item cards - use the Item image as the source icon */
+.cypher-item-card .cypher-item-source-image {
+  display: block;
+  flex: 0 0 30px;
+  width: 30px;
+  height: 30px;
+  margin: 0;
+  border: 1px solid rgba(255, 255, 255, .72);
+  border-radius: 5px;
+  background: rgba(255, 255, 255, .08);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, .38);
+  object-fit: cover;
+}
+
+.cypher-pc-v2 .cypher-v2-armor-inline-type {
+  flex: 0 1 auto;
+  min-width: 0;
+  color: var(--v2-muted);
+  font-size: 7px;
+  font-weight: 800;
+  line-height: 1;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.cypher-pc-v2 .cypher-v2-armor-inline-type::before {
+  content: "•";
+  margin-right: 5px;
+  opacity: .55;
+}
+
+/* Cypher chat - standardized generic cards v5 --------------------------- */
+
+/* Dice Tray: the complete modern roll card lives in message flavor.
+   Hide only Foundry's redundant native dice body. */
+.chat-message.cypher-dice-roll-message .message-content {
+  display: none !important;
+}
+
+.chat-message.cypher-dice-roll-message .message-flavor {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+}
+
+.chat-message.cypher-dice-roll-message .cypher-dice-card {
+  margin: 0;
+}
+
+/* Same hero grid as every other roll card, with no difficulty row. */
+.cypher-roll-card.cypher-dice-card .cypher-dice-hero {
+  min-height: 132px;
+}
+
+.cypher-roll-card.cypher-dice-card .cypher-roll-formula-inline {
+  margin-top: 8px;
+}
+
+/* Plain chat messages are also real cypher-roll-card shells. */
+.chat-message.cypher-generic-text-message .message-content {
+  padding: 0;
+  background: transparent;
+}
+
+.chat-message.cypher-generic-text-message .cypher-generic-text-card {
+  margin: 0;
+}
+
+.cypher-roll-card.cypher-generic-text-card .cypher-generic-text-hero {
+  display: block;
+  min-height: 56px;
+  padding: 12px 10px;
+  color: var(--cypher-core-ink);
+  font-size: 14px;
+  line-height: 1.45;
+}
+
+.cypher-roll-card.cypher-generic-text-card .cypher-generic-text-hero > :first-child {
+  margin-top: 0;
+}
+
+.cypher-roll-card.cypher-generic-text-card .cypher-generic-text-hero > :last-child {
+  margin-bottom: 0;
+}
+
+/* Dice Tray - match reroll footer spacing with Stat/Attack rolls */
+.cypher-roll-card.cypher-dice-card > .chat-card-buttons {
+  box-sizing: border-box;
+  min-height: 40px;
+  padding-top: 10px;
+  padding-bottom: 6px;
+}
+
+/* Cypher Dice Tray die silhouettes 2026 ------------------------------- */
+
+/* d6: square face */
+.cypher-roll-card.cypher-dice-card .cypher-roll-die.cypher-dice-d6::before {
+  -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 120'%3E%3Crect x='10' y='10' width='100' height='100' rx='8' ry='8' fill='white'/%3E%3C/svg%3E");
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 120'%3E%3Crect x='10' y='10' width='100' height='100' rx='8' ry='8' fill='white'/%3E%3C/svg%3E");
+}
+
+/* d10 and d100: opaque SVG background, shared silhouette */
+.cypher-roll-card.cypher-dice-card .cypher-roll-die.cypher-dice-d10,
+.cypher-roll-card.cypher-dice-card .cypher-roll-die.cypher-dice-d100 {
+  width: 118px;
+  height: 120px;
+}
+
+.cypher-roll-card.cypher-dice-card .cypher-roll-die.cypher-dice-d10::before,
+.cypher-roll-card.cypher-dice-card .cypher-roll-die.cypher-dice-d100::before {
+  content: none !important;
+  display: none !important;
+  background: none !important;
+  -webkit-mask-image: none !important;
+  mask-image: none !important;
+}
+
+.cypher-roll-card.cypher-dice-card .cypher-roll-die.cypher-dice-d10 .cypher-roll-die-icon,
+.cypher-roll-card.cypher-dice-card .cypher-roll-die.cypher-dice-d100 .cypher-roll-die-icon {
+  display: none !important;
+}
+
+.cypher-roll-card.cypher-dice-card .cypher-roll-die-solid-icon {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  z-index: 0;
+  display: block;
+  width: 112px;
+  height: 112px;
+  transform: translate(-50%, -50%);
+  background-color: transparent;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 120' preserveAspectRatio='xMidYMid meet'%3E%3Cpath fill='%238b95a5' d='M60 3 L103 38 L108 66 L60 117 L12 66 L17 38 Z'/%3E%3C/svg%3E");
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: contain;
+  pointer-events: none;
+}
+
+.cypher-roll-card.cypher-dice-card .cypher-roll-die.cypher-dice-d10 .cypher-roll-natural {
+  z-index: 2;
+  width: 82px;
+  min-width: 82px;
+  height: 70px;
+  font-size: 54px;
+}
+
+.cypher-roll-card.cypher-dice-card .cypher-roll-die.cypher-dice-d100 .cypher-roll-natural {
+  z-index: 2;
+  width: 94px;
+  min-width: 94px;
+  height: 70px;
+  font-size: 48px;
+}
+
+/* === Cypher 2026 roll cards: fix natural 20 status/effect overlap === */
+
+.cypher-roll-card .cypher-roll-hero {
+  display: grid;
+  grid-template-columns: 140px minmax(0, 1fr);
+  column-gap: 18px;
+  align-items: start;
+}
+
+.cypher-roll-card .cypher-roll-die-column {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+.cypher-roll-card .cypher-roll-status {
+  width: 100%;
+  max-width: 132px;
+  box-sizing: border-box;
+  text-align: center;
+  white-space: normal;
+  line-height: 1.1;
+  padding: 6px 8px;
+}
+
+.cypher-roll-card .cypher-roll-summary {
+  min-width: 0;
+}
+
+.cypher-roll-card .cypher-roll-title {
+  min-width: 0;
+}
+
+.cypher-roll-card .cypher-roll-outcome {
+  min-width: 0;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 6px;
+  text-align: right;
+}
+
+.cypher-roll-card .cypher-roll-outcome .roll-effect,
+.cypher-roll-card .cypher-roll-outcome .cypher-roll-effect,
+.cypher-roll-card .cypher-roll-outcome span {
+  max-width: 100%;
+  white-space: normal;
+  word-break: break-word;
+}
+
+.cypher-roll-card .cypher-roll-difficulty {
+  min-width: 0;
+}
+
+.cypher-roll-card .cypher-roll-formula-inline {
+  min-width: 0;
+}

@@ -1,0 +1,289 @@
+<section class="cypher-v2-part cypher-v2-notes" data-cypher-v2-tab-panel="notes" {{#unless isLimited}}hidden{{/unless}}>
+  <div class="cypher-v2-notes-grid">
+    {{#if canViewPrivateNotes}}
+      <article class="cypher-v2-note-card">
+        <header>
+          <div>
+            <span>{{localize "CYPHERSYSTEM.NotesV2Personal"}}</span>
+            <h3>{{localize "CYPHERSYSTEM.NotesV2Background"}}</h3>
+            <p>{{localize "CYPHERSYSTEM.NotesV2BackgroundHint"}}</p>
+          </div>
+          <i class="fa-solid fa-feather-pointed" aria-hidden="true"></i>
+        </header>
+
+        <div class="cypher-v2-note-editor">
+          {{#if editable}}
+            <prose-mirror class="cypher-v2-prose-mirror"
+              name="system.notes"
+              data-document-uuid="{{actor.uuid}}"
+              value="{{notesSource.notes}}"
+              collaborate="true"
+              toggled
+            >{{{notesHtml.notes}}}</prose-mirror>
+          {{else}}
+            <div class="cypher-v2-note-content">
+              {{#if notesSource.notes}}
+                {{{notesHtml.notes}}}
+              {{else}}
+                <p class="cypher-v2-note-empty">{{localize "CYPHERSYSTEM.NotesV2Empty"}}</p>
+              {{/if}}
+            </div>
+          {{/if}}
+        </div>
+      </article>
+
+      <article class="cypher-v2-note-card cypher-v2-character-arc-card">
+        <header>
+          <div>
+            <span>{{localize "CYPHERSYSTEM.NotesV2Story"}}</span>
+            <h3>{{localize "CYPHERSYSTEM.CharacterArcs"}}</h3>
+            <p>{{localize "CYPHERSYSTEM.NotesV2CharacterArcHint"}}</p>
+          </div>
+          <div class="cypher-v2-character-arc-header-tools">
+            <span class="cypher-v2-character-arc-count">{{characterArcs.length}}</span>
+            {{#if editable}}
+              <button
+                type="button"
+                class="cypher-v2-character-arc-create"
+                data-action="createCharacterArc"
+                title="{{localize 'CYPHERSYSTEM.CharacterArcCreate'}}"
+                aria-label="{{localize 'CYPHERSYSTEM.CharacterArcCreate'}}"
+              >
+                <i class="fa-solid fa-plus"></i>
+              </button>
+            {{/if}}
+          </div>
+        </header>
+
+        <div class="cypher-v2-character-arc-list">
+          {{#each characterArcs as |arc|}}
+            <section class="cypher-v2-character-arc-item {{#if arc.completed}}is-completed{{/if}} {{#if arc.archived}}is-archived{{/if}}">
+              <details class="cypher-v2-character-arc-details">
+                <summary class="cypher-v2-character-arc-item-heading">
+                  <div class="cypher-v2-character-arc-title-wrap">
+                    <div class="cypher-v2-character-arc-title-line">
+                      <i class="fa-solid fa-chevron-right cypher-v2-character-arc-disclosure" aria-hidden="true"></i>
+                      <button
+                        type="button"
+                        class="cypher-v2-character-arc-title"
+                        data-action="characterArcToChat"
+                        data-item-id="{{arc.id}}"
+                        title="{{localize 'CYPHERSYSTEM.CharacterArcSendToChat'}}"
+                      >
+                        {{arc.name}}
+                      </button>
+                    </div>
+                    <span class="cypher-v2-character-arc-status {{#if arc.completed}}is-completed{{/if}}">
+                      {{arc.statusLabel}}{{#if arc.outcomeLabel}} · {{arc.outcomeLabel}}{{/if}}
+                    </span>
+                  </div>
+
+                  {{#if ../editable}}
+                    <div class="cypher-v2-character-arc-actions">
+                      <button
+                        type="button"
+                        class="cypher-v2-character-arc-icon-button"
+                        data-action="editCharacterArc"
+                        data-item-id="{{arc.id}}"
+                        title="{{localize 'CYPHERSYSTEM.EditItem'}}"
+                        aria-label="{{localize 'CYPHERSYSTEM.EditItem'}}"
+                      >
+                        <i class="fa-solid fa-pen-to-square"></i>
+                      </button>
+                      <button
+                        type="button"
+                        class="cypher-v2-character-arc-icon-button cypher-v2-character-arc-archive"
+                        data-action="toggleCharacterArcArchive"
+                        data-item-id="{{arc.id}}"
+                        title="{{#if arc.archived}}{{localize 'CYPHERSYSTEM.UnarchiveItem'}}{{else}}{{localize 'CYPHERSYSTEM.ArchiveItem'}}{{/if}}"
+                        aria-label="{{#if arc.archived}}{{localize 'CYPHERSYSTEM.UnarchiveItem'}}{{else}}{{localize 'CYPHERSYSTEM.ArchiveItem'}}{{/if}}"
+                      >
+                        {{#if arc.archived}}
+                          <i class="fa-solid fa-arrow-rotate-left cypher-v2-archive-default-icon"></i>
+                        {{else}}
+                          <i class="fa-solid fa-box-archive cypher-v2-archive-default-icon"></i>
+                        {{/if}}
+                        <i class="fa-solid fa-trash-xmark cypher-v2-archive-alt-icon"></i>
+                      </button>
+                    </div>
+                  {{/if}}
+                </summary>
+
+                <div class="cypher-v2-character-arc-description">
+                  {{#if arc.description}}
+                    {{{arc.descriptionHtml}}}
+                  {{else}}
+                    <p class="cypher-v2-note-empty">{{localize "CYPHERSYSTEM.CharacterArcDescriptionHint"}}</p>
+                  {{/if}}
+                </div>
+              </details>
+
+              <div class="cypher-v2-character-arc-progress">
+                <div class="cypher-v2-character-arc-progress-heading">
+                  <strong>{{localize "CYPHERSYSTEM.CharacterArcSteps"}}</strong>
+                  <span>{{arc.steps}}</span>
+                </div>
+                <div class="cypher-v2-character-arc-marks">
+                  {{#each arc.stepMarks as |mark|}}
+                    {{#if ../../editable}}
+                      {{#unless ../completed}}
+                        {{#unless ../archived}}
+                          <button
+                            type="button"
+                            class="cypher-v2-character-arc-mark"
+                            data-action="setCharacterArcSteps"
+                            data-item-id="{{../id}}"
+                            data-step-value="{{mark.number}}"
+                            title="{{localize 'CYPHERSYSTEM.CharacterArcRemoveSteps'}}"
+                          >
+                            <i class="fa-solid fa-check"></i>
+                          </button>
+                        {{else}}
+                          <span class="cypher-v2-character-arc-mark"><i class="fa-solid fa-check"></i></span>
+                        {{/unless}}
+                      {{else}}
+                        <span class="cypher-v2-character-arc-mark"><i class="fa-solid fa-check"></i></span>
+                      {{/unless}}
+                    {{else}}
+                      <span class="cypher-v2-character-arc-mark"><i class="fa-solid fa-check"></i></span>
+                    {{/if}}
+                  {{/each}}
+
+                  {{#if ../editable}}
+                    {{#unless arc.completed}}
+                      {{#unless arc.archived}}
+                        <button
+                          type="button"
+                          class="cypher-v2-character-arc-mark is-add"
+                          data-action="addCharacterArcStep"
+                          data-item-id="{{arc.id}}"
+                          title="{{localize 'CYPHERSYSTEM.CharacterArcAddStep'}}"
+                          aria-label="{{localize 'CYPHERSYSTEM.CharacterArcAddStep'}}"
+                        >
+                          <i class="fa-solid fa-plus"></i>
+                        </button>
+                      {{/unless}}
+                    {{/unless}}
+                  {{/if}}
+                </div>
+              </div>
+
+              <footer class="cypher-v2-character-arc-footer">
+                {{#if arc.completed}}
+                  <span class="cypher-v2-character-arc-xp-note">
+                    <i class="fa-solid fa-flag-checkered" aria-hidden="true"></i>
+                    {{arc.xpLabel}}
+                  </span>
+                {{else}}
+                  <span class="cypher-v2-character-arc-xp-note">
+                    {{localize "CYPHERSYSTEM.CharacterArcStepXP"}}
+                  </span>
+                  {{#if ../editable}}
+                    {{#unless arc.archived}}
+                      <button
+                        type="button"
+                        class="cypher-v2-character-arc-climax"
+                        data-action="completeCharacterArc"
+                        data-item-id="{{arc.id}}"
+                      >
+                        <i class="fa-solid fa-flag-checkered"></i>
+                        {{localize "CYPHERSYSTEM.CharacterArcClimax"}}
+                      </button>
+                    {{/unless}}
+                  {{/if}}
+                {{/if}}
+              </footer>
+            </section>
+          {{else}}
+            <div class="cypher-v2-character-arc-empty">
+              <i class="fa-solid fa-route" aria-hidden="true"></i>
+              <p>{{localize "CYPHERSYSTEM.CharacterArcEmpty"}}</p>
+            </div>
+          {{/each}}
+        </div>
+
+        {{#if legacyCharacterArc.hasContent}}
+          <aside class="cypher-v2-character-arc-legacy">
+            <div class="cypher-v2-character-arc-legacy-heading">
+              <div>
+                <strong>{{localize "CYPHERSYSTEM.CharacterArcLegacy"}}</strong>
+                <span>{{localize "CYPHERSYSTEM.CharacterArcLegacyHint"}}</span>
+              </div>
+              {{#if editable}}
+                <button type="button" data-action="importLegacyCharacterArc">
+                  <i class="fa-solid fa-file-import"></i>
+                  {{localize "CYPHERSYSTEM.CharacterArcImport"}}
+                </button>
+              {{/if}}
+            </div>
+            <div class="cypher-v2-character-arc-legacy-content">{{{legacyCharacterArc.html}}}</div>
+          </aside>
+        {{/if}}
+      </article>
+    {{/if}}
+
+    <article class="cypher-v2-note-card cypher-v2-note-card-wide">
+      <header>
+        <div>
+          <span>{{localize "CYPHERSYSTEM.NotesV2Public"}}</span>
+          <h3>{{localize "CYPHERSYSTEM.Description"}}</h3>
+          <p>{{localize "CYPHERSYSTEM.NotesV2DescriptionHint"}}</p>
+        </div>
+        <i class="fa-solid fa-address-card" aria-hidden="true"></i>
+      </header>
+
+      <div class="cypher-v2-note-editor cypher-v2-description-editor">
+        {{#if editable}}
+          <prose-mirror class="cypher-v2-prose-mirror"
+            name="system.description"
+            data-document-uuid="{{actor.uuid}}"
+            value="{{notesSource.description}}"
+            collaborate="true"
+            toggled
+          >{{{notesHtml.description}}}</prose-mirror>
+        {{else}}
+          <div class="cypher-v2-note-content">
+            {{#if notesSource.description}}
+              {{{notesHtml.description}}}
+            {{else}}
+              <p class="cypher-v2-note-empty">{{localize "CYPHERSYSTEM.NotesV2Empty"}}</p>
+            {{/if}}
+          </div>
+        {{/if}}
+      </div>
+    </article>
+
+    {{#if canViewGMNotes}}
+      <article class="cypher-v2-note-card cypher-v2-note-card-wide cypher-v2-gm-note-card">
+        <header>
+          <div>
+            <span>{{localize "CYPHERSYSTEM.NotesV2Private"}}</span>
+            <h3>{{localize "CYPHERSYSTEM.GMNotes"}}</h3>
+            <p>{{localize "CYPHERSYSTEM.NotesV2GMHint"}}</p>
+          </div>
+          <i class="fa-solid fa-user-shield" aria-hidden="true"></i>
+        </header>
+
+        <div class="cypher-v2-note-editor cypher-v2-gm-note-editor">
+          {{#if editable}}
+            <prose-mirror class="cypher-v2-prose-mirror"
+              name="system.gmNotes"
+              data-document-uuid="{{actor.uuid}}"
+              value="{{notesSource.gmNotes}}"
+              collaborate="true"
+              toggled
+            >{{{notesHtml.gmNotes}}}</prose-mirror>
+          {{else}}
+            <div class="cypher-v2-note-content">
+              {{#if notesSource.gmNotes}}
+                {{{notesHtml.gmNotes}}}
+              {{else}}
+                <p class="cypher-v2-note-empty">{{localize "CYPHERSYSTEM.NotesV2Empty"}}</p>
+              {{/if}}
+            </div>
+          {{/if}}
+        </div>
+      </article>
+    {{/if}}
+  </div>
+</section>

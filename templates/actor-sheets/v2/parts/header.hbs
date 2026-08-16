@@ -1,0 +1,134 @@
+{{#unless isLimited}}
+<section class="cypher-v2-part cypher-v2-header">
+  <div class="cypher-v2-portrait-wrap">
+    <img class="cypher-v2-portrait" src="{{profile.img}}" alt="{{profile.name}}">
+  </div>
+
+  <div class="cypher-v2-identity">
+    <div class="cypher-v2-eyebrow">
+      <span>CYPHER SYSTEM</span>
+      <span class="cypher-v2-pill">APPLICATION V2 PROTOTYPE</span>
+    </div>
+
+    <input
+      class="cypher-v2-edit cypher-v2-name-input"
+      type="text"
+      name="{{profile.nameField}}"
+      value="{{profile.name}}"
+      aria-label="{{localize 'CYPHERSYSTEM.Name'}}"
+      {{#unless editable}}disabled{{/unless}}
+    >
+
+    <div class="cypher-v2-identity-fields">
+      <span class="cypher-v2-is-a">Is a</span>
+
+      <input
+        class="cypher-v2-edit cypher-v2-identity-input cypher-v2-descriptor-input"
+        type="text"
+        name="{{profile.descriptorField}}"
+        value="{{profile.descriptor}}"
+        placeholder="{{localize 'CYPHERSYSTEM.Descriptor'}}"
+        aria-label="{{localize 'CYPHERSYSTEM.Descriptor'}}"
+        {{#unless editable}}disabled{{/unless}}
+      >
+
+      {{#if profile.showType}}
+        <input
+          class="cypher-v2-edit cypher-v2-identity-input cypher-v2-type-input"
+          type="text"
+          name="{{profile.typeField}}"
+          value="{{profile.type}}"
+          placeholder="{{localize 'CYPHERSYSTEM.Type'}}"
+          aria-label="{{localize 'CYPHERSYSTEM.Type'}}"
+          {{#unless editable}}disabled{{/unless}}
+        >
+      {{/if}}
+
+      {{#if profile.showFocus}}
+        <span class="cypher-v2-who">who</span>
+        <input
+          class="cypher-v2-edit cypher-v2-identity-input cypher-v2-focus-input"
+          type="text"
+          name="{{profile.focusField}}"
+          value="{{profile.focus}}"
+          placeholder="{{localize 'CYPHERSYSTEM.Focus'}}"
+          aria-label="{{localize 'CYPHERSYSTEM.Focus'}}"
+          {{#if profile.focusLocked}}disabled{{else}}{{#unless editable}}disabled{{/unless}}{{/if}}
+        >
+      {{/if}}
+    </div>
+
+    {{#if profile.showAdditionalSentence}}
+      <input
+        class="cypher-v2-edit cypher-v2-additional-input"
+        type="text"
+        name="{{profile.additionalSentenceField}}"
+        value="{{profile.additionalSentence}}"
+        placeholder="{{localize 'CYPHERSYSTEM.AdditionalSentence'}}"
+        aria-label="{{localize 'CYPHERSYSTEM.AdditionalSentence'}}"
+        {{#unless editable}}disabled{{/unless}}
+      >
+    {{/if}}
+  </div>
+
+  {{#if editable}}
+  <div class="cypher-v2-dice-tray" aria-label="Dice tray">
+    <button type="button" data-action="rollDiceTray" data-die="d6" title="Roll d6">
+      <i class="fa-solid fa-dice-d6" aria-hidden="true"></i>
+    </button>
+    <button type="button" data-action="rollDiceTray" data-die="d10" title="Roll d10">
+      <i class="fa-solid fa-dice-d10" aria-hidden="true"></i>
+    </button>
+    <button type="button" data-action="rollDiceTray" data-die="d20" title="Roll d20">
+      <i class="fa-solid fa-dice-d20" aria-hidden="true"></i>
+    </button>
+    <button type="button" data-action="rollDiceTray" data-die="d100" title="Roll d100">
+      <i class="fa-solid fa-percent" aria-hidden="true"></i>
+    </button>
+  </div>
+{{/if}}
+
+  <div
+    class="cypher-v2-roll-mode-indicator {{rollMode.cssClass}}"
+    title="Current Pool roll mode: {{rollMode.label}}"
+  >
+    <span class="cypher-v2-roll-mode-dot" aria-hidden="true"></span>
+    <span>{{rollMode.label}}</span>
+  </div>
+
+  <div class="cypher-v2-progression">
+    <label>
+      <span>{{localize "CYPHERSYSTEM.Tier"}}</span>
+      <input
+        class="cypher-v2-edit cypher-v2-progression-input"
+        type="number"
+        name="{{progression.tierField}}"
+        value="{{progression.tier}}"
+        {{#unless canEditStatic}}disabled{{/unless}}
+      >
+    </label>
+
+    <label>
+      <span>{{localize "CYPHERSYSTEM.Effort"}}</span>
+      <input
+        class="cypher-v2-edit cypher-v2-progression-input"
+        type="number"
+        name="{{progression.effortField}}"
+        value="{{progression.effort}}"
+        {{#unless canEditStatic}}disabled{{/unless}}
+      >
+    </label>
+
+    <label>
+      <span>{{localize "CYPHERSYSTEM.XP"}}</span>
+      <input
+        class="cypher-v2-edit cypher-v2-progression-input"
+        type="number"
+        name="{{progression.xpField}}"
+        value="{{progression.xp}}"
+        {{#unless editable}}disabled{{/unless}}
+      >
+    </label>
+  </div>
+</section>
+{{/unless}}

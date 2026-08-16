@@ -1,0 +1,68 @@
+<nav class="cypher-v2-part cypher-v2-navigation{{#if isLimited}} is-limited{{/if}}">
+  {{#if isLimited}}
+    <button type="button"
+            class="active"
+            data-action="changeTab"
+            data-tab="notes"
+            role="tab"
+            aria-selected="true">
+      <i class="fa-solid fa-address-card" aria-hidden="true"></i>
+      <span>{{localize "CYPHERSYSTEM.Description"}}</span>
+    </button>
+  {{else}}
+    <button type="button"
+            class="active"
+            data-action="changeTab"
+            data-tab="overview"
+            role="tab"
+            aria-selected="true">
+      <i class="fa-solid fa-grid-2"></i>
+      <span>Overview</span>
+    </button>
+
+    <button type="button"
+            data-action="changeTab"
+            data-tab="combat"
+            role="tab"
+            aria-selected="false">
+      <i class="fa-solid fa-shield-halved"></i>
+      <span>{{localize "CYPHERSYSTEM.Combat"}}</span>
+    </button>
+
+    <button type="button"
+            data-action="changeTab"
+            data-tab="abilities"
+            role="tab"
+            aria-selected="false">
+      <i class="fa-solid fa-sparkles"></i>
+      <span>{{localize "CYPHERSYSTEM.Abilities"}}</span>
+    </button>
+
+    <button type="button"
+            data-action="changeTab"
+            data-tab="skills"
+            role="tab"
+            aria-selected="false">
+      <i class="fa-solid fa-list-check"></i>
+      <span>{{localize "CYPHERSYSTEM.Skills"}}</span>
+    </button>
+
+    <button type="button"
+            data-action="changeTab"
+            data-tab="equipment"
+            role="tab"
+            aria-selected="false">
+      <i class="fa-solid fa-backpack"></i>
+      <span>{{localize "CYPHERSYSTEM.Equipment"}}</span>
+    </button>
+
+    <button type="button"
+            data-action="changeTab"
+            data-tab="notes"
+            role="tab"
+            aria-selected="false">
+      <i class="fa-solid fa-note-sticky"></i>
+      <span>{{localize "CYPHERSYSTEM.Notes"}}</span>
+    </button>
+  {{/if}}
+</nav>

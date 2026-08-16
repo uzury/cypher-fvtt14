@@ -1,0 +1,517 @@
+<section class="cypher-v2-part cypher-v2-combat" data-cypher-v2-tab-panel="combat" hidden>
+  <div class="cypher-v2-combat-layout">
+    <div class="cypher-v2-combat-column cypher-v2-combat-column-left">
+      <article class="cypher-v2-combat-panel cypher-v2-wounds-panel">
+        <header class="cypher-v2-combat-panel-header">
+          <div>
+            <span class="cypher-v2-combat-kicker">DAMAGE & RECOVERY</span>
+            <h2>Wounds</h2>
+          </div>
+          <i class="fa-solid fa-heart-crack" aria-hidden="true"></i>
+        </header>
+
+        <div class="cypher-v2-wound-list">
+          {{#each woundRows as |wound|}}
+            <div class="cypher-v2-wound-row">
+              <div class="cypher-v2-wound-heading">
+                <span class="cypher-v2-wound-label">{{wound.label}}</span>
+                <label class="cypher-v2-wound-max-wrap">
+                    <span>MAX</span>
+                    <select
+                      class="cypher-v2-wound-max"
+                      data-wound-type="{{wound.key}}"
+                      aria-label="Maximum {{wound.label}}s"
+                      {{#unless ../editable}}disabled{{/unless}}
+                    >
+                      {{selectOptions ../woundMaxChoices selected=wound.max}}
+                    </select>
+                  </label>
+              </div>
+
+              <div class="cypher-v2-wound-row-bottom">
+                <div class="cypher-v2-wound-boxes" role="group" aria-label="{{wound.label}}s">
+                {{#each wound.boxes as |box|}}
+                  <label class="cypher-v2-wound-box-label">
+                    <input
+                      class="cypher-v2-wound-box"
+                      type="checkbox"
+                      data-wound-type="{{wound.key}}"
+                      data-wound-value="{{box.number}}"
+                      {{checked box.isChecked}}
+                      {{#unless ../../editable}}disabled{{/unless}}
+                    >
+                    <span>{{box.number}}</span>
+                  </label>
+                {{/each}}
+              </div>
+
+                {{#if ../editable}}
+                  <button
+                    type="button"
+                    class="cypher-v2-wound-take"
+                    data-action="takeWound"
+                    data-wound-type="{{wound.key}}"
+                    title="Take {{wound.label}}"
+                    aria-label="Take {{wound.label}}"
+                  >
+                    <i class="fa-solid fa-plus"></i>
+                  </button>
+
+                  <button
+                    type="button"
+                    class="cypher-v2-wound-reset"
+                    data-action="resetWoundRow"
+                    data-wound-type="{{wound.key}}"
+                    title="Reset {{wound.label}}"
+                  >
+                    <i class="fa-solid fa-rotate-left"></i>
+                  </button>
+                {{/if}}
+              </div>
+
+              {{#if wound.effectText}}
+                <div class="cypher-v2-wound-effect {{wound.effectClass}}">
+                  {{wound.effectText}}
+                </div>
+              {{/if}}
+            </div>
+          {{/each}}
+        </div>
+
+        {{#if editable}}
+          <div class="cypher-v2-wound-healing-actions" aria-label="Wound healing actions">
+            <button
+              type="button"
+              class="cypher-v2-wound-heal-button cypher-v2-wound-rally"
+              data-action="rallyWound"
+              title="Rally: spend Might to remove one Wound. Might Edge does not reduce the cost."
+              {{#unless hasWounds}}disabled{{/unless}}
+            >
+              <i class="fa-solid fa-bolt"></i>
+              <span>Rally</span>
+            </button>
+
+            <button
+              type="button"
+              class="cypher-v2-wound-heal-button cypher-v2-wound-treatment"
+              data-action="treatWound"
+              title="Treatment: make an Intellect task using the Healing skill to remove one Wound."
+              {{#unless hasWounds}}disabled{{/unless}}
+            >
+              <i class="fa-solid fa-kit-medical"></i>
+              <span>Treatment</span>
+            </button>
+          </div>
+        {{/if}}
+      </article>
+
+      <article class="cypher-v2-combat-panel cypher-v2-recovery-panel">
+        <header class="cypher-v2-combat-panel-header cypher-v2-recovery-header">
+          <div>
+            <span class="cypher-v2-combat-kicker">RECOVERY</span>
+            <h2>Recovery Rolls</h2>
+          </div>
+          <i class="fa-solid fa-heart" aria-hidden="true"></i>
+        </header>
+
+        <div class="cypher-v2-recovery-formula-wrap">
+          <span class="cypher-v2-recovery-roll-label">ROLL</span>
+
+          <div class="cypher-v2-recovery-control-row">
+            <input
+              class="cypher-v2-recovery-formula"
+              type="text"
+              value="{{recovery.formula}}"
+              title="Cypher 2026 recovery: 1d6 + Tier"
+              aria-label="Cypher 2026 recovery formula"
+              readonly
+            >
+
+            {{#if rollSettings.enabled}}
+              <button
+                type="button"
+                class="cypher-v2-recovery-roll-button"
+                data-action="recoveryRoll"
+                title="Choose an unused recovery, roll it, distribute Pool points, and apply rest healing."
+              >
+                <i class="fa-solid fa-heart"></i>
+                <span>Recovery Roll</span>
+              </button>
+            {{/if}}
+
+            <button
+              type="button"
+              class="cypher-v2-recovery-reset-icon"
+              data-action="resetRecovery"
+              title="{{localize 'CYPHERSYSTEM.ResetRecovery'}}"
+              {{#unless editable}}disabled{{/unless}}
+            >
+              <i class="fa-solid fa-rotate-left"></i>
+            </button>
+          </div>
+        </div>
+
+        <div class="cypher-v2-recovery-groups">
+          {{#each recovery.groups as |group|}}
+            <div class="cypher-v2-recovery-group">
+              <span class="cypher-v2-recovery-group-label">{{group.label}}</span>
+
+              <div class="cypher-v2-recovery-checks">
+                {{#each group.steps as |step|}}
+                  <label class="cypher-v2-recovery-step" title="{{group.label}} {{step.number}}">
+                    <input
+                      type="checkbox"
+                      name="{{step.field}}"
+                      {{checked step.checked}}
+                      {{#unless ../../editable}}disabled{{/unless}}
+                    >
+                    <span>{{step.number}}</span>
+                  </label>
+                {{/each}}
+              </div>
+            </div>
+          {{/each}}
+        </div>
+      </article>
+
+        {{#if lastingDamageEnabled}}
+          <article class="cypher-v2-combat-panel cypher-v2-lasting-damage-panel">
+            <header class="cypher-v2-combat-panel-header">
+              <div><span class="cypher-v2-combat-kicker">OPTIONAL RULE</span><h2>Lasting/Permanent Damage</h2></div>
+              {{#if editable}}
+                <button type="button" class="cypher-v2-combat-add" data-action="createCombatItem" data-item-type="lasting-damage" title="{{localize 'CYPHERSYSTEM.CreateItem'}}"><i class="fa-solid fa-plus"></i></button>
+              {{/if}}
+            </header>
+            <div class="cypher-v2-combat-item-list">
+              {{#each combatLastingDamage as |damage|}}
+                <div class="cypher-v2-combat-item cypher-v2-optional-item cypher-v2-lasting-damage-item {{#if damage.archived}}is-archived{{/if}}">
+                  <img class="cypher-v2-combat-item-img" src="{{damage.img}}" alt="{{damage.name}}">
+                  <div class="cypher-v2-combat-item-main">
+                    <div class="cypher-v2-combat-item-name-wrap">
+                      <button type="button" class="cypher-v2-combat-item-name cypher-v2-combat-item-description" data-action="combatItemDescription" data-item-id="{{damage.id}}" data-cypher-v2-card-preview title="Send this lasting damage card to chat.">{{damage.name}}</button>
+                      {{#if damage.previewHtml}}<template class="cypher-v2-item-tooltip-template">{{{damage.previewHtml}}}</template>{{/if}}
+                    </div>
+                    <div class="cypher-v2-combat-item-meta"><span>{{damage.poolLabel}}</span><span>{{damage.typeLabel}}</span></div>
+                    {{#if damage.effect}}<div class="cypher-v2-combat-item-notes">{{damage.effect}}</div>{{/if}}
+                  </div>
+                  <div class="cypher-v2-combat-stepper cypher-v2-lasting-damage-stepper" title="Pool maximum reduction">
+                    {{#if ../editable}}<button type="button" data-action="adjustCombatItemValue" data-item-id="{{damage.id}}" data-item-field="damage" data-direction="decrease" title="Decrease damage"><i class="fa-solid fa-minus"></i></button>{{/if}}
+                    <div class="cypher-v2-combat-stepper-value"><strong>{{damage.damage}}</strong><span>MAX</span></div>
+                    {{#if ../editable}}<button type="button" data-action="adjustCombatItemValue" data-item-id="{{damage.id}}" data-item-field="damage" data-direction="increase" title="Increase damage"><i class="fa-solid fa-plus"></i></button>{{/if}}
+                  </div>
+                  <div class="cypher-v2-combat-item-actions">
+                    {{#if ../editable}}
+                      <button type="button" class="cypher-v2-combat-icon-button" data-action="editCombatItem" data-item-id="{{damage.id}}" title="{{localize 'CYPHERSYSTEM.EditItem'}}"><i class="fa-solid fa-pen-to-square"></i></button>
+                      <button type="button" class="cypher-v2-combat-icon-button cypher-v2-combat-delete" data-action="deleteCombatItem" data-item-id="{{damage.id}}" title="Archive / unarchive lasting damage. Hold Alt to permanently delete it.">
+                        {{#if damage.archived}}<i class="fa-solid fa-arrow-rotate-left cypher-v2-archive-default-icon"></i>{{else}}<i class="fa-solid fa-box-archive cypher-v2-archive-default-icon"></i>{{/if}}
+                        <i class="fa-solid fa-trash-xmark cypher-v2-archive-alt-icon"></i>
+                      </button>
+                    {{/if}}
+                  </div>
+                </div>
+              {{else}}
+                <div class="cypher-v2-combat-empty">No lasting damage configured.</div>
+              {{/each}}
+            </div>
+          </article>
+        {{/if}}
+    </div>
+
+    <div class="cypher-v2-combat-column cypher-v2-combat-column-right">
+      <article class="cypher-v2-combat-panel cypher-v2-attacks-panel">
+        <header class="cypher-v2-combat-panel-header">
+          <div>
+            <span class="cypher-v2-combat-kicker">OFFENSE</span>
+            <h2>{{localize "CYPHERSYSTEM.Attacks"}}</h2>
+          </div>
+
+          {{#if editable}}
+            <button
+              type="button"
+              class="cypher-v2-combat-add"
+              data-action="createCombatItem"
+              data-item-type="attack"
+              title="{{localize 'CYPHERSYSTEM.CreateItem'}}"
+            >
+              <i class="fa-solid fa-plus"></i>
+            </button>
+          {{/if}}
+        </header>
+
+        <div class="cypher-v2-combat-item-list">
+          {{#each combatAttacks as |attack|}}
+            <div class="cypher-v2-combat-item cypher-v2-attack-item {{#if attack.archived}}is-archived{{/if}}">
+              <img class="cypher-v2-combat-item-img" src="{{attack.img}}" alt="{{attack.name}}">
+
+              <div class="cypher-v2-combat-item-main">
+                <div class="cypher-v2-combat-item-name-wrap">
+                  <button
+                    type="button"
+                    class="cypher-v2-combat-item-name cypher-v2-combat-item-description"
+                    data-action="combatItemDescription"
+                    data-item-id="{{attack.id}}"
+                    data-cypher-v2-card-preview
+                    title="Send this attack card to chat."
+                  >{{attack.name}}</button>
+
+                  {{#if attack.previewHtml}}
+                    <template class="cypher-v2-item-tooltip-template">
+                      {{{attack.previewHtml}}}
+                    </template>
+                  {{/if}}
+                </div>
+
+                <div class="cypher-v2-combat-item-meta cypher-v2-attack-meta">
+                  {{#if attack.typeLabel}}<span>{{attack.typeLabel}}</span>{{/if}}
+                  {{#if attack.skillRating}}<span>{{attack.skillRating}}</span>{{/if}}
+                  {{#if attack.range}}<span>{{attack.range}}</span>{{/if}}
+                  {{#if attack.modifierLabel}}<span>{{attack.modifierLabel}}</span>{{/if}}
+                </div>
+
+                {{#if attack.notes}}
+                  <div class="cypher-v2-combat-item-notes">{{attack.notes}}</div>
+                {{/if}}
+              </div>
+
+              <div class="cypher-v2-attack-damage" title="{{localize 'CYPHERSYSTEM.Damage'}}">
+                <strong>{{attack.damage}}</strong>
+                <span>DMG</span>
+              </div>
+
+              <div class="cypher-v2-combat-item-actions">
+                {{#if ../rollSettings.enabled}}
+                  <button
+                    type="button"
+                    class="cypher-v2-combat-icon-button cypher-v2-attack-roll"
+                    data-action="rollAttack"
+                    data-item-id="{{attack.id}}"
+                    title="{{localize 'CYPHERSYSTEM.RollItem'}}"
+                  >
+                    <i class="fa-solid fa-dice-d20"></i>
+                  </button>
+                {{/if}}
+
+                {{#if ../editable}}
+                  <button
+                    type="button"
+                    class="cypher-v2-combat-icon-button"
+                    data-action="editCombatItem"
+                    data-item-id="{{attack.id}}"
+                    title="{{localize 'CYPHERSYSTEM.EditItem'}}"
+                  >
+                    <i class="fa-solid fa-pen-to-square"></i>
+                  </button>
+
+                  <button
+                    type="button"
+                    class="cypher-v2-combat-icon-button cypher-v2-combat-delete"
+                    data-action="deleteCombatItem"
+                    data-item-id="{{attack.id}}"
+                    title="Archive / unarchive attack. Hold Alt to permanently delete it."
+                  >
+                    {{#if attack.archived}}
+                      <i class="fa-solid fa-arrow-rotate-left cypher-v2-archive-default-icon"></i>
+                    {{else}}
+                      <i class="fa-solid fa-box-archive cypher-v2-archive-default-icon"></i>
+                    {{/if}}
+                    <i class="fa-solid fa-trash-xmark cypher-v2-archive-alt-icon"></i>
+                  </button>
+                {{/if}}
+              </div>
+            </div>
+          {{else}}
+            <div class="cypher-v2-combat-empty">No attacks configured.</div>
+          {{/each}}
+        </div>
+      </article>
+
+      {{#if armorEnabled}}
+        <article class="cypher-v2-combat-panel cypher-v2-armor-panel">
+          <header class="cypher-v2-combat-panel-header">
+            <div>
+              <span class="cypher-v2-combat-kicker">DEFENSE</span>
+              <h2>{{localize "CYPHERSYSTEM.Armor"}}</h2>
+            </div>
+
+            {{#if editable}}
+              <button
+                type="button"
+                class="cypher-v2-combat-add"
+                data-action="createCombatItem"
+                data-item-type="armor"
+                title="{{localize 'CYPHERSYSTEM.CreateItem'}}"
+              >
+                <i class="fa-solid fa-plus"></i>
+              </button>
+            {{/if}}
+          </header>
+
+          <div class="cypher-v2-combat-item-list">
+            {{#each combatArmor as |armor|}}
+              <div class="cypher-v2-combat-item cypher-v2-armor-item {{#if armor.active}}is-active{{/if}} {{#if armor.archived}}is-archived{{/if}}">
+                <img class="cypher-v2-combat-item-img" src="{{armor.img}}" alt="{{armor.name}}">
+
+                <div class="cypher-v2-combat-item-main">
+                  <div class="cypher-v2-combat-item-name-row">
+                    <div class="cypher-v2-combat-item-name-wrap">
+                      <button
+                        type="button"
+                        class="cypher-v2-combat-item-name cypher-v2-combat-item-description"
+                        data-action="combatItemDescription"
+                        data-item-id="{{armor.id}}"
+                        data-cypher-v2-card-preview
+                        title="Send this armor card to chat."
+                      >{{armor.name}}</button>
+
+                      {{#if armor.previewHtml}}
+                        <template class="cypher-v2-item-tooltip-template">
+                          {{{armor.previewHtml}}}
+                        </template>
+                      {{/if}}
+                    </div>
+
+                    {{#if armor.typeLabel}}
+                      <span class="cypher-v2-armor-inline-type">{{armor.typeLabel}}</span>
+                    {{/if}}
+
+                    {{#if armor.active}}
+                      <span class="cypher-v2-armor-active-label">ACTIVE</span>
+                    {{/if}}
+
+                    {{#if armor.freelyUse}}
+                      <span class="cypher-v2-armor-free-use-label">FREE USE</span>
+                    {{/if}}
+                  </div>
+
+                  {{#if armor.defenseSteps}}
+                    <div class="cypher-v2-armor-defense-grid">
+                      <button
+                        type="button"
+                        class="cypher-v2-armor-defense cypher-v2-armor-block"
+                        data-action="rollArmorDefense"
+                        data-armor-task="block"
+                        {{#unless armor.active}}disabled{{/unless}}
+                        title="{{#if armor.active}}Roll a Block task with Cypher 2026 armor modifiers.{{else}}Activate this armor to roll with its modifier.{{/if}}"
+                      >
+                        <span>BLOCK</span>
+                        <strong>{{armor.blockEffect}}</strong>
+                      </button>
+
+                      <button
+                        type="button"
+                        class="cypher-v2-armor-defense cypher-v2-armor-dodge"
+                        data-action="rollArmorDefense"
+                        data-armor-task="dodge"
+                        {{#unless armor.active}}disabled{{/unless}}
+                        title="{{#if armor.active}}Roll a Dodge task with Cypher 2026 armor modifiers.{{else}}Activate this armor to roll with its modifier.{{/if}}"
+                      >
+                        <span>DODGE</span>
+                        <strong>{{armor.dodgeEffect}}</strong>
+                      </button>
+                    </div>
+                  {{/if}}
+
+                  {{#if armor.notes}}
+                    <div class="cypher-v2-combat-item-notes">{{armor.notes}}</div>
+                  {{/if}}
+                </div>
+
+                <div class="cypher-v2-combat-item-actions">
+                  {{#if ../editable}}
+                    <button
+                      type="button"
+                      class="cypher-v2-combat-icon-button cypher-v2-armor-toggle {{#if armor.active}}is-active{{/if}}"
+                      data-action="toggleArmor"
+                      data-item-id="{{armor.id}}"
+                      title="{{localize 'CYPHERSYSTEM.ArmorActive'}}"
+                    >
+                      <i class="fa-solid {{#if armor.active}}fa-shield{{else}}fa-shield-halved{{/if}}"></i>
+                    </button>
+
+                    <button
+                      type="button"
+                      class="cypher-v2-combat-icon-button cypher-v2-armor-free-use {{#if armor.freelyUse}}is-active{{/if}}"
+                      data-action="toggleArmorFreeUse"
+                      data-item-id="{{armor.id}}"
+                      title="{{#if armor.freelyUse}}This character freely uses this armor. Click to remove Free Use.{{else}}This character does not freely use this armor. Click to mark Free Use.{{/if}}"
+                    >
+                      <i class="fa-solid fa-check"></i>
+                    </button>
+
+                    <button
+                      type="button"
+                      class="cypher-v2-combat-icon-button"
+                      data-action="editCombatItem"
+                      data-item-id="{{armor.id}}"
+                      title="{{localize 'CYPHERSYSTEM.EditItem'}}"
+                    >
+                      <i class="fa-solid fa-pen-to-square"></i>
+                    </button>
+
+                    <button
+                      type="button"
+                      class="cypher-v2-combat-icon-button cypher-v2-combat-delete"
+                      data-action="deleteCombatItem"
+                      data-item-id="{{armor.id}}"
+                      title="Archive / unarchive armor. Hold Alt to permanently delete it."
+                    >
+                      {{#if armor.archived}}
+                        <i class="fa-solid fa-arrow-rotate-left cypher-v2-archive-default-icon"></i>
+                      {{else}}
+                        <i class="fa-solid fa-box-archive cypher-v2-archive-default-icon"></i>
+                      {{/if}}
+                      <i class="fa-solid fa-trash-xmark cypher-v2-archive-alt-icon"></i>
+                    </button>
+                  {{/if}}
+                </div>
+              </div>
+            {{else}}
+              <div class="cypher-v2-combat-empty">No armor configured.</div>
+            {{/each}}
+          </div>
+        </article>
+      {{/if}}
+
+        {{#if ammoEnabled}}
+          <article class="cypher-v2-combat-panel cypher-v2-ammo-panel">
+            <header class="cypher-v2-combat-panel-header">
+              <div><span class="cypher-v2-combat-kicker">RESOURCE</span><h2>{{localize "CYPHERSYSTEM.Ammo"}}</h2></div>
+              {{#if editable}}
+                <button type="button" class="cypher-v2-combat-add" data-action="createCombatItem" data-item-type="ammo" title="{{localize 'CYPHERSYSTEM.CreateItem'}}"><i class="fa-solid fa-plus"></i></button>
+              {{/if}}
+            </header>
+            <div class="cypher-v2-combat-item-list">
+              {{#each combatAmmo as |ammo|}}
+                <div class="cypher-v2-combat-item cypher-v2-optional-item {{#if ammo.archived}}is-archived{{/if}}">
+                  <img class="cypher-v2-combat-item-img" src="{{ammo.img}}" alt="{{ammo.name}}">
+                  <div class="cypher-v2-combat-item-main">
+                    <div class="cypher-v2-combat-item-name-wrap">
+                      <button type="button" class="cypher-v2-combat-item-name cypher-v2-combat-item-description" data-action="combatItemDescription" data-item-id="{{ammo.id}}" data-cypher-v2-card-preview title="Send this ammo card to chat.">{{ammo.name}}</button>
+                      {{#if ammo.previewHtml}}<template class="cypher-v2-item-tooltip-template">{{{ammo.previewHtml}}}</template>{{/if}}
+                    </div>
+                    {{#if ammo.level}}<div class="cypher-v2-combat-item-meta"><span>LEVEL {{ammo.level}}</span></div>{{/if}}
+                  </div>
+                  <div class="cypher-v2-combat-stepper" title="{{localize 'CYPHERSYSTEM.Quantity'}}">
+                    {{#if ../editable}}<button type="button" data-action="adjustCombatItemValue" data-item-id="{{ammo.id}}" data-item-field="quantity" data-direction="decrease" title="{{localize 'CYPHERSYSTEM.SubtractQuantity'}} (Alt: -10)"><i class="fa-solid fa-minus"></i></button>{{/if}}
+                    <div class="cypher-v2-combat-stepper-value"><strong>{{ammo.quantity}}</strong><span>QTY</span></div>
+                    {{#if ../editable}}<button type="button" data-action="adjustCombatItemValue" data-item-id="{{ammo.id}}" data-item-field="quantity" data-direction="increase" title="{{localize 'CYPHERSYSTEM.AddQuantity'}} (Alt: +10)"><i class="fa-solid fa-plus"></i></button>{{/if}}
+                  </div>
+                  <div class="cypher-v2-combat-item-actions">
+                    {{#if ../editable}}
+                      <button type="button" class="cypher-v2-combat-icon-button" data-action="editCombatItem" data-item-id="{{ammo.id}}" title="{{localize 'CYPHERSYSTEM.EditItem'}}"><i class="fa-solid fa-pen-to-square"></i></button>
+                      <button type="button" class="cypher-v2-combat-icon-button cypher-v2-combat-delete" data-action="deleteCombatItem" data-item-id="{{ammo.id}}" title="Archive / unarchive ammo. Hold Alt to permanently delete it.">
+                        {{#if ammo.archived}}<i class="fa-solid fa-arrow-rotate-left cypher-v2-archive-default-icon"></i>{{else}}<i class="fa-solid fa-box-archive cypher-v2-archive-default-icon"></i>{{/if}}
+                        <i class="fa-solid fa-trash-xmark cypher-v2-archive-alt-icon"></i>
+                      </button>
+                    {{/if}}
+                  </div>
+                </div>
+              {{else}}
+                <div class="cypher-v2-combat-empty">No ammo configured.</div>
+              {{/each}}
+            </div>
+          </article>
+        {{/if}}
+    </div>
+  </div>
+</section>
