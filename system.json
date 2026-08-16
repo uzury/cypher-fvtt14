@@ -2,7 +2,7 @@
   "id": "cyphersystem",
   "title": "Cypher System",
   "description": "A flexible implementation of the Cypher System for Foundry VTT.",
-  "version": "3.5.3-fvtt14.1",
+  "version": "3.5.4-fvtt14.1",
   "compatibility": {
     "minimum": "14",
     "verified": "14.365"
@@ -286,5 +286,5 @@
     "distance": 1.5,
     "units": "m"
   },
-  "download": "https://github.com/uzury/cypher-fvtt14/releases/download/v3.5.3-fvtt14.1/release.zip"
+  "download": "https://github.com/uzury/cypher-fvtt14/releases/download/v3.5.4-fvtt14.1/release.zip"
 }
